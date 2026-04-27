@@ -1,59 +1,222 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>README - Ark RPG</title>
+<style>
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    line-height:1.7;
+    max-width:1100px;
+    margin:auto;
+    padding:40px;
+    color:#111;
+    background:#f5f5f5;
+}
+.container{
+    background:white;
+    padding:40px;
+    border-radius:10px;
+    box-shadow:0 0 20px rgba(0,0,0,0.08);
+}
+h1,h2,h3{
+    color:#0b4b5a;
+}
+code{
+    background:#eee;
+    padding:2px 6px;
+    border-radius:4px;
+}
+ul{
+    padding-left:22px;
+}
+.section{
+    margin-bottom:35px;
+}
+.footer{
+    margin-top:50px;
+    font-size:14px;
+    color:#555;
+}
+</style>
+</head>
+<body>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+<div class="container">
+
+<h1>Ark RPG</h1>
+
+<p>
+Projeto web completo desenvolvido em <strong>Laravel</strong>, inspirado no universo de
+<strong>ARK: Survival Evolved</strong>, criado por fã para gerenciamento de campanhas,
+personagens e ferramentas auxiliares para jogadores e mestres de RPG.
 </p>
 
-## About Laravel
+<p>
+Site oficial hospedado em:
+<strong>https://rpgark.com.br</strong>
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<hr>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<div class="section">
+<h2>Visão Geral</h2>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+<p>
+Ark RPG é uma plataforma online criada para centralizar todo o sistema de jogo
+de um RPG inspirado em sobrevivência, evolução, criaturas e exploração.
+O projeto foi pensado para facilitar campanhas online e presenciais,
+oferecendo ferramentas automatizadas para criação de fichas, gerenciamento
+de jogadores e recursos para mestres.
+</p>
 
-## Learning Laravel
+<p>
+Toda identidade visual foi criada com design próprio, baseado na estética
+tecnológica, selvagem e futurista presente em ARK: Survival Evolved.
+</p>
+</div>
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+<div class="section">
+<h2>Tecnologias Utilizadas</h2>
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+<ul>
+<li><strong>Laravel</strong> - Backend principal</li>
+<li><strong>PHP</strong> - Linguagem de programação</li>
+<li><strong>MySQL</strong> - Banco de dados</li>
+<li><strong>Blade</strong> - Sistema de templates do Laravel</li>
+<li><strong>JavaScript</strong> - Interações dinâmicas</li>
+<li><strong>HTML5 / CSS3</strong> - Estrutura e estilo</li>
+<li><strong>Tailwind CSS</strong> - Componentização visual</li>
+<li><strong>Hostinger</strong> - Hospedagem oficial</li>
+<li><strong>Registro.br</strong> - Domínio personalizado</li>
+</ul>
 
-## Laravel Sponsors
+</div>
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+<div class="section">
+<h2>Estrutura do Projeto</h2>
 
-### Premium Partners
+<p>
+O sistema foi construído utilizando arquitetura MVC do Laravel:
+</p>
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+<ul>
+<li><strong>Models</strong> para gerenciamento de usuários, fichas e dados</li>
+<li><strong>Controllers</strong> para regras de negócio</li>
+<li><strong>Views</strong> em Blade para interface visual</li>
+<li><strong>Routes</strong> organizadas entre áreas públicas e privadas</li>
+<li><strong>Migrations</strong> para estruturação do banco de dados</li>
+<li><strong>Middleware</strong> para autenticação e segurança</li>
+</ul>
 
-## Contributing
+</div>
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+<div class="section">
+<h2>Principais Funcionalidades</h2>
 
-## Code of Conduct
+<h3>Sistema de Conta</h3>
+<ul>
+<li>Cadastro de usuários</li>
+<li>Login seguro</li>
+<li>Verificação de e-mail</li>
+<li>Recuperação de senha</li>
+<li>Área de perfil personalizada</li>
+</ul>
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+<h3>Fichas de Personagem</h3>
+<ul>
+<li>Criação completa de personagens</li>
+<li>Atributos personalizados</li>
+<li>Mutação e progressão</li>
+<li>Armazenamento em banco de dados</li>
+<li>Edição de fichas existentes</li>
+<li>Visualização detalhada</li>
+<li>Exportação da ficha em PDF</li>
+</ul>
 
-## Security Vulnerabilities
+<h3>Sistema de Rolagens</h3>
+<ul>
+<li>Rolagem de dados para testes</li>
+<li>Bônus automáticos</li>
+<li>Uso direto da ficha criada</li>
+<li>Histórico de últimas rolagens</li>
+<li>Eventos aleatórios do mundo Ark</li>
+</ul>
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+<h3>Ferramenta para Mestres</h3>
+<ul>
+<li>Visualização em tempo real das fichas dos jogadores</li>
+<li>Consulta rápida de atributos</li>
+<li>Acompanhamento da mesa</li>
+<li>Suporte para campanhas online</li>
+</ul>
 
-## License
+<h3>Área de Regras</h3>
+<ul>
+<li>Página exclusiva com manual oficial do RPG</li>
+<li>Download de PDF das regras</li>
+<li>Acesso simplificado para novos jogadores</li>
+</ul>
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+</div>
+
+<div class="section">
+<h2>Hospedagem</h2>
+
+<p>
+O projeto encontra-se hospedado na plataforma <strong>Hostinger</strong>,
+utilizando domínio próprio registrado no <strong>Registro.br</strong>.
+</p>
+
+<p>
+Configurações aplicadas:
+</p>
+
+<ul>
+<li>Deploy manual Laravel</li>
+<li>Banco MySQL externo</li>
+<li>SSL ativo</li>
+<li>Domínio personalizado</li>
+<li>Arquivos públicos direcionados para <code>public_html</code></li>
+</ul>
+
+</div>
+
+<div class="section">
+<h2>Objetivo do Projeto</h2>
+
+<p>
+Criar uma experiência moderna e organizada para jogadores de RPG,
+eliminando fichas físicas desorganizadas e centralizando toda experiência
+em um sistema web profissional, intuitivo e imersivo.
+</p>
+
+<p>
+Além disso, o projeto busca homenagear o universo de ARK através de uma
+adaptação feita por fã, voltada à criatividade e diversão da comunidade.
+</p>
+
+</div>
+
+<div class="section">
+<h2>Status</h2>
+
+<p>
+Projeto ativo, em constante expansão e recebendo novas funcionalidades,
+melhorias visuais e sistemas internos.
+</p>
+
+</div>
+
+<div class="footer">
+<p>
+Ark RPG - Projeto independente criado por fã.<br>
+ARK: Survival Evolved pertence aos seus respectivos criadores e detentores de direitos.
+</p>
+</div>
+
+</div>
+
+</body>
+</html>
