@@ -2,7 +2,7 @@
 <div class="container">
 
 <p align="center">
-  <img src="/public/favincon.png" width="400">
+  <img src="/public/favincom.png" width="400">
 </p>
 
 <h1>Ark RPG</h1>
