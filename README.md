@@ -5,7 +5,7 @@
   <img src="public/favicon.png" width="400">
 </p>
 
-<h1>Ark RPG</h1>
+<h1 align="center">Ark RPG</h1>
 
 <p>
 Projeto web completo desenvolvido em <strong>Laravel</strong>, inspirado no universo de
