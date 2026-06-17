@@ -6,12 +6,18 @@ use App\Models\Character;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class CharacterController extends Controller
 {
     public function index()
     {
-        $characters = Auth::user()->characters()->latest()->get();
+        // Otimizado: Carrega os personagens do usuário com os dados essenciais para evitar queries N+1
+        $characters = Auth::user()->characters()
+            ->with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
+            ->latest()
+            ->get();
+
         return view('fichas.index', compact('characters'));
     }
 
@@ -39,9 +45,9 @@ class CharacterController extends Controller
             'vig' => 'required|integer|min:0',
             'vida' => 'nullable|integer',
             'armadura' => 'nullable|integer',
-            'determinacao' => 'nullable|integer',   // corrigido
-            'folego' => 'nullable|integer',        // corrigido
-            'resistencia' => 'nullable|integer',   // corrigido
+            'determinacao' => 'nullable|integer',
+            'folego' => 'nullable|integer',
+            'resistencia' => 'nullable|integer',
         ]);
 
         if ($request->class_sub === 'nova' && $request->filled('custom_class_name')) {
@@ -53,9 +59,13 @@ class CharacterController extends Controller
         }
 
         $data['user_id'] = Auth::id();
-        $character = Character::create($data);
 
-        $this->syncRelations($character, $request);
+        // Envolve em uma transação de banco de dados por segurança e velocidade
+        $character = DB::transaction(function () use ($data, $request) {
+            $char = Character::create($data);
+            $this->syncRelationsBulk($char, $request);
+            return $char;
+        });
 
         return redirect()->route('fichas.show', $character->id)->with('success', 'Unidade Registrada.');
     }
@@ -65,7 +75,7 @@ class CharacterController extends Controller
         $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
                           ->findOrFail($id);
 
-        if ($ficha->user_id !== Auth::id()) abort(403, 'Acesso negado ao DNA.');
+        if ($ficha->user_id !== Auth::id()) abort(403, 'Acesso negado a Ficha.');
 
         return view('fichas.show', compact('ficha'));
     }
@@ -93,15 +103,19 @@ class CharacterController extends Controller
             $data['image'] = $request->file('image')->store('characters', 'public');
         }
 
-        $ficha->update($data);
+        // Transação do Banco: Ou salva TUDO de uma vez de forma ultra rápida, ou não faz nada (evita dados corrompidos)
+        DB::transaction(function () use ($ficha, $data, $request) {
+            $ficha->update($data);
 
-        // Limpa relações antigas para evitar duplicidade
-        $ficha->mutations()->delete();
-        $ficha->bonuses()->delete();
-        $ficha->survivorPowers()->delete();
-        $ficha->rituals()->delete();
+            // Deleta de forma direta e limpa no banco
+            $ficha->mutations()->delete();
+            $ficha->bonuses()->delete();
+            $ficha->survivorPowers()->delete();
+            $ficha->rituals()->delete();
 
-        $this->syncRelations($ficha, $request);
+            // Salva usando o novo método Bulk Otimizado
+            $this->syncRelationsBulk($ficha, $request);
+        });
 
         return redirect()->route('fichas.show', $ficha->id)->with('success', 'DNA Reconfigurado.');
     }
@@ -123,29 +137,87 @@ class CharacterController extends Controller
         return redirect()->route('fichas.index')->with('success', 'Unidade eliminada.');
     }
 
-    private function syncRelations(Character $character, Request $request)
+    /**
+     * NOVO MÉTODO OTIMIZADO: Insere múltiplos dados com uma única query (Bulk Insert)
+     */
+    private function syncRelationsBulk(Character $character, Request $request)
     {
+        $now = now();
+
+        // 1. Otimização de Mutações
         if ($request->has('mutations') && is_array($request->mutations)) {
+            $mutationsData = [];
             foreach ($request->mutations as $mut) {
-                if (!empty($mut['name'])) $character->mutations()->create($mut);
+                if (!empty($mut['name'])) {
+                    $mutationsData[] = [
+                        'character_id' => $character->id,
+                        'origin'       => $mut['origin'] ?? null,
+                        'name'         => $mut['name'],
+                        'description'  => $mut['description'] ?? null,
+                        'created_at'   => $now,
+                        'updated_at'   => $now,
+                    ];
+                }
+            }
+            if (!empty($mutationsData)) {
+                $character->mutations()->insert($mutationsData); // 1 query apenas!
             }
         }
 
+        // 2. Otimização de Bônus
         if ($request->has('bonuses') && is_array($request->bonuses)) {
+            $bonusesData = [];
             foreach ($request->bonuses as $bonus) {
-                if (!empty($bonus['name'])) $character->bonuses()->create($bonus);
+                if (!empty($bonus['name'])) {
+                    $bonusesData[] = [
+                        'character_id' => $character->id,
+                        'name'         => $bonus['name'],
+                        'value'        => $bonus['value'] ?? 0,
+                        'created_at'   => $now,
+                        'updated_at'   => $now,
+                    ];
+                }
+            }
+            if (!empty($bonusesData)) {
+                $character->bonuses()->insert($bonusesData); // 1 query apenas!
             }
         }
 
+        // 3. Otimização de Rituais
         if ($request->has('rituals') && is_array($request->rituals)) {
+            $ritualsData = [];
             foreach ($request->rituals as $ritual) {
-                if (!empty($ritual['name'])) $character->rituals()->create($ritual);
+                if (!empty($ritual['name'])) {
+                    $ritualsData[] = [
+                        'character_id' => $character->id,
+                        'name'         => $ritual['name'],
+                        'description'  => $ritual['description'] ?? null,
+                        'created_at'   => $now,
+                        'updated_at'   => $now,
+                    ];
+                }
+            }
+            if (!empty($ritualsData)) {
+                $character->rituals()->insert($ritualsData); // 1 query apenas!
             }
         }
 
+        // 4. Otimização de Poderes (Survivor Powers)
         if ($request->has('powers') && is_array($request->powers)) {
+            $powersData = [];
             foreach ($request->powers as $power) {
-                if (!empty($power['name'])) $character->survivorPowers()->create($power);
+                if (!empty($power['name'])) {
+                    $powersData[] = [
+                        'character_id' => $character->id,
+                        'name'         => $power['name'],
+                        'description'  => $power['description'] ?? null,
+                        'created_at'   => $now,
+                        'updated_at'   => $now,
+                    ];
+                }
+            }
+            if (!empty($powersData)) {
+                $character->survivorPowers()->insert($powersData); // 1 query apenas!
             }
         }
     }

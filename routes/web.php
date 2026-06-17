@@ -34,6 +34,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
+Route::get('/test-419', function () {
+    // Força um TokenMismatchException
+    throw new \Illuminate\Session\TokenMismatchException();
+});
+
+Route::get('/ping', function () {
+    return response()->json(['status' => 'ok']);
+})->middleware('auth'); // se suas fichas forem protegidas por autenticação
+
 // Rotas do Mestre (apenas autenticado, com verificação de cargo dentro do controller)
 Route::middleware(['auth'])->prefix('mestre')->name('master.')->group(function () {
     Route::get('/mesa', [MasterController::class, 'index'])->name('mesa');

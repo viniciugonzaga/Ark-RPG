@@ -378,9 +378,15 @@
                 }
             }
 
+        
             document.addEventListener('mousemove', updateVirusEffect);
             // Garantir que o efeito só funcione dentro do footer
         })();
+              setInterval(() => {
+        fetch('/ping', { credentials: 'same-origin' })
+        .then(response => response.json())
+        .catch(err => console.warn('Keep-alive falhou', err));
+        }, 300000); // 5 minutos
     </script>
 
     
