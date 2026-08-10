@@ -10,11 +10,15 @@ use Illuminate\Support\Facades\DB;
 
 class CharacterController extends Controller
 {
+    private function getStorageDisk()
+    {
+        return config('filesystems.image_disk', 'public');
+    }
+
     public function index()
     {
-        // Otimizado: Carrega os personagens do usuário com os dados essenciais para evitar queries N+1
         $characters = Auth::user()->characters()
-            ->with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
+            ->with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'originalUser'])
             ->latest()
             ->get();
 
@@ -35,7 +39,6 @@ class CharacterController extends Controller
             'age' => 'nullable|integer',
             'class_main' => 'required|string',
             'class_sub' => 'nullable|string',
-            'custom_class_name' => 'nullable|string|max:255',
             'lore' => 'nullable|string',
             'arsenal' => 'nullable|string',
             'agi' => 'required|integer|min:0',
@@ -50,17 +53,14 @@ class CharacterController extends Controller
             'resistencia' => 'nullable|integer',
         ]);
 
-        if ($request->class_sub === 'nova' && $request->filled('custom_class_name')) {
-            $data['class_sub'] = $request->custom_class_name;
-        }
-
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('characters', 'public');
+            $disk = $this->getStorageDisk();
+            $path = $request->file('image')->store('characters', $disk);
+            $data['image'] = $path;
         }
 
         $data['user_id'] = Auth::id();
 
-        // Envolve em uma transação de banco de dados por segurança e velocidade
         $character = DB::transaction(function () use ($data, $request) {
             $char = Character::create($data);
             $this->syncRelationsBulk($char, $request);
@@ -72,7 +72,7 @@ class CharacterController extends Controller
 
     public function show($id)
     {
-        $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
+        $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
                           ->findOrFail($id);
 
         if ($ficha->user_id !== Auth::id()) abort(403, 'Acesso negado a Ficha.');
@@ -99,21 +99,22 @@ class CharacterController extends Controller
         $data = $request->except(['mutations', 'bonuses', 'powers', 'rituals', 'image']);
 
         if ($request->hasFile('image')) {
-            if ($ficha->image) Storage::disk('public')->delete($ficha->image);
-            $data['image'] = $request->file('image')->store('characters', 'public');
+            $disk = $this->getStorageDisk();
+            if ($ficha->image) {
+                Storage::disk($disk)->delete($ficha->image);
+            }
+            $path = $request->file('image')->store('characters', $disk);
+            $data['image'] = $path;
         }
 
-        // Transação do Banco: Ou salva TUDO de uma vez de forma ultra rápida, ou não faz nada (evita dados corrompidos)
         DB::transaction(function () use ($ficha, $data, $request) {
             $ficha->update($data);
 
-            // Deleta de forma direta e limpa no banco
             $ficha->mutations()->delete();
             $ficha->bonuses()->delete();
             $ficha->survivorPowers()->delete();
             $ficha->rituals()->delete();
 
-            // Salva usando o novo método Bulk Otimizado
             $this->syncRelationsBulk($ficha, $request);
         });
 
@@ -129,7 +130,7 @@ class CharacterController extends Controller
         }
 
         if ($character->image) {
-            Storage::disk('public')->delete($character->image);
+            Storage::disk($this->getStorageDisk())->delete($character->image);
         }
 
         $character->delete();
@@ -137,14 +138,66 @@ class CharacterController extends Controller
         return redirect()->route('fichas.index')->with('success', 'Unidade eliminada.');
     }
 
+    // ========== COMPARTILHAMENTO ==========
+    public function share($id)
+    {
+        $ficha = Character::findOrFail($id);
+        if ($ficha->user_id !== Auth::id()) {
+            abort(403, 'Você não é o dono desta ficha.');
+        }
+        $code = $ficha->share();
+        return response()->json(['code' => $code]);
+    }
+
     /**
-     * NOVO MÉTODO OTIMIZADO: Insere múltiplos dados com uma única query (Bulk Insert)
+     * Resgatar uma ficha compartilhada
      */
+    public function resgatar(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string|exists:fichas,share_code',
+        ]);
+
+        // Carrega a ficha original com TODOS os relacionamentos que serão clonados
+        $original = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
+                    ->where('share_code', $request->code)
+                    ->firstOrFail();
+
+        // Impedir que o próprio dono resgate
+        if ($original->user_id === Auth::id()) {
+            return back()->with('error', 'Você já é o dono desta ficha.');
+        }
+
+        // Clonar a ficha
+        $nova = $original->replicate();
+        $nova->user_id = Auth::id();
+        $nova->share_code = null;
+        $nova->is_resgatada = true;
+        $nova->original_user_id = $original->user_id;
+        $nova->save();
+
+        // Copiar relacionamentos (agora com segurança)
+        $relacoes = ['mutations', 'bonuses', 'survivorPowers', 'rituals'];
+        foreach ($relacoes as $rel) {
+            // Verificação extra para evitar erro (opcional, mas seguro)
+            if ($original->$rel) {
+                foreach ($original->$rel as $item) {
+                    $newItem = $item->replicate();
+                    $newItem->character_id = $nova->id;
+                    $newItem->save();
+                }
+            }
+        }
+
+        return redirect()->route('fichas.show', $nova->id)
+                         ->with('success', 'Ficha resgatada com sucesso!');
+    }
+
+    // ========== MÉTODO AUXILIAR ==========
     private function syncRelationsBulk(Character $character, Request $request)
     {
         $now = now();
 
-        // 1. Otimização de Mutações
         if ($request->has('mutations') && is_array($request->mutations)) {
             $mutationsData = [];
             foreach ($request->mutations as $mut) {
@@ -160,11 +213,10 @@ class CharacterController extends Controller
                 }
             }
             if (!empty($mutationsData)) {
-                $character->mutations()->insert($mutationsData); // 1 query apenas!
+                $character->mutations()->insert($mutationsData);
             }
         }
 
-        // 2. Otimização de Bônus
         if ($request->has('bonuses') && is_array($request->bonuses)) {
             $bonusesData = [];
             foreach ($request->bonuses as $bonus) {
@@ -179,11 +231,10 @@ class CharacterController extends Controller
                 }
             }
             if (!empty($bonusesData)) {
-                $character->bonuses()->insert($bonusesData); // 1 query apenas!
+                $character->bonuses()->insert($bonusesData);
             }
         }
 
-        // 3. Otimização de Rituais
         if ($request->has('rituals') && is_array($request->rituals)) {
             $ritualsData = [];
             foreach ($request->rituals as $ritual) {
@@ -192,17 +243,17 @@ class CharacterController extends Controller
                         'character_id' => $character->id,
                         'name'         => $ritual['name'],
                         'description'  => $ritual['description'] ?? null,
+                        'type'         => $ritual['type'] ?? 'ritual',
                         'created_at'   => $now,
                         'updated_at'   => $now,
                     ];
                 }
             }
             if (!empty($ritualsData)) {
-                $character->rituals()->insert($ritualsData); // 1 query apenas!
+                $character->rituals()->insert($ritualsData);
             }
         }
 
-        // 4. Otimização de Poderes (Survivor Powers)
         if ($request->has('powers') && is_array($request->powers)) {
             $powersData = [];
             foreach ($request->powers as $power) {
@@ -217,7 +268,7 @@ class CharacterController extends Controller
                 }
             }
             if (!empty($powersData)) {
-                $character->survivorPowers()->insert($powersData); // 1 query apenas!
+                $character->survivorPowers()->insert($powersData);
             }
         }
     }

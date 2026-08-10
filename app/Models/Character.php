@@ -2,51 +2,90 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class Character extends Model
 {
-    protected $table = 'fichas'; 
+    use HasFactory;
+
+    protected $table = 'fichas';
 
     protected $fillable = [
-        'user_id', 'name', 'image', 'level', 'age', 
-        'class_main', 'class_sub', 'lore', 'arsenal',
-        'agi', 'for', 'int', 'set', 'vig',
-        'vida', 'armadura', 'determinacao', 'folego', 
-        'resistencia' 
+        'user_id',
+        'share_code',
+        'is_resgatada',
+        'original_user_id',
+        'name',
+        'image',
+        'level',
+        'age',
+        'class_main',
+        'class_sub',
+        'lore',
+        'arsenal',
+        'agi',
+        'for',
+        'int',
+        'set',
+        'vig',
+        'vida',
+        'armadura',
+        'determinacao',
+        'folego',
+        'resistencia',
     ];
 
-   // Relacionamentos
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
-    public function lastRoll(): HasOne { return $this->hasOne(RollLog::class, 'character_id'); }
-    
-    // IMPORTANTE: Garantir que as relações existam
-    public function mutations(): HasMany { return $this->hasMany(Mutation::class, 'character_id'); }
-    public function bonuses(): HasMany { return $this->hasMany(Bonus::class, 'character_id'); }
-    public function survivorPowers(): HasMany { return $this->hasMany(SurvivorPower::class, 'character_id'); }
-    public function rituals(): HasMany { return $this->hasMany(Ritual::class, 'character_id'); }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
-   // Garante que se chamar $ficha->mutations e não houver nada, retorne [] em vez de null
-public function getMutationsAttribute()
-{
-    return $this->getRelationValue('mutations') ?? collect();
-}
+    public function originalUser()
+    {
+        return $this->belongsTo(User::class, 'original_user_id');
+    }
 
-public function getBonusesAttribute()
-{
-    return $this->getRelationValue('bonuses') ?? collect();
-}
+    public function mutations()
+    {
+        return $this->hasMany(Mutation::class, 'character_id');
+    }
 
-public function getSurvivorPowersAttribute()
-{
-    return $this->getRelationValue('survivorPowers') ?? collect();
-}
+    public function bonuses()
+    {
+        return $this->hasMany(Bonus::class, 'character_id');
+    }
 
-public function getRitualsAttribute()
-{
-    return $this->getRelationValue('rituals') ?? collect();
-}
+    public function survivorPowers()
+    {
+        return $this->hasMany(SurvivorPower::class, 'character_id');
+    }
+
+    public function rituals()
+    {
+        return $this->hasMany(Ritual::class, 'character_id');
+    }
+
+    public static function generateShareCode()
+    {
+        do {
+            $code = strtoupper(Str::random(8));
+        } while (self::where('share_code', $code)->exists());
+        return $code;
+    }
+
+    public function share()
+    {
+        if (!$this->share_code) {
+            $this->share_code = self::generateShareCode();
+            $this->save();
+        }
+        return $this->share_code;
+    }
+
+    public function isResgatada()
+    {
+        return $this->is_resgatada;
+    }
 }

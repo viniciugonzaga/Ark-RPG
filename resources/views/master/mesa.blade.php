@@ -1,13 +1,10 @@
-{{-- resources/views/master/mesa.blade.php --}}
 <x-app-layout>
     <x-slot name="title">Mesa do Mestre - ARK RPG</x-slot>
 
-    {{-- Fundo fixo com overlay --}}
     <div class="fixed inset-0 -z-10">
         <img src="{{ asset('images/fundo_mesa.png') }}" class="w-full h-full object-cover opacity-40">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>
-    {{-- Canvas para partículas --}}
     <canvas id="particles-canvas" class="fixed inset-0 z-0 pointer-events-none"></canvas>
 
     <style>
@@ -66,7 +63,6 @@
             transform: translateY(-2px);
         }
 
-        /* Estilo para o código da mesa */
         .code-block {
             background: rgba(0,0,0,0.6);
             border: 1px solid var(--theme-border);
@@ -109,17 +105,25 @@
             transition: opacity 0.3s;
             pointer-events: none;
         }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--theme-primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 
     <div class="relative z-10 max-w-7xl mx-auto p-6 space-y-8 text-white">
-        {{-- Painel principal com scanner --}}
         <div class="ark-panel p-6 text-center relative overflow-hidden animate-fadeInUp">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-scan-line"></div>
             <h1 class="text-3xl font-medieval font-black theme-text-primary">Mesa do Mestre</h1>
-            <p class="text-gray-300 mt-2">Aqui você pode criar uma mesa de sessão, procurar jogadores pelo ID de Cristal e também rolar dados como um jogador. Compartilhe o código da mesa com seus amigos para eles entrarem na sessão.</p>
+            <p class="text-gray-300 mt-2">Crie uma mesa, procure jogadores e gerencie a sessão. Compartilhe o código da mesa com seus amigos.</p>
         </div>
 
-        {{-- Código da mesa ativa (se existir) --}}
         @if(isset($mesaCode) && $mesaCode)
         <div class="ark-panel p-6 animate-fadeInUp" style="animation-delay: 0.05s">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -146,12 +150,20 @@
                 <h2 class="text-xl font-medieval font-bold theme-text-primary mb-4">Procurar Jogador</h2>
                 <div class="flex gap-2">
                     <input type="text" id="crystal-search" placeholder="ID de Cristal ex: CRY-ABC12345" class="ark-input flex-1">
-                    <button id="btn-buscar" class="btn-neon px-6 py-2">Buscar</button>
+                    <button id="btn-buscar" class="btn-neon px-6 py-2 flex items-center gap-2">
+                        <span id="btn-buscar-text">Buscar</span>
+                        <span id="btn-buscar-loading" class="hidden"><span class="loading-spinner"></span></span>
+                    </button>
                 </div>
                 <div id="resultado-jogador" class="mt-6 hidden">
                     <div class="bg-black/40 border border-cyan-500/30 rounded-lg p-4">
-                        <p><strong>Nome:</strong> <span id="player-name"></span></p>
-                        <p><strong>ID Cristal:</strong> <span id="player-crystal"></span></p>
+                        <div class="flex items-center gap-3 mb-2">
+                            <img id="player-foto" src="" alt="Avatar" class="w-12 h-12 rounded-full border-2 border-cyan-500/30 object-cover hidden">
+                            <div>
+                                <p><strong>Nome:</strong> <span id="player-name"></span></p>
+                                <p><strong>ID Cristal:</strong> <span id="player-crystal"></span></p>
+                            </div>
+                        </div>
                         <div class="mt-3 pt-3 border-t border-gray-600">
                             <p class="text-purple-300 text-sm">Última rolagem de dado:</p>
                             <p id="last-dice" class="font-mono text-cyan-300">--</p>
@@ -182,7 +194,7 @@
             </div>
         </div>
 
-        {{-- Sistema de rolagens --}}
+        {{-- Sistema de rolagens do mestre --}}
         <div class="ark-panel p-6 animate-fadeInUp" style="animation-delay: 0.2s">
             <h2 class="text-2xl font-medieval font-black theme-text-primary mb-4">Rolagens do Mestre</h2>
             <p class="text-sm text-gray-300 mb-6">Role dados e eventos como se fosse um jogador. Suas rolagens serão salvas e visíveis para os participantes da sua mesa.</p>
@@ -190,11 +202,10 @@
         </div>
     </div>
 
-    {{-- Toast de cópia --}}
     <div id="copy-toast" class="toast-copy">Código copiado!</div>
 
     <script>
-        // Partículas (igual ao da página de rolagens)
+        // Partículas
         const canvas = document.getElementById('particles-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -249,17 +260,37 @@
         initParticles();
         drawParticles();
 
-        // Busca de jogador (mantida original)
+        // Busca de jogador
         let currentCrystal = null;
         let autoReloadInterval = null;
 
         function carregarJogador(crystalId, auto = false) {
             if (!auto && autoReloadInterval) clearInterval(autoReloadInterval);
+
+            const btnText = document.getElementById('btn-buscar-text');
+            const btnLoading = document.getElementById('btn-buscar-loading');
+            const btn = document.getElementById('btn-buscar');
+
+            if (!auto) {
+                btnText.classList.add('hidden');
+                btnLoading.classList.remove('hidden');
+                btn.disabled = true;
+            }
+
             fetch(`/mestre/buscar/${crystalId}`)
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('resultado-jogador').classList.remove('hidden');
                     document.getElementById('erro-busca').classList.add('hidden');
+
+                    const foto = document.getElementById('player-foto');
+                    if (data.user.foto) {
+                        foto.src = data.user.foto;
+                        foto.classList.remove('hidden');
+                    } else {
+                        foto.classList.add('hidden');
+                    }
+
                     document.getElementById('player-name').innerText = data.user.name;
                     document.getElementById('player-crystal').innerText = data.user.crystal_id;
                     document.getElementById('last-dice').innerText = data.last_roll?.dice || 'Nenhuma';
@@ -269,6 +300,13 @@
                 .catch(() => {
                     document.getElementById('resultado-jogador').classList.add('hidden');
                     document.getElementById('erro-busca').classList.remove('hidden');
+                })
+                .finally(() => {
+                    if (!auto) {
+                        btnText.classList.remove('hidden');
+                        btnLoading.classList.add('hidden');
+                        btn.disabled = false;
+                    }
                 });
         }
 
@@ -276,17 +314,23 @@
             currentCrystal = document.getElementById('crystal-search').value.trim();
             if (currentCrystal) carregarJogador(currentCrystal);
         });
-        document.getElementById('btn-reload').addEventListener('click', () => { if (currentCrystal) carregarJogador(currentCrystal); });
+
+        document.getElementById('btn-reload').addEventListener('click', () => {
+            if (currentCrystal) carregarJogador(currentCrystal);
+        });
+
         document.getElementById('auto-reload').addEventListener('change', (e) => {
             if (e.target.checked) {
                 if (autoReloadInterval) clearInterval(autoReloadInterval);
-                autoReloadInterval = setInterval(() => { if (currentCrystal) carregarJogador(currentCrystal, true); }, 5000);
+                autoReloadInterval = setInterval(() => {
+                    if (currentCrystal) carregarJogador(currentCrystal, true);
+                }, 5000);
             } else {
                 if (autoReloadInterval) clearInterval(autoReloadInterval);
             }
         });
 
-        // Botão copiar código da mesa
+        // Copiar código
         const copyBtn = document.getElementById('copy-code-btn');
         const toast = document.getElementById('copy-toast');
         if (copyBtn) {

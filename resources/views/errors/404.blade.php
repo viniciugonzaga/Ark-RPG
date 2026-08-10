@@ -1,6 +1,7 @@
+{{-- resources/views/errors/404.blade.php --}}
 <x-app-layout>
     <div class="min-h-[80vh] flex flex-col items-center justify-center text-center p-6">
-        <div class="relative w-full max-w-4xl">
+        <div class="relative w-full max-w-5xl">
             <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500/30 to-blue-500/30 rounded-lg blur-xl"></div>
             <div class="relative ark-panel !p-8 !border-cyan-500/30">
                 {{-- Cabeçalho do erro --}}
@@ -16,57 +17,43 @@
                     </div>
                     <h2 class="text-2xl font-display text-white uppercase tracking-widest">Sinal Interrompido</h2>
                     <p class="text-slate-300 max-w-md mx-auto text-sm mt-2">
-                        A sua sessão sua expirou ou você tentou acessar uma página que não existe.
+                        A sua sessão expirou ou você tentou acessar uma página que não existe.
                     </p>
                 </div>
 
-                {{-- Dino Runner --}}
-                <div class="w-full max-w-3xl mx-auto my-6">
+                {{-- Dino Runner (apenas local, não salva no servidor) --}}
+                <div class="w-full max-w-4xl mx-auto my-6">
                     <div class="bg-black/80 rounded-xl p-4 border border-cyan-500/20 shadow-[0_0_30px_rgba(0,242,255,0.1)]">
                         {{-- HUD --}}
-                        <div class="flex justify-between items-center mb-2 px-2 text-cyan-400 font-mono text-xs">
+                        <div class="flex justify-between items-center mb-2 px-2 text-cyan-400 font-mono text-sm">
                             <div>
                                 <span class="uppercase tracking-widest">Tempo</span>
                                 <span id="dinoTimer" class="ml-2 text-white font-bold">0.0s</span>
                             </div>
                             <div>
-                                <span class="uppercase tracking-widest">Recorde</span>
+                                <span class="uppercase tracking-widest">Recorde (local)</span>
                                 <span id="dinoBest" class="ml-2 text-cyan-300 font-bold">0.0s</span>
                             </div>
                         </div>
 
-                        {{-- Canvas + sprites --}}
+                        {{-- Canvas --}}
                         <div class="relative bg-black/60 rounded-lg overflow-hidden border border-cyan-500/20">
-                            <canvas id="dinoCanvas" width="600" height="180" class="w-full h-auto"></canvas>
+                            <canvas id="dinoCanvas" width="800" height="260" class="w-full h-auto"></canvas>
                             <img id="dinoSprite" alt="" draggable="false" class="absolute pointer-events-none select-none" style="display:none; image-rendering: pixelated;">
-                            <div id="dinoOverlay" class="absolute inset-0 flex flex-col items-center justify-center text-cyan-300 bg-black/70 backdrop-blur-sm">
-                                <span class="text-2xl font-bold">▶ Pressione Espaço</span>
-                                <span class="text-sm opacity-70 mt-1">para correr</span>
+                            <div id="dinoOverlay" class="absolute inset-0 flex flex-col items-center justify-center text-cyan-300 bg-black/70 backdrop-blur-sm cursor-pointer">
+                                <span class="text-3xl font-bold">▶ Pressione Espaço</span>
+                                <span class="text-base opacity-70 mt-1">ou toque para correr</span>
                             </div>
-                           {{-- Tela de Game Over personalizada --}}
-                          <div id="gameOverOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md hidden border-2 border-red-500/50 rounded-lg overflow-y-auto p-4">
-                               <div class="relative p-6 rounded-xl border-2 border-red-400/40 bg-red-950/30 shadow-[0_0_40px_rgba(239,68,68,0.2)] max-w-full">
-                                  <img id="dinoDeadSprite" src="{{ asset('images/Dino_sprite_morto.png') }}" alt="Morto" class="w-24 h-24 md:w-28 md:h-28 mx-auto mb-3 pixelated drop-shadow-[0_0_20px_rgba(239,68,68,0.4)]">
-                                    <span class="text-2xl md:text-4xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600 drop-shadow-[0_0_30px_rgba(239,68,68,0.6)] block text-center">
-                                       Você morreu!
-                                     </span>
-                                <div class="mt-3 flex items-center justify-center gap-4 text-cyan-300">
-                                      <span class="text-sm uppercase tracking-widest">Tempo</span>
-                                     <span id="finalTime" class="text-2xl font-bold text-white">0.0s</span>
-                             </div>
-                              <p class="text-slate-400 text-xs mt-3 tracking-widest text-center">Pressione Espaço para recomeçar</p>
-                         <div class="absolute -inset-1 bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-xl blur-xl -z-10"></div>
-                     </div>
-                </div>
+                        </div>
 
                         {{-- Controles mobile --}}
                         <div class="flex gap-3 mt-3 justify-center">
-                            <button id="dinoDuck" class="flex-1 max-w-[120px] py-2 border border-cyan-500/50 rounded-lg text-cyan-300 font-bold text-sm hover:bg-cyan-500/20 transition">⬇ Agachar</button>
-                            <button id="dinoJump" class="flex-1 max-w-[120px] py-2 border border-cyan-500/50 rounded-lg text-cyan-300 font-bold text-sm hover:bg-cyan-500/20 transition">⬆ Pular</button>
+                            <button id="dinoDuck" class="flex-1 max-w-[160px] py-4 border border-cyan-500/50 rounded-lg text-cyan-300 font-bold text-base hover:bg-cyan-500/20 transition">⬇ Agachar</button>
+                            <button id="dinoJump" class="flex-1 max-w-[160px] py-4 border border-cyan-500/50 rounded-lg text-cyan-300 font-bold text-base hover:bg-cyan-500/20 transition">⬆ Pular</button>
                         </div>
 
                         <p class="text-[10px] text-cyan-500/60 text-center mt-3 tracking-widest">
-                            Espaço / ↑ / toque no jogo = pular · ↓ / segurar = agachar
+                            Espaço / ↑ / toque no jogo = pular · ↓ / segurar = agachar (passa sob pássaros)
                         </p>
                     </div>
                 </div>
@@ -82,12 +69,49 @@
                     <button onclick="history.back()" class="ark-btn !bg-slate-900/50 !border-slate-600/50 hover:!bg-slate-800 !text-slate-300">
                         <span class="flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                            Voltar Página anteiror
+                            Voltar
                         </span>
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <p class="mt-6 text-[10px] text-cyan-600/70 tracking-widest"></p>
+    {{-- Tela de Morte — fullscreen, fora do contêiner do canvas para nunca cortar --}}
+    <div id="gameOverOverlay" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+        <div class="relative w-full max-w-md mx-auto">
+            <div class="absolute -inset-1 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-xl blur-xl"></div>
+            <div class="relative rounded-xl border-2 border-red-500/40 bg-slate-950/90 shadow-[0_0_60px_rgba(239,68,68,0.35)] px-6 py-8 md:px-10 md:py-10 text-center">
+                {{-- cantos decorativos estilo HUD --}}
+                <span class="absolute top-2 left-2 w-5 h-5 border-t-2 border-l-2 border-cyan-400/60"></span>
+                <span class="absolute top-2 right-2 w-5 h-5 border-t-2 border-r-2 border-cyan-400/60"></span>
+                <span class="absolute bottom-2 left-2 w-5 h-5 border-b-2 border-l-2 border-cyan-400/60"></span>
+                <span class="absolute bottom-2 right-2 w-5 h-5 border-b-2 border-r-2 border-cyan-400/60"></span>
+
+                <div class="relative inline-block mb-3">
+                    <div class="absolute inset-0 bg-red-500/30 blur-2xl rounded-full"></div>
+                    <img id="dinoDeadSprite" src="{{ asset('images/Dino_sprite_morto.png') }}" alt="Dino derrotado" class="relative w-24 h-24 md:w-28 md:h-28 mx-auto pixelated drop-shadow-[0_0_25px_rgba(239,68,68,0.55)]">
+                </div>
+
+                <span class="block text-3xl md:text-4xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600 drop-shadow-[0_0_25px_rgba(239,68,68,0.6)]">
+                    Você morreu
+                </span>
+
+                <span id="newRecordBadge" class="hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-cyan-400/50 bg-cyan-500/10 text-cyan-300 text-[11px] font-bold uppercase tracking-widest">
+                    ✦ Novo Recorde
+                </span>
+
+                <div class="flex items-center justify-center gap-3 mt-5 text-[10px] text-slate-500 uppercase tracking-widest">
+                    <span class="w-8 h-px bg-slate-700"></span>
+                    <span>Tempo sobrevivido</span>
+                    <span class="w-8 h-px bg-slate-700"></span>
+                </div>
+                <span id="finalTime" class="block text-cyan-300 text-3xl font-bold mt-1 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">0.0s</span>
+
+                <button id="dinoRetry" type="button" class="mt-6 w-full py-3 rounded-lg border border-cyan-500/50 bg-cyan-500/10 text-cyan-200 font-bold text-sm uppercase tracking-widest hover:bg-cyan-500/20 transition">
+                    🔁 Tentar Novamente
+                </button>
+                <p class="text-slate-500 text-[11px] mt-3 tracking-widest">ou pressione Espaço</p>
             </div>
         </div>
     </div>
@@ -97,27 +121,35 @@
         (function() {
             'use strict';
 
-            // ========== CONFIGURAÇÕES ==========
+            // ========== RECORDE LOCAL (apenas localStorage) ==========
+            function getLocalBest() {
+                try {
+                    const local = localStorage.getItem('dino_record_local');
+                    return local ? parseFloat(local) : 0;
+                } catch (e) { return 0; }
+            }
+            function setLocalBest(record) {
+                try { localStorage.setItem('dino_record_local', record.toString()); } catch (e) { }
+            }
+
+            // ========== CONFIGURAÇÕES (mesmas do jogo) ==========
             const CONFIG = {
-                width: 600,
-                height: 180,
-                groundOffset: 26,
+                width: 800,
+                height: 260,
+                groundOffset: 34,
                 gravity: 1400,
-                jumpForce: 480,
-                initialSpeed: 6,
-                maxSpeed: 15,
-                speedGainPerSecond: 0.12,
+                jumpForce: 540,
+                initialSpeed: 6.5,
+                maxSpeed: 16,
+                speedGainPerSecond: 0.14,
                 spawnFreqMultiplier: 1,
                 birdUnlockTime: 12,
-                duckHeightFactor: 0.75,          // menos rebaixado
-                birdAnimInterval: 0.5,            // troca a cada 0.5s
-                cloudSpawnInterval: 2.0,
-                maxClouds: 8,
-                minCloudY: 10,
-                maxCloudY: 80,
-                minCloudWidth: 30,
-                maxCloudWidth: 70,
-                cloudSpeedFactor: 0.3,
+                duckHeightFactor: 0.60,   // agachamento natural (60% da altura)
+                birdAnimInterval: 0.5,
+                birdFlightOffset: 76,     // pássaro mais alto
+                waveAmplitudeBase: 7,
+                waveFrequencyBase: 0.016,
+                waveSpeedBase: 0.5,
             };
             const SPEED_SCALE = 45;
 
@@ -127,12 +159,12 @@
             const overlay = document.getElementById('dinoOverlay');
             const gameOverOverlay = document.getElementById('gameOverOverlay');
             const finalTimeEl = document.getElementById('finalTime');
+            const newRecordBadge = document.getElementById('newRecordBadge');
             const timerEl = document.getElementById('dinoTimer');
             const bestEl = document.getElementById('dinoBest');
             const dinoSpriteEl = document.getElementById('dinoSprite');
-            const dinoDeadSpriteEl = document.getElementById('dinoDeadSprite');
 
-            // ========== SETUP DO CANVAS (DPI) ==========
+            // ========== SETUP CANVAS ==========
             function setupCanvas() {
                 const dpr = window.devicePixelRatio || 1;
                 canvas.width = CONFIG.width * dpr;
@@ -156,28 +188,18 @@
             };
 
             const sprites = {};
-            let imagesLoaded = 0;
 
             function loadSprite(key, src) {
                 return new Promise((resolve) => {
                     const img = new Image();
-                    img.onload = () => {
-                        sprites[key] = img;
-                        imagesLoaded++;
-                        resolve(img);
-                    };
+                    img.onload = () => { sprites[key] = img; resolve(img); };
                     img.onerror = () => {
                         const fallback = document.createElement('canvas');
-                        fallback.width = 32;
-                        fallback.height = 32;
+                        fallback.width = 32; fallback.height = 32;
                         const fctx = fallback.getContext('2d');
-                        if (key === 'dinoRun' || key === 'dinoJump' || key === 'dinoDuck') {
-                            fctx.fillStyle = '#00ff00';
-                        } else if (key === 'obstFront' || key === 'obstBack') {
-                            fctx.fillStyle = '#ff0000';
-                        } else if (key === 'bird1' || key === 'bird2') {
-                            fctx.fillStyle = '#ff8800';
-                        }
+                        if (key === 'dinoRun' || key === 'dinoJump' || key === 'dinoDuck') fctx.fillStyle = '#00ff00';
+                        else if (key === 'obstFront' || key === 'obstBack') fctx.fillStyle = '#ff0000';
+                        else if (key === 'bird1' || key === 'bird2') fctx.fillStyle = '#ff8800';
                         fctx.fillRect(0, 0, 32, 32);
                         fctx.strokeStyle = '#ffffff';
                         fctx.lineWidth = 1;
@@ -186,7 +208,6 @@
                         fctx.font = '6px monospace';
                         fctx.fillText(key, 2, 10);
                         sprites[key] = fallback;
-                        imagesLoaded++;
                         resolve(fallback);
                         console.warn('Sprite não encontrado:', src);
                     };
@@ -203,94 +224,6 @@
                 loadSprite('bird1', SPRITE_PATHS.bird1),
                 loadSprite('bird2', SPRITE_PATHS.bird2),
             ];
-
-            // ========== NUVENS ==========
-            let clouds = [];
-            let cloudSpawnTimer = 0;
-
-            function spawnCloud() {
-                if (clouds.length >= CONFIG.maxClouds) return;
-                const width = CONFIG.minCloudWidth + Math.random() * (CONFIG.maxCloudWidth - CONFIG.minCloudWidth);
-                const height = width * 0.35;
-                const y = CONFIG.minCloudY + Math.random() * (CONFIG.maxCloudY - CONFIG.minCloudY);
-                const x = CONFIG.width + 10 + Math.random() * 40;
-                clouds.push({
-                    x, y,
-                    width, height,
-                    speed: (0.5 + Math.random() * 0.8) * CONFIG.cloudSpeedFactor,
-                    opacity: 0.6 + Math.random() * 0.35,
-                });
-            }
-
-            function updateClouds(dt, pxPerSec) {
-                cloudSpawnTimer -= dt;
-                if (cloudSpawnTimer <= 0) {
-                    spawnCloud();
-                    cloudSpawnTimer = CONFIG.cloudSpawnInterval * (0.6 + Math.random() * 0.8);
-                }
-                for (const cloud of clouds) {
-                    cloud.x -= pxPerSec * cloud.speed * 0.6;
-                }
-                clouds = clouds.filter(cloud => cloud.x + cloud.width > -20);
-            }
-
-            function drawClouds() {
-                for (const cloud of clouds) {
-                    ctx.globalAlpha = cloud.opacity;
-                    ctx.fillStyle = '#f0f8ff';
-                    ctx.shadowColor = 'rgba(255,255,255,0.1)';
-                    ctx.shadowBlur = 15;
-                    const cx = cloud.x + cloud.width / 2;
-                    const cy = cloud.y + cloud.height / 2;
-                    const r = cloud.width / 3;
-                    ctx.beginPath();
-                    ctx.arc(cx - r * 0.4, cy, r * 0.6, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.arc(cx + r * 0.4, cy, r * 0.6, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.arc(cx, cy - r * 0.3, r * 0.7, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                    ctx.globalAlpha = 1;
-                }
-            }
-
-            // ========== SPRITE DO DINOSSAURO (via <img>) ==========
-            const DINO_KEYS = { run: 'dinoRun', jump: 'dinoJump', duck: 'dinoDuck' };
-            let currentDinoState = null;
-
-            function spriteToSrc(obj) {
-                if (!obj) return '';
-                if (obj instanceof HTMLCanvasElement) return obj.toDataURL();
-                return obj.src || '';
-            }
-
-            function desiredDinoState() {
-                if (player.ducking && player.grounded) return 'duck';
-                if (!player.grounded) return 'jump';
-                return 'run';
-            }
-
-            function syncDinoSprite() {
-                const state = desiredDinoState();
-                if (state !== currentDinoState) {
-                    currentDinoState = state;
-                    const src = spriteToSrc(sprites[DINO_KEYS[state]]);
-                    if (src) dinoSpriteEl.src = src;
-                }
-
-                const h = currentPlayerHeight();
-                const scaleX = canvas.clientWidth / CONFIG.width;
-                const scaleY = canvas.clientHeight / CONFIG.height;
-
-                dinoSpriteEl.style.display = 'block';
-                dinoSpriteEl.style.left = (player.x * scaleX) + 'px';
-                dinoSpriteEl.style.top = (player.y * scaleY) + 'px';
-                dinoSpriteEl.style.width = (player.width * scaleX) + 'px';
-                dinoSpriteEl.style.height = (h * scaleY) + 'px';
-            }
 
             // ========== ÁUDIO ==========
             let audioCtx = null;
@@ -310,49 +243,118 @@
                 } catch (e) { }
             }
 
-            // ========== ESTADO DO JOGO ==========
+            // ========== ESTRELAS ==========
+            let stars = [];
+            function initStars() {
+                stars = [];
+                for (let i = 0; i < 40; i++) {
+                    stars.push({
+                        x: Math.random() * CONFIG.width,
+                        y: Math.random() * (groundY * 0.7),
+                        r: 0.6 + Math.random() * 1.4,
+                        phase: Math.random() * Math.PI * 2,
+                        speed: 0.5 + Math.random() * 1.5,
+                    });
+                }
+            }
+            function drawStars(time) {
+                ctx.fillStyle = '#bfe3ff';
+                for (const s of stars) {
+                    const tw = 0.35 + 0.65 * Math.abs(Math.sin(time * s.speed + s.phase));
+                    ctx.globalAlpha = tw * 0.7;
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+            initStars();
+
+            // ========== ESTADO ==========
             let player, obstacles, speed, elapsed, best, gameState, groundTicks, spawnTimer;
             let bgOffsetX = 0;
+            let clouds = [];
+            let cloudSpawnTimer = 0;
 
-            best = parseFloat(localStorage.getItem('dinoBest')) || 0;
+            let localBest = getLocalBest();
+            best = localBest;
             bestEl.textContent = best.toFixed(1) + 's';
 
             function resetGame() {
                 player = {
-                    x: 50,
-                    width: 38,
-                    heightStand: 42,
-                    heightDuck: Math.round(42 * CONFIG.duckHeightFactor),
-                    y: groundY - 42,
+                    x: 46,
+                    width: 52,
+                    heightStand: 68,
+                    heightDuck: Math.round(68 * CONFIG.duckHeightFactor), // ~41px
+                    y: groundY - 68,
                     vy: 0,
                     grounded: true,
                     ducking: false,
                 };
                 obstacles = [];
-                clouds = [];
-                cloudSpawnTimer = 0;
                 speed = CONFIG.initialSpeed;
                 elapsed = 0;
-                spawnTimer = 1.4;
+                spawnTimer = 1.0;
                 bgOffsetX = 0;
                 groundTicks = [];
                 for (let i = 0; i < 40; i++) groundTicks.push(Math.random() * CONFIG.width);
 
+                clouds = [];
+                for (let i = 0; i < 5; i++) spawnCloud(true);
+                cloudSpawnTimer = 0;
+
                 gameState = 'idle';
                 overlay.classList.remove('hidden');
                 gameOverOverlay.classList.add('hidden');
-                overlay.innerHTML = '<span class="text-2xl font-bold">▶ Pressione Espaço</span><span class="text-sm opacity-70 mt-1">para correr</span>';
+                overlay.innerHTML = '<span class="text-3xl font-bold">▶ Pressione Espaço</span><span class="text-base opacity-70 mt-1">ou toque para correr</span>';
                 timerEl.textContent = '0.0s';
-                currentDinoState = null;
                 dinoSpriteEl.style.display = 'none';
+                best = localBest;
+                bestEl.textContent = best.toFixed(1) + 's';
+            }
+
+            // ========== NUVENS ==========
+            function spawnCloud(force = false) {
+                if (!force && clouds.length >= 8) return;
+                const width = 60 + Math.random() * 100;
+                const height = 20 + Math.random() * 30;
+                const y = 10 + Math.random() * (groundY - 50);
+                const x = CONFIG.width + 20 + Math.random() * 100;
+                const speed = 0.2 + Math.random() * 0.4;
+                clouds.push({ x, y, width, height, speed, opacity: 0.2 + Math.random() * 0.3 });
+            }
+            function updateClouds(dt, pxPerSec) {
+                cloudSpawnTimer -= dt;
+                if (cloudSpawnTimer <= 0) {
+                    spawnCloud();
+                    cloudSpawnTimer = 2 + Math.random() * 3;
+                }
+                for (const cloud of clouds) cloud.x -= pxPerSec * cloud.speed * 0.3;
+                clouds = clouds.filter(cloud => cloud.x + cloud.width > -20);
+            }
+            function drawClouds() {
+                for (const cloud of clouds) {
+                    ctx.globalAlpha = cloud.opacity;
+                    ctx.fillStyle = '#08152e';
+                    ctx.shadowColor = '#08152e';
+                    ctx.shadowBlur = 10;
+                    const cx = cloud.x + cloud.width / 2;
+                    const cy = cloud.y + cloud.height / 2;
+                    const r = cloud.width / 3;
+                    ctx.beginPath(); ctx.arc(cx - r * 0.4, cy, r * 0.5, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(cx + r * 0.4, cy, r * 0.5, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(cx, cy - r * 0.2, r * 0.6, 0, Math.PI * 2); ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.globalAlpha = 1;
+                }
             }
 
             // ========== OBSTÁCULOS ==========
             const OBSTACLE_TYPES = [
-                { kind: 'cactus-small',   width: 24, height: 32, weight: 4 },
-                { kind: 'cactus-big',     width: 28, height: 40, weight: 3 },
-                { kind: 'cactus-cluster', width: 44, height: 32, weight: 2 },
-                { kind: 'bird',           width: 34, height: 28, weight: 2 },
+                { kind: 'cactus-small',   width: 34, height: 46, weight: 4 },
+                { kind: 'cactus-big',     width: 40, height: 56, weight: 3 },
+                { kind: 'cactus-cluster', width: 60, height: 48, weight: 2 },
+                { kind: 'bird',           width: 48, height: 36, weight: 2 },
             ];
 
             function pickObstacleType() {
@@ -376,7 +378,7 @@
                         x: CONFIG.width + 10,
                         width: type.width,
                         height: type.height,
-                        y: flying ? groundY - 55 : groundY - type.height,
+                        y: flying ? groundY - CONFIG.birdFlightOffset : groundY - type.height,
                         wingPhase: 0,
                         spriteState: 'front',
                         jumpedOver: false,
@@ -386,7 +388,7 @@
                 }
             }
 
-            // ========== FÍSICA ==========
+            // ========== FÍSICA (com agachamento instantâneo) ==========
             function startRun() {
                 gameState = 'running';
                 overlay.classList.add('hidden');
@@ -394,6 +396,7 @@
 
             function jump() {
                 if (gameState === 'idle') startRun();
+                if (gameState !== 'running') return;
                 if (player.grounded && !player.ducking) {
                     player.vy = -CONFIG.jumpForce;
                     player.grounded = false;
@@ -405,8 +408,10 @@
                 if (gameState === 'idle') startRun();
                 if (value && player.grounded) {
                     player.ducking = true;
-                } else if (!value) {
+                    player.y = groundY - player.heightDuck;
+                } else if (!value && player.ducking) {
                     player.ducking = false;
+                    player.y = groundY - player.heightStand;
                 }
             }
 
@@ -441,7 +446,6 @@
                     if (rectsOverlap(px, py, pw, ph, ob.x + 2, ob.y + 2, ob.width - 4, ob.height - 4)) {
                         return true;
                     }
-                    // pula sobre a planta -> troca sprite
                     if (!ob.jumpedOver && !player.grounded && player.y + h < ob.y + 5 && player.x + player.width > ob.x + 5) {
                         ob.jumpedOver = true;
                         ob.spriteState = 'back';
@@ -450,7 +454,15 @@
                 return false;
             }
 
-            // ========== ATUALIZAÇÃO MUNDO ==========
+            function showGameOver(isNewRecord) {
+                overlay.classList.add('hidden');
+                gameOverOverlay.classList.remove('hidden');
+                finalTimeEl.textContent = elapsed.toFixed(1) + 's';
+                newRecordBadge.classList.toggle('hidden', !isNewRecord);
+                dinoSpriteEl.style.display = 'none';
+            }
+
+            // ========== ATUALIZAÇÃO ==========
             function updateWorld(dt) {
                 elapsed += dt;
                 speed = Math.min(CONFIG.maxSpeed, CONFIG.initialSpeed + elapsed * CONFIG.speedGainPerSecond);
@@ -458,8 +470,7 @@
                 updatePlayer(dt);
 
                 const pxPerSec = speed * SPEED_SCALE;
-                bgOffsetX = (bgOffsetX + pxPerSec * dt) % 600;
-
+                bgOffsetX = (bgOffsetX + pxPerSec * dt) % CONFIG.width;
                 updateClouds(dt, pxPerSec);
 
                 for (const ob of obstacles) {
@@ -476,15 +487,14 @@
                 if (checkCollisionsAndJumpOver()) {
                     gameState = 'gameover';
                     beep(160, 0.25, 'sawtooth');
-                    if (elapsed > best) {
+                    const isNewRecord = elapsed > best;
+                    if (isNewRecord) {
                         best = elapsed;
-                        localStorage.setItem('dinoBest', best);
+                        setLocalBest(best);
+                        localBest = best;
                         bestEl.textContent = best.toFixed(1) + 's';
                     }
-                    overlay.classList.add('hidden');
-                    gameOverOverlay.classList.remove('hidden');
-                    finalTimeEl.textContent = elapsed.toFixed(1) + 's';
-                    dinoSpriteEl.style.display = 'none';
+                    showGameOver(isNewRecord);
                     return;
                 }
 
@@ -492,53 +502,66 @@
             }
 
             // ========== DESENHO ==========
-            function drawSprite(img, x, y, w, h) {
-                if (!img) return;
-                ctx.drawImage(img, x, y, w, h);
+            function drawWave(time, amplitude, frequency, phase, color) {
+                ctx.beginPath();
+                ctx.moveTo(0, groundY);
+                for (let x = 0; x <= CONFIG.width; x += 2) {
+                    const y = groundY - amplitude * Math.sin(x * frequency + time * phase);
+                    ctx.lineTo(x, y);
+                }
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 10;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
             }
 
             function draw() {
                 ctx.clearRect(0, 0, CONFIG.width, CONFIG.height);
 
-                // --- Céu gradiente ---
                 const grad = ctx.createLinearGradient(0, 0, 0, CONFIG.height);
-                grad.addColorStop(0, '#b3d9ff');
-                grad.addColorStop(0.6, '#d4ecff');
-                grad.addColorStop(1, '#e8f4fd');
+                grad.addColorStop(0, '#04060d');
+                grad.addColorStop(0.3, '#070f24');
+                grad.addColorStop(0.6, '#0c1f3f');
+                grad.addColorStop(1, '#123257');
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
 
-                // --- Nuvens ---
+                const time = performance.now() / 1000;
+                drawStars(time);
                 drawClouds();
 
-                // --- Terra (marrom) abaixo da grama ---
-                ctx.fillStyle = '#5d3a1a';
-                ctx.fillRect(0, groundY + 4, CONFIG.width, CONFIG.height - groundY - 4);
-                // Pequeno detalhe de textura
-                ctx.fillStyle = '#7a4f2b';
-                for (let i = 0; i < 20; i++) {
-                    const x = (i * 30 + bgOffsetX * 0.1) % CONFIG.width;
-                    ctx.fillRect(x, groundY + 8 + Math.random() * 6, 2, 2);
+                const ampBase = CONFIG.waveAmplitudeBase;
+                const freqBase = CONFIG.waveFrequencyBase;
+                const speedBase = CONFIG.waveSpeedBase;
+                drawWave(time, ampBase * 1.2, freqBase * 0.8, speedBase * 0.7, '#234d72');
+                drawWave(time + 0.5, ampBase * 0.9, freqBase * 1.1, speedBase * 0.9, '#2f6390');
+                drawWave(time + 1.2, ampBase * 0.6, freqBase * 1.4, speedBase * 1.2, '#3f7aa8');
+
+                ctx.fillStyle = '#03050b';
+                ctx.fillRect(0, groundY + 6, CONFIG.width, CONFIG.height - groundY - 6);
+                ctx.fillStyle = '#0e1c33';
+                for (let i = 0; i < 26; i++) {
+                    const x = (i * 26 + bgOffsetX * 0.2) % CONFIG.width;
+                    ctx.fillRect(x, groundY + 10 + (i % 5) * 4, 2, 2);
                 }
 
-                // --- Linha da grama ---
-                ctx.shadowColor = '#22c55e';
-                ctx.shadowBlur = 6;
-                ctx.strokeStyle = '#22c55e';
-                ctx.lineWidth = 1.5;
+                ctx.shadowColor = '#3a82bb';
+                ctx.shadowBlur = 8;
+                ctx.strokeStyle = '#3a82bb';
+                ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(0, groundY + 2);
                 ctx.lineTo(CONFIG.width, groundY + 2);
                 ctx.stroke();
                 ctx.shadowBlur = 0;
 
-                // Lâminas de grama
-                ctx.fillStyle = '#4ade80';
-                ctx.globalAlpha = 0.55;
-                for (const tx of groundTicks) ctx.fillRect(tx, groundY - 5, 2, 9);
+                ctx.fillStyle = '#5aa0d0';
+                ctx.globalAlpha = 0.5;
+                for (const tx of groundTicks) ctx.fillRect(tx, groundY - 4, 2, 8);
                 ctx.globalAlpha = 1;
 
-                // --- Obstáculos ---
                 for (const ob of obstacles) {
                     let img;
                     const w = ob.width, h = ob.height;
@@ -548,8 +571,41 @@
                     } else {
                         img = (ob.spriteState === 'back') ? sprites.obstBack : sprites.obstFront;
                     }
-                    drawSprite(img, ob.x, ob.y, w, h);
+                    ctx.drawImage(img, ob.x, ob.y, w, h);
                 }
+            }
+
+            // ========== SPRITE DO DINOSSAURO ==========
+            const DINO_KEYS = { run: 'dinoRun', jump: 'dinoJump', duck: 'dinoDuck' };
+            let currentDinoState = null;
+
+            function spriteToSrc(obj) {
+                if (!obj) return '';
+                if (obj instanceof HTMLCanvasElement) return obj.toDataURL();
+                return obj.src || '';
+            }
+
+            function desiredDinoState() {
+                if (player.ducking && player.grounded) return 'duck';
+                if (!player.grounded) return 'jump';
+                return 'run';
+            }
+
+            function syncDinoSprite() {
+                const state = desiredDinoState();
+                if (state !== currentDinoState) {
+                    currentDinoState = state;
+                    const src = spriteToSrc(sprites[DINO_KEYS[state]]);
+                    if (src) dinoSpriteEl.src = src;
+                }
+                const h = currentPlayerHeight();
+                const scaleX = canvas.clientWidth / CONFIG.width;
+                const scaleY = canvas.clientHeight / CONFIG.height;
+                dinoSpriteEl.style.display = 'block';
+                dinoSpriteEl.style.left = (player.x * scaleX) + 'px';
+                dinoSpriteEl.style.top = (player.y * scaleY) + 'px';
+                dinoSpriteEl.style.width = (player.width * scaleX) + 'px';
+                dinoSpriteEl.style.height = (h * scaleY) + 'px';
             }
 
             // ========== LOOP ==========
@@ -591,6 +647,10 @@
                 if (gameState === 'gameover') { resetGame(); return; }
                 jump();
             });
+            overlay.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                jump();
+            });
 
             document.getElementById('dinoJump').addEventListener('pointerdown', (e) => {
                 e.preventDefault();
@@ -601,6 +661,16 @@
             duckBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); setDuck(true); });
             duckBtn.addEventListener('pointerup', () => setDuck(false));
             duckBtn.addEventListener('pointerleave', () => setDuck(false));
+
+            gameOverOverlay.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                resetGame();
+            });
+            document.getElementById('dinoRetry').addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                resetGame();
+            });
         })();
     </script>
     @endpush

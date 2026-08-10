@@ -1,15 +1,14 @@
 <x-app-layout>
-    {{-- Fundo fixo com overlay --}}
     <div class="fixed inset-0 -z-10">
-        <img src="{{ asset('images/fundo_create.png') }}" alt="Background" class="w-full h-full object-cover opacity-40">
+        <img id="bg-image" src="{{ asset('images/fundo_create_padrao.png') }}" alt="Background" class="w-full h-full object-cover opacity-40">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>
 
     <style>
+        /* (CSS completo igual ao que você já tem) */
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
         .font-medieval { font-family: 'Cinzel', serif; }
 
-        /* Variáveis CSS que serão alteradas dinamicamente */
         :root {
             --theme-primary: #00f2ff;
             --theme-secondary: #4deaff;
@@ -18,11 +17,89 @@
             --theme-panel-bg: rgba(0, 242, 255, 0.05);
         }
 
-        /* Classes temáticas que usam as variáveis */
         .theme-text-primary { color: var(--theme-primary); }
         .theme-border-primary { border-color: var(--theme-primary); }
-        .theme-border-glow { box-shadow: 0 0 8px var(--theme-glow); }
         .theme-bg-panel { background-color: var(--theme-panel-bg); }
+
+        .ark-input {
+            @apply bg-black/60 border border-cyan-500/30 text-white rounded-sm px-4 py-2.5 transition-all duration-300 font-mono text-sm;
+        }
+        .ark-input:focus {
+            @apply border-cyan-400 shadow-[0_0_15px_rgba(0,242,255,0.3)] outline-none bg-black/80;
+        }
+
+        .section-title {
+            @apply flex items-center justify-between gap-4 text-sm font-medieval font-black uppercase tracking-[0.2em] pb-3 mb-5;
+            border-bottom: 1px solid var(--theme-border);
+        }
+        .section-title span:first-child {
+            @apply flex items-center gap-2 whitespace-nowrap;
+            color: var(--theme-primary);
+        }
+
+        .ark-panel {
+            @apply bg-black/40 backdrop-blur-md shadow-xl;
+            border: 1px solid var(--theme-border);
+            clip-path: polygon(0 0, 98% 0, 100% 4%, 100% 100%, 2% 100%, 0 96%);
+        }
+
+        .dynamic-scroll-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .dynamic-scroll-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .dynamic-scroll-container::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 10px;
+        }
+        .dynamic-scroll-container::-webkit-scrollbar-thumb {
+            background: var(--theme-primary);
+            border-radius: 10px;
+        }
+
+        .dna-overlay {
+            position: relative;
+            overflow: hidden;
+        }
+        .dna-overlay::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 242, 255, 0.05) 10px,
+                rgba(0, 242, 255, 0.05) 20px
+            );
+            background-size: 200% 200%;
+            animation: dnaWave 6s ease-in-out infinite alternate;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+        @keyframes dnaWave {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        .btn-abort {
+            @apply relative px-10 py-3 font-bold uppercase tracking-[0.3em] text-[10px] rounded-sm transition-all duration-300 overflow-hidden;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid var(--theme-primary);
+            color: var(--theme-primary);
+            padding: 12px 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 15px var(--theme-glow);
+        }
+        .btn-abort:hover {
+            background: var(--theme-primary);
+            color: black;
+            box-shadow: 0 0 30px var(--theme-glow);
+            transform: translateY(-2px);
+        }
         .theme-btn-neon {
             background: #000;
             border: 2px solid var(--theme-primary);
@@ -35,67 +112,6 @@
             box-shadow: 0 0 30px var(--theme-glow);
         }
 
-        .text-metallic {
-            background: linear-gradient(to bottom, #ffffff 0%, #b0e0e6 50%, #ffffff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
-        }
-
-        .text-glow-white {
-            text-shadow: 0 0 6px rgba(255,255,255,0.7), 0 0 3px rgba(255,255,255,0.9);
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slideDown { animation: slideDown 0.3s ease forwards; }
-        .animate-fadeInUp { animation: fadeInUp 0.5s ease forwards; opacity: 0; }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-        .delay-500 { animation-delay: 0.5s; }
-        .delay-600 { animation-delay: 0.6s; }
-        .delay-700 { animation-delay: 0.7s; }
-
-        .ark-input {
-            @apply bg-black/60 border border-cyan-500/30 text-white rounded-sm px-4 py-2.5 transition-all duration-300 font-mono text-sm;
-        }
-        .ark-input:focus {
-            @apply border-cyan-400 shadow-[0_0_15px_rgba(0,242,255,0.3)] outline-none bg-black/80;
-        }
-        .section-title {
-            @apply flex items-center justify-between gap-4 text-sm font-medieval font-black uppercase tracking-[0.2em] pb-3 mb-5;
-            border-bottom: 1px solid var(--theme-border);
-        }
-        .section-title span:first-child {
-            @apply flex items-center gap-2 whitespace-nowrap;
-            color: var(--theme-primary);
-        }
-        .section-title button {
-            @apply flex-shrink-0;
-        }
-        .ark-panel {
-            @apply bg-black/40 backdrop-blur-md shadow-xl;
-            border: 1px solid var(--theme-border);
-            clip-path: polygon(0 0, 98% 0, 100% 4%, 100% 100%, 2% 100%, 0 96%);
-        }
-
-        select.ark-input {
-            @apply appearance-none bg-black/60 cursor-pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300f2ff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 1rem;
-        }
-
-        /* Árvore de atributos */
         .atributos-container {
             position: relative;
             width: 100%;
@@ -121,9 +137,9 @@
             height: 85px;
             backdrop-filter: blur(5px);
             box-shadow: 0 0 20px var(--theme-glow);
-            transition: all 0.2s;
             text-align: center;
             padding: 6px;
+            transition: all 0.3s ease;
         }
         .atributo-bolha:hover {
             transform: scale(1.05);
@@ -170,12 +186,6 @@
             color: black;
             transform: scale(1.1);
         }
-        /* Posições das bolas */
-        .pos-for { top: 12%; left: 39%;  }
-        .pos-agi { top: 28%; left: 12%; }
-        .pos-int { top: 28%; right: 12%; left: auto; }
-        .pos-set { bottom: 21.5%; left: 15%; top: auto; }
-        .pos-vig { bottom: 21.5%; right: 15%; left: auto; top: auto; }
 
         @media (max-width: 768px) {
             .atributos-container { max-width: 320px; }
@@ -183,64 +193,12 @@
             .atributo-sigla { font-size: 9px; }
             .atributo-valor { font-size: 18px; }
             .atributo-btn { width: 16px; height: 16px; font-size: 10px; }
-            .pos-for { top: 11%; left: 39%; }
-            .pos-agi { top: 27%; left: 11%; }
-            .pos-int { top: 27%; right: 11%; }
-            .pos-set { bottom: 21%; left: 15%; }
-            .pos-vig { bottom: 21%; right: 15%; }
-        }
-        @media (max-width: 380px) {
-            .atributos-container { max-width: 260px; }
-            .atributo-bolha { width: 45px; height: 45px; }
-            .atributo-valor { font-size: 16px; }
-            .atributo-controles { gap: 2px; }
-            .pos-agi { left: 6%; }
-            .pos-int { right: 6%; }
-            .pos-set { bottom: 18%; left: 10%; }
-            .pos-vig { bottom: 18%; right: 10%; }
-        }
-
-        /* Botão Abortar (também temático) */
-        .btn-abort {
-            @apply relative px-10 py-3 font-bold uppercase tracking-[0.3em] text-[10px] rounded-sm transition-all duration-300 overflow-hidden;
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid var(--theme-primary);
-            color: var(--theme-primary);
-            padding: 12px 30px;
-            border-radius: 20px;
-            box-shadow: 0 0 15px var(--theme-glow);
-        }
-        .btn-abort:hover {
-            background: var(--theme-primary);
-            color: black;
-            border-color: var(--theme-primary);
-            box-shadow: 0 0 30px var(--theme-glow);
-            transform: translateY(-2px);
-        }
-
-        /* Container de scroll */
-        .dynamic-scroll-container {
-            max-height: 600px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        .dynamic-scroll-container::-webkit-scrollbar {
-            width: 5px;
-        }
-        .dynamic-scroll-container::-webkit-scrollbar-track {
-            background: #1a1a1a;
-            border-radius: 10px;
-        }
-        .dynamic-scroll-container::-webkit-scrollbar-thumb {
-            background: var(--theme-primary);
-            border-radius: 10px;
         }
     </style>
 
     <form action="{{ route('fichas.store') }}" method="POST" enctype="multipart/form-data" id="create-character-form" class="relative max-w-7xl mx-auto p-6 space-y-10 pb-20 text-gray-100">
         @csrf
 
-        {{-- EXIBIÇÃO DE ERROS DE VALIDAÇÃO --}}
         @if ($errors->any())
             <div class="bg-red-500/20 border border-red-500 p-4 rounded mb-6">
                 <ul class="list-disc list-inside text-red-300 text-sm">
@@ -251,10 +209,9 @@
             </div>
         @endif
 
-        {{-- CABEÇALHO: FOTO + INFO --}}
+        {{-- CABEÇALHO --}}
         <div class="grid lg:grid-cols-4 gap-6 animate-fadeInUp">
-            {{-- Área de upload com imagem de fundo dinâmica --}}
-            <div class="ark-panel !p-1 relative group h-80 overflow-hidden">
+            <div class="ark-panel !p-1 relative group h-80 overflow-hidden dna-overlay">
                 <div id="watermark-image" class="absolute inset-0 bg-cover bg-center opacity-20 pointer-events-none" 
                      style="background-image: url('{{ asset('images/watermark_pegada.png') }}'); background-repeat: no-repeat; background-position: center;"></div>
                 <input type="file" name="image" id="photo-input" hidden accept="image/*">
@@ -290,30 +247,34 @@
                     </div>
                     <div class="flex flex-col">
                         <label class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider mb-2">ORIGEM</label>
-                        <select name="class_main" class="ark-input !py-3">
-                            <option class="bg-black">Humano</option>
-                            <option class="bg-black">Morto-Vivo</option>
-                            <option class="bg-black">Meio-Humano</option>
-                            <option class="bg-black">Místico</option>
+                        <select name="class_main" id="class_main" onchange="updateWatermarkAndBackground()" class="ark-input !py-3">
+                            <option value="Humano">Humano</option>
+                            <option value="Morto-Vivo">Morto-Vivo</option>
+                            <option value="Meio-Humano">Meio-Humano</option>
+                            <option value="Místico">Místico</option>
+                            <option value="Gládio">Gládio</option>
+                            <option value="Iberos">Iberos</option>
+                            <option value="Orc">Orc</option>
+                            <option value="Fungo">Fungo</option>
+                            <option value="Escarlate">Escarlate</option>
+                            <option value="Bandidos">Bandidos</option>
+                            <option value="Tormenta">Tormenta</option>
                         </select>
                     </div>
                     <div class="flex flex-col">
-                        <label class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider mb-2">Civilização</label>
-                        <select name="class_sub" id="class_sub" onchange="updateTheme()" class="ark-input !py-3">
-                            <option value="padrao" class="bg-black">Sobrevivente Padrão</option>
-                            <option value="gladio" class="bg-black">Gladio</option>
-                            <option value="iberos" class="bg-black">Iberos</option>
-                            <option value="orc" class="bg-black">Orc</option>
-                            <option value="fungo" class="bg-black">Fungo</option>
-                            <option value="escarlate" class="bg-black">Companhia Escarlate</option>
-                            <option value="nova" class="bg-black">Nova Civilização +</option>
+                        <label class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider mb-2">PECULIARIDADE</label>
+                        <select name="class_sub" id="class_sub" onchange="updateThemeAndAttributes()" class="ark-input !py-3">
+                            <option value="Padrão">Padrão</option>
+                            <option value="Caribidis">Caribidis</option>
+                            <option value="Pandora">Pandora</option>
+                            <option value="Pandemônio">Pandemônio</option>
+                            <option value="Argana">Argana</option>
+                            <option value="Cabibis">Cabibis</option>
+                            <option value="Hades">Hades</option>
+                            <option value="Abismo">Abismo</option>
+                            <option value="Hipnos">Hipnos</option>
                         </select>
                     </div>
-                </div>
-                <div class="flex gap-4 items-center">
-                    <input type="text" name="custom_class_name" id="custom_class" 
-                           class="ark-input flex-1 hidden border-dashed border-cyan-400 animate-pulse" placeholder="DIGITE O NOME DA NOVA CIVILIZAÇÃO...">
-                    <input type="color" id="custom_color" class="h-10 w-12 rounded border border-cyan-500 bg-black hidden" value="#00f2ff">
                 </div>
             </div>
         </div>
@@ -328,8 +289,8 @@
             </div>
 
             <div class="atributos-container">
-                <img src="{{ asset('images/arvore_atributos.png') }}" alt="Árvore de Atributos" class="atributos-imagem">
-                <div class="atributo-bolha pos-for">
+                <img id="atributos-img" src="{{ asset('images/icon_atributos_ark.png') }}" alt="Árvore de Atributos" class="atributos-imagem">
+                <div id="bolha-for" class="atributo-bolha">
                     <span class="atributo-sigla">FOR</span>
                     <span class="atributo-valor" id="display-for">1</span>
                     <div class="atributo-controles">
@@ -337,7 +298,7 @@
                         <button type="button" class="atributo-btn" data-attr="for" data-delta="1">+</button>
                     </div>
                 </div>
-                <div class="atributo-bolha pos-agi">
+                <div id="bolha-agi" class="atributo-bolha">
                     <span class="atributo-sigla">AGI</span>
                     <span class="atributo-valor" id="display-agi">1</span>
                     <div class="atributo-controles">
@@ -345,7 +306,7 @@
                         <button type="button" class="atributo-btn" data-attr="agi" data-delta="1">+</button>
                     </div>
                 </div>
-                <div class="atributo-bolha pos-int">
+                <div id="bolha-int" class="atributo-bolha">
                     <span class="atributo-sigla">INT</span>
                     <span class="atributo-valor" id="display-int">1</span>
                     <div class="atributo-controles">
@@ -353,7 +314,7 @@
                         <button type="button" class="atributo-btn" data-attr="int" data-delta="1">+</button>
                     </div>
                 </div>
-                <div class="atributo-bolha pos-set">
+                <div id="bolha-set" class="atributo-bolha">
                     <span class="atributo-sigla">SET</span>
                     <span class="atributo-valor" id="display-set">1</span>
                     <div class="atributo-controles">
@@ -361,7 +322,7 @@
                         <button type="button" class="atributo-btn" data-attr="set" data-delta="1">+</button>
                     </div>
                 </div>
-                <div class="atributo-bolha pos-vig">
+                <div id="bolha-vig" class="atributo-bolha">
                     <span class="atributo-sigla">VIG</span>
                     <span class="atributo-valor" id="display-vig">1</span>
                     <div class="atributo-controles">
@@ -377,29 +338,19 @@
             <input type="hidden" name="vig" id="hidden-vig" value="1">
         </div>
 
-        {{-- GRIDS DINÂMICOS --}}
+        {{-- Mutações e Bônus --}}
         <div class="grid md:grid-cols-2 gap-8">
             <div class="ark-panel !p-8 animate-fadeInUp delay-200">
                 <div class="section-title">
                     <span>Mutações</span>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="scrollToBottom('mutations-container')" class="transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-                        </button>
-                        <button type="button" onclick="addMutation()" class="bg-opacity-10 hover:bg-opacity-100 border rounded w-8 h-8 flex items-center justify-center text-xl font-bold transition-all theme-add-btn">+</button>
-                    </div>
+                    <button type="button" onclick="addMutation()" class="bg-opacity-10 hover:bg-opacity-100 border rounded w-8 h-8 flex items-center justify-center text-xl font-bold transition-all theme-add-btn">+</button>
                 </div>
                 <div id="mutations-container" class="dynamic-scroll-container space-y-4"></div>
             </div>
             <div class="ark-panel !p-8 animate-fadeInUp delay-300">
                 <div class="section-title">
-                    <span>Bônus em Ações</span>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="scrollToBottom('bonus-container')" class="transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-                        </button>
-                        <button type="button" onclick="addBonus()" class="bg-opacity-10 hover:bg-opacity-100 border rounded w-8 h-8 flex items-center justify-center text-xl font-bold transition-all theme-add-btn">+</button>
-                    </div>
+                    <span>Bônus</span>
+                    <button type="button" onclick="addBonus()" class="bg-opacity-10 hover:bg-opacity-100 border rounded w-8 h-8 flex items-center justify-center text-xl font-bold transition-all theme-add-btn">+</button>
                 </div>
                 <div id="bonus-container" class="dynamic-scroll-container space-y-3"></div>
                 <div class="mt-4 text-right text-[10px] uppercase font-bold tracking-widest theme-text-primary">
@@ -408,45 +359,37 @@
             </div>
         </div>
 
+        {{-- Poderes e Rituais --}}
         <div class="grid md:grid-cols-2 gap-8">
             <div class="ark-panel !p-8 animate-fadeInUp delay-400">
                 <div class="section-title">
-                    <span>Poderes de Sobreviente</span>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="scrollToBottom('powers-container')" class="transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-                        </button>
-                        <button onclick="addPower()" type="button" class="bg-opacity-10 hover:bg-opacity-100 border rounded w-8 h-8 flex items-center justify-center text-xl font-bold transition-all theme-add-btn">+</button>
-                    </div>
+                    <span>Poderes de Sobrevivente</span>
+                    <button onclick="addPower()" type="button" class="bg-opacity-10 hover:bg-opacity-100 border rounded w-8 h-8 flex items-center justify-center text-xl font-bold transition-all theme-add-btn">+</button>
                 </div>
                 <div id="powers-container" class="dynamic-scroll-container space-y-4"></div>
             </div>
             <div class="ark-panel !p-8 animate-fadeInUp delay-500">
                 <div class="section-title">
-                    <span>Manipulações Arcanas</span>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="scrollToBottom('rituals-container')" class="transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-                        </button>
-                        <button onclick="addRitual()" type="button" class="bg-opacity-10 hover:bg-opacity-100 border rounded w-8 h-8 flex items-center justify-center text-xl font-bold transition-all theme-add-btn">+</button>
-                    </div>
+                    <span>Rituais</span>
+                    <button onclick="addRitual()" type="button" class="bg-opacity-10 hover:bg-opacity-100 border rounded w-8 h-8 flex items-center justify-center text-xl font-bold transition-all theme-add-btn">+</button>
                 </div>
                 <div id="rituals-container" class="dynamic-scroll-container space-y-4"></div>
             </div>
         </div>
 
+        {{-- Lore e Inventário --}}
         <div class="grid md:grid-cols-2 gap-8 animate-fadeInUp delay-600">
             <div class="ark-panel !p-8">
                 <h3 class="section-title">Registro de História</h3>
                 <textarea name="lore" class="ark-input w-full h-48 text-sm italic !bg-cyan-950/10" placeholder="Escreva a trajetória do sobrevivente..."></textarea>
             </div>
             <div class="ark-panel !p-8">
-                <h3 class="section-title">Arsenal de Equipamentos</h3>
-                <textarea name="arsenal" class="ark-input w-full h-48 text-sm font-mono !bg-cyan-950/10" placeholder="Itens, armas e recursos..."></textarea>
+                <h3 class="section-title">Inventário</h3>
+                <textarea name="arsenal" class="ark-input w-full h-48 text-sm font-mono !bg-cyan-950/10 text-left" placeholder="Itens, armas e recursos..."></textarea>
             </div>
         </div>
 
-        {{-- STATUS VITAIS CORRIGIDOS --}}
+        {{-- STATUS VITAIS --}}
         <div class="ark-panel !p-8 bg-cyan-900/10 animate-fadeInUp delay-700">
             <div class="section-title !border-white/20">Status Vitais</div>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-6 pt-4">
@@ -466,63 +409,237 @@
     </form>
 
     <script>
-        // ========== SISTEMA DE TEMAS ==========
-        const themeColors = {
-            padrao: { primary: '#00f2ff', secondary: '#4deaff', watermark: 'watermark_pegada.png' },
-            gladio: { primary: '#f97316', secondary: '#fdba74', watermark: 'watermark_gladio.png' },
-            iberos: { primary: '#38bdf8', secondary: '#f472b6', watermark: 'watermark_iberos.png' },
-            orc: { primary: '#4ade80', secondary: '#854d0e', watermark: 'watermark_orc.png' },
-            fungo: { primary: '#a855f7', secondary: '#d8b4fe', watermark: 'watermark_fungo.png' },
-            escarlate: { primary: '#ef4444', secondary: '#fca5a5', watermark: 'watermark_escarlate.png' }
+        // ========== MAPEAMENTOS ==========
+        const backgroundByPeculiaridade = {
+            'Padrão': 'fundo_create_padrao.png',
+            'Caribidis': 'fundo_create_caribidis.png',
+            'Pandora': 'fundo_create_pandora.png',
+            'Pandemônio': 'fundo_create_pandemonio.png',
+            'Argana': 'fundo_create_argana.png',
+            'Cabibis': 'fundo_create_cabibis.png',
+            'Hades': 'fundo_create_hades.png',
+            'Abismo': 'fundo_create_abismo.png',
+            'Hipnos': 'fundo_create_hipnos.png'
         };
 
-        function setTheme(primaryColor, secondaryColor, watermarkImage) {
+        const backgroundByOrigin = {
+            'Gládio': 'fundo_create_gladios.png',
+            'Iberos': 'fundo_create_iberus.png',
+            'Orc': 'fundo_create_orcs.png',
+            'Fungo': 'fundo_create_fungos.png',
+            'Escarlate': 'fundo_create_escarlate.png',
+            'Bandidos': 'fundo_create_bandidos.png',
+            'Tormenta': 'fundo_create_tormenta.png'
+        };
+
+        const themeColors = {
+            'Padrão': { primary: '#00f2ff', secondary: '#4deaff' },
+            'Caribidis': { primary: '#facc15', secondary: '#fde047' },
+            'Pandora': { primary: '#eab308', secondary: '#22c55e' },
+            'Pandemônio': { primary: '#991b1b', secondary: '#f43f5e' },
+            'Argana': { primary: '#3b82f6', secondary: '#1e3a8a' },
+            'Cabibis': { primary: '#f8fafc', secondary: '#93c5fd' },
+            'Hades': { primary: '#f97316', secondary: '#fbbf24' },
+            'Abismo': { primary: '#7e22ce', secondary: '#1e3a8a' },
+            'Hipnos': { primary: '#dc2626', secondary: '#93c5fd' }
+        };
+
+        // Watermarks por PECULIARIDADE (usado no create também)
+        const watermarkByPeculiaridade = {
+            'Padrão': 'watermark_pegada.png',
+            'Caribidis': 'watermark_pegada_caribidis.png',
+            'Pandora': 'watermark_pegada_pandora.png',
+            'Pandemônio': 'watermark_pegada_pandemonio.png',
+            'Argana': 'watermark_pegada_Argana.png',
+            'Cabibis': 'watermark_pegada_Cabibis.png',
+            'Hades': 'watermark_pegada_hades.png',
+            'Abismo': 'watermark_pegada_abismo.png',
+            'Hipnos': 'watermark_pegada_hipnos.png'
+        };
+
+        // Watermarks por ORIGEM (não usado para a watermark do upload, apenas referência)
+        const watermarkByOrigin = {
+            'Humano': 'watermark_pegada.png',
+            'Morto-Vivo': 'watermark_pegada.png',
+            'Meio-Humano': 'watermark_pegada.png',
+            'Místico': 'watermark_pegada.png',
+            'Gládio': 'watermark_gladios.png',
+            'Iberos': 'watermark_iberus.png',
+            'Orc': 'watermark_orcs.png',
+            'Fungo': 'watermark_fungos.png',
+            'Escarlate': 'watermark_escarlate.png',
+            'Bandidos': 'watermark_bandidos.png',
+            'Tormenta': 'watermark_tormenta.png'
+        };
+
+        const atributosImages = {
+            'Padrão': 'icon_atributos_ark.png',
+            'Caribidis': 'icon_atributos_caribidis.png',
+            'Pandora': 'icon_atributos_pandora.png',
+            'Pandemônio': 'icon_atributos_pandemonio.png',
+            'Argana': 'icon_atributos_argano.png',
+            'Cabibis': 'icon_atributos_cabibis.png',
+            'Hades': 'icon_atributos_hades.png',
+            'Abismo': 'icon_atributos_abismo.png',
+            'Hipnos': 'icon_atributos_hipnos.png'
+        };
+
+        // Posições das bolinhas por peculiaridade (mesmas do show)
+        const posicoes = {
+            'Padrão': {
+                for:  { top: '12%', left: '39%' },
+                agi:  { top: '27%', left: '16%' },
+                int:  { top: '27%', right: '16%' },
+                set:  { bottom: '20%', left: '19%' },
+                vig:  { bottom: '20%', right: '19%' }
+            },
+            'Caribidis': {
+                for:  { top: '10%', left: '40%' },
+                agi:  { top: '27%', left: '10%' },
+                int:  { top: '27%', right: '10%' },
+                set:  { bottom: '15%', left: '15%' },
+                vig:  { bottom: '15%', right: '16%' }
+            },
+            'Pandora': {
+                for:  { top: '7%', left: '38%' },
+                agi:  { top: '33%', left: '6%' },
+                int:  { top: '32%', right: '6%' },
+                set:  { bottom: '13%', left: '20%' },
+                vig:  { bottom: '12%', right: '20%' }
+            },
+            'Pandemônio': {
+                for:  { top: '14%', left: '39%' },
+                agi:  { top: '25%', left: '15%' },
+                int:  { top: '25%', right: '13%' },
+                set:  { bottom: '21%', left: '17%' },
+                vig:  { bottom: '21%', right: '17%' }
+            },
+            'Argana': {
+                for:  { top: '8%', left: '39%' },
+                agi:  { top: '28%', left: '7%' },
+                int:  { top: '30%', right: '5%' },
+                set:  { bottom: '16%', left: '20%' },
+                vig:  { bottom: '14%', right: '20%' }
+            },
+            'Cabibis': {
+                for:  { top: '40%', left: '39%' },
+                agi:  { top: '27%', left: '15%' },
+                int:  { top: '27%', right: '15%' },
+                set:  { bottom: '17%', left: '23%' },
+                vig:  { bottom: '17%', right: '23%' }
+            },
+            'Hades': {
+                for:  { top: '8%', left: '39%' },
+                agi:  { top: '30%', left: '8%' },
+                int:  { top: '30%', right: '8%' },
+                set:  { bottom: '11%', left: '15%' },
+                vig:  { bottom: '10%', right: '17%' }
+            },
+            'Abismo': {
+                for:  { top: '6%', left: '39%' },
+                agi:  { top: '33%', left: '6%' },
+                int:  { top: '33%', right: '6%' },
+                set:  { bottom: '11%', left: '15%' },
+                vig:  { bottom: '11%', right: '15%' }
+            },
+            'Hipnos': {
+                for:  { top: '4%', left: '39%' },
+                agi:  { top: '30%', left: '4%' },
+                int:  { top: '30%', right: '4%' },
+                set:  { bottom: '8%', left: '18%' },
+                vig:  { bottom: '8%', right: '18%' }
+            }
+        };
+
+        // ========== FUNÇÕES ==========
+        function setTheme(primaryColor, secondaryColor) {
             document.documentElement.style.setProperty('--theme-primary', primaryColor);
             document.documentElement.style.setProperty('--theme-secondary', secondaryColor);
             document.documentElement.style.setProperty('--theme-glow', `${primaryColor}80`);
             document.documentElement.style.setProperty('--theme-border', `${primaryColor}40`);
             document.documentElement.style.setProperty('--theme-panel-bg', `${primaryColor}0d`);
-            // Trocar imagem de fundo da caixa de upload
-            const watermarkDiv = document.getElementById('watermark-image');
-            if (watermarkImage) {
-                watermarkDiv.style.backgroundImage = `url('{{ asset('images/') }}/${watermarkImage}')`;
+        }
+
+        function setBackground(imageName) {
+            const bg = document.getElementById('bg-image');
+            if (bg) bg.src = `{{ asset('images/') }}/${imageName}`;
+        }
+
+        function setWatermark(imageName) {
+            const wm = document.getElementById('watermark-image');
+            if (wm) wm.style.backgroundImage = `url('{{ asset('images/') }}/${imageName}')`;
+        }
+
+        function setAtributosImage(imageName) {
+            const img = document.getElementById('atributos-img');
+            if (img) img.src = `{{ asset('images/') }}/${imageName}`;
+        }
+
+        function aplicarPosicoes(peculiaridade) {
+            const pos = posicoes[peculiaridade] || posicoes['Padrão'];
+            const bolhas = {
+                for: document.getElementById('bolha-for'),
+                agi: document.getElementById('bolha-agi'),
+                int: document.getElementById('bolha-int'),
+                set: document.getElementById('bolha-set'),
+                vig: document.getElementById('bolha-vig')
+            };
+            for (let attr in pos) {
+                const el = bolhas[attr];
+                if (!el) continue;
+                const p = pos[attr];
+                el.style.top = p.top || 'auto';
+                el.style.left = p.left || 'auto';
+                el.style.right = p.right || 'auto';
+                el.style.bottom = p.bottom || 'auto';
+                if (p.top) el.style.bottom = 'auto';
+                if (p.bottom) el.style.top = 'auto';
+                if (p.left) el.style.right = 'auto';
+                if (p.right) el.style.left = 'auto';
             }
         }
 
-        function updateTheme() {
+        function updateThemeAndAttributes() {
             const select = document.getElementById('class_sub');
-            const selected = select.value;
-            const customClassInput = document.getElementById('custom_class');
-            const customColorInput = document.getElementById('custom_color');
-
-            if (selected === 'nova') {
-                customClassInput.classList.remove('hidden');
-                customColorInput.classList.remove('hidden');
-                // Aplica a cor atual do color picker
-                const customColor = customColorInput.value;
-                setTheme(customColor, customColor, 'watermark_pegada.png');
-            } else if (themeColors[selected]) {
-                customClassInput.classList.add('hidden');
-                customColorInput.classList.add('hidden');
-                const { primary, secondary, watermark } = themeColors[selected];
-                setTheme(primary, secondary, watermark);
-            } else {
-                // fallback
-                setTheme('#00f2ff', '#4deaff', 'watermark_pegada.png');
+            const peculiaridade = select.value;
+            const colors = themeColors[peculiaridade];
+            if (colors) {
+                setTheme(colors.primary, colors.secondary);
             }
+            const attrImg = atributosImages[peculiaridade] || 'icon_atributos_ark.png';
+            setAtributosImage(attrImg);
+            aplicarPosicoes(peculiaridade);
+            updateBackgroundAndWatermark();
         }
 
-        // Atualiza tema quando o color picker mudar
-        document.getElementById('custom_color')?.addEventListener('input', function(e) {
-            if (document.getElementById('class_sub').value === 'nova') {
-                setTheme(e.target.value, e.target.value, 'watermark_pegada.png');
+        function updateWatermarkAndBackground() {
+            updateBackgroundAndWatermark();
+        }
+
+        function updateBackgroundAndWatermark() {
+            const originSelect = document.getElementById('class_main');
+            const origin = originSelect.value;
+            const peculiaridadeSelect = document.getElementById('class_sub');
+            const peculiaridade = peculiaridadeSelect.value;
+
+            // WATERMARK agora usa a PECULIARIDADE
+            const wm = watermarkByPeculiaridade[peculiaridade] || 'watermark_pegada.png';
+            setWatermark(wm);
+
+            // Fundo: prioriza origem, senão peculiaridade
+            let bgImage = backgroundByOrigin[origin];
+            if (!bgImage) {
+                bgImage = backgroundByPeculiaridade[peculiaridade] || 'fundo_create_padrao.png';
             }
+            setBackground(bgImage);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateThemeAndAttributes();
+            updateBackgroundAndWatermark();
         });
 
-        // Inicializa tema padrão
-        updateTheme();
-
-        // ========== CONTROLE DE ATRIBUTOS ==========
+        // ========== ATRIBUTOS (valores) ==========
         const attrValues = { for: 1, agi: 1, int: 1, set: 1, vig: 1 };
         const hiddenInputs = {
             for: document.getElementById('hidden-for'),
@@ -571,14 +688,7 @@
             updateAttrUI(attr, 1);
         }
 
-        // ========== SCROLL E CAMPOS DINÂMICOS ==========
-        function scrollToBottom(containerId) {
-            const container = document.getElementById(containerId);
-            if (container) {
-                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-            }
-        }
-
+        // ========== CAMPOS DINÂMICOS ==========
         let counters = { mutation: 0, bonus: 0, power: 0, ritual: 0 };
 
         document.getElementById('photo-input').onchange = e => {
@@ -601,7 +711,6 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>`;
             container.appendChild(wrapper);
-            scrollToBottom(containerId);
         }
 
         function addMutation() {
@@ -656,10 +765,6 @@
                 </div>
                 <textarea name="rituals[${i}][description]" class="ark-input w-full text-xs h-16 !bg-transparent" placeholder="Custo de fôlego e efeito místico..."></textarea>
             `);
-        }
-
-        function toggleCustom() {
-            // Função mantida para compatibilidade, mas a lógica de tema já trata
         }
 
         window.onload = () => {

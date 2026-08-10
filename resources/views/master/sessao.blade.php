@@ -1,13 +1,10 @@
-{{-- resources/views/master/sessao.blade.php --}}
 <x-app-layout>
     <x-slot name="title">Sessão: {{ $session->session_code }}</x-slot>
 
-    {{-- Fundo fixo com overlay --}}
     <div class="fixed inset-0 -z-10">
         <img src="{{ asset('images/fundo_sessao.png') }}" class="w-full h-full object-cover opacity-40">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>
-    {{-- Canvas para partículas --}}
     <canvas id="particles-canvas" class="fixed inset-0 z-0 pointer-events-none"></canvas>
 
     <style>
@@ -51,7 +48,6 @@
             @apply border-cyan-400 shadow-[0_0_15px_rgba(0,242,255,0.3)] outline-none bg-black/80;
         }
 
-        /* Botões neon */
         .btn-neon {
             @apply relative px-4 py-2 text-sm font-black uppercase tracking-[0.2em] transition-all duration-300 overflow-hidden;
             background: rgba(0,0,0,0.7);
@@ -67,7 +63,6 @@
             transform: translateY(-2px);
         }
 
-        /* Botão encerrar (vermelho) */
         .btn-danger {
             @apply relative px-4 py-2 text-sm font-black uppercase tracking-[0.2em] transition-all duration-300;
             background: rgba(0,0,0,0.7);
@@ -85,7 +80,6 @@
             transform: translateY(-2px);
         }
 
-        /* Estilo para o código da mesa */
         .code-block {
             background: rgba(0,0,0,0.6);
             border: 1px solid var(--theme-border);
@@ -129,7 +123,6 @@
             pointer-events: none;
         }
 
-        /* Cards de participantes */
         .participant-card {
             background: rgba(0,0,0,0.4);
             border: 1px solid var(--theme-border);
@@ -140,10 +133,20 @@
             border-color: var(--theme-primary);
             background: rgba(0,0,0,0.6);
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--theme-primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 
     <div class="relative z-10 max-w-7xl mx-auto p-6 space-y-6 text-white">
-        {{-- Cabeçalho da mesa --}}
         <div class="ark-panel p-6 flex justify-between items-center flex-wrap gap-4 relative overflow-hidden animate-fadeInUp">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-scan-line"></div>
             <div>
@@ -183,10 +186,12 @@
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="auto-reload-mesa"> Auto (5s)</label>
                 </div>
             </div>
-            <div id="participantes-list" class="space-y-3"><p class="text-gray-400">Carregando participantes...</p></div>
+            <div id="participantes-list" class="space-y-3">
+                <p class="text-gray-400">Carregando participantes...</p>
+            </div>
         </div>
 
-        {{-- Sistema de rolagens do mestre (mesmo da página de rolagens) --}}
+        {{-- Rolagens do mestre --}}
         <div class="ark-panel p-6 animate-fadeInUp" style="animation-delay: 0.2s">
             <h2 class="text-2xl font-medieval font-black theme-text-primary mb-4">Rolagens do Mestre</h2>
             <p class="text-sm text-gray-300 mb-6">Role dados e eventos como se fosse um jogador. Suas rolagens serão salvas e visíveis para os participantes da sua mesa.</p>
@@ -194,7 +199,6 @@
         </div>
     </div>
 
-    {{-- Toast de cópia --}}
     <div id="copy-toast" class="toast-copy">📋 Código copiado!</div>
 
     <script>
@@ -258,28 +262,44 @@
         const sessionCode = "{{ $session->session_code }}";
 
         function carregarParticipantes() {
+            const container = document.getElementById('participantes-list');
+            container.innerHTML = '<p class="text-gray-400">Atualizando...</p>';
+
             fetch(`/mestre/sessao/${sessionCode}/participantes`)
                 .then(res => res.json())
                 .then(data => {
-                    const container = document.getElementById('participantes-list');
                     if (!data.participants.length) {
                         container.innerHTML = '<p class="text-gray-400">Nenhum participante ainda. Compartilhe o código!</p>';
                         return;
                     }
                     container.innerHTML = data.participants.map(p => `
-                        <div class="participant-card p-4 flex flex-wrap justify-between items-center gap-2">
-                            <div><strong class="text-cyan-300">${p.name}</strong><span class="text-xs text-gray-400 ml-2">${p.crystal_id}</span></div>
-                            <div class="text-right">
-                                <div class="text-sm">Dado: <span class="font-mono text-cyan-200">${p.last_dice}</span></div>
-                                <div class="text-sm">Evento: <span class="font-mono text-purple-200">${p.last_event}</span></div>
-                                <div class="text-xs text-gray-500">${p.last_time || ''}</div>
+                        <div class="participant-card p-4 flex items-center gap-4">
+                            <div class="flex-shrink-0">
+                                <img src="${p.foto || '{{ asset('images/default-avatar.png') }}'}" 
+                                     alt="${p.name}" 
+                                     class="w-12 h-12 rounded-full border-2 border-cyan-500/30 object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <strong class="text-cyan-300">${p.name}</strong>
+                                    <span class="text-xs text-gray-400">${p.crystal_id}</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 mt-1">
+                                    <div class="text-sm">🎲 Dado: <span class="font-mono text-cyan-200">${p.last_dice}</span></div>
+                                    <div class="text-sm">📜 Evento: <span class="font-mono text-purple-200">${p.last_event}</span></div>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">${p.last_time || ''}</div>
                             </div>
                         </div>
                     `).join('');
+                })
+                .catch(() => {
+                    container.innerHTML = '<p class="text-red-400">Erro ao carregar participantes.</p>';
                 });
         }
 
         document.getElementById('reload-participantes').addEventListener('click', carregarParticipantes);
+
         const autoCheck = document.getElementById('auto-reload-mesa');
         autoCheck.addEventListener('change', (e) => {
             if (e.target.checked) {
@@ -289,9 +309,10 @@
                 if (autoInterval) clearInterval(autoInterval);
             }
         });
+
         carregarParticipantes();
 
-        // Botão copiar código da mesa
+        // Copiar código da mesa
         const copyBtn = document.getElementById('copy-code-btn');
         const toast = document.getElementById('copy-toast');
         if (copyBtn) {

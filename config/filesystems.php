@@ -59,6 +59,12 @@ return [
             'throw' => false,
             'report' => false,
         ],
+        'hostinger' => [
+        'driver' => 'local',
+        'root' => '/home/seuusuario/public_html/storage', // caminho absoluto
+        'url' => env('APP_URL').'/storage',
+        'visibility' => 'public',
+],
 
     ],
 

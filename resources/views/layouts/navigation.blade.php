@@ -66,15 +66,16 @@
                 </div>
             </div>
 
-            {{-- Lado Direito (perfil) - igual ao original, omitido por brevidade --}}
+            {{-- Lado Direito (perfil) --}}
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 @auth
                     <x-dropdown align="right" width="56">
                         <x-slot name="trigger">
-                            <button class="group inline-flex items-center px-4 py-1.5 border rounded-full text-xs font-bold uppercase border-cyan-500/40 text-gray-300 hover:text-cyan-200 shadow-[0_0_15px_rgba(0,242,255,0.2)] focus:outline-none">
+                            <button class="group inline-flex items-center px-4 py-1.5 border rounded-full text-xs font-bold uppercase border-cyan-500/40 text-gray-300 hover:text-cyan-200 shadow-[0_0_15px_rgba(0,242,255,0.8)] focus:outline-none">
                                 <div class="w-8 h-8 rounded-full border border-cyan-500/50 overflow-hidden mr-2">
                                     @if(Auth::user()->foto)
-                                        <img src="{{ asset('storage/' . Auth::user()->foto) }}" class="w-full h-full object-cover">
+                                        {{-- CORREÇÃO: usa a rota media.show --}}
+                                        <img src="{{ route('media.show', Auth::user()->foto) }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full bg-cyan-900/50 flex items-center justify-center">
                                             <span class="text-sm text-cyan-300">{{ substr(Auth::user()->name, 0, 1) }}</span>

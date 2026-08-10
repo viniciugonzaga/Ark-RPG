@@ -46,17 +46,26 @@
                         </div>
                     </div>
 
-                    {{-- Botão de Cadastro (Fora do painel) --}}
-                    <div class="flex justify-center">
+                    {{-- Botões de Ação (Cadastro e Jogo) --}}
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
                         @guest
-                            <a href="{{ route('register') }}" class="ark-btn-neon px-16 py-5 text-xl">
+                            <a href="{{ route('register') }}" class="ark-btn-neon px-12 py-4 text-lg">
                                 Faça seu Cadastro
                             </a>
                         @else
-                            <a href="{{ route('fichas.index') }}" class="ark-btn-neon px-16 py-5 text-xl">
+                            <a href="{{ route('fichas.index') }}" class="ark-btn-neon px-12 py-4 text-lg">
                                 Acessar Fichas
                             </a>
                         @endguest
+
+                        {{-- NOVO BOTÃO PARA O JOGO --}}
+                        <a href="{{ route('jogo') }}" class="ark-btn-neon px-12 py-4 text-lg flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Jogar Dino
+                        </a>
                     </div>
                 </div>
 
@@ -146,6 +155,9 @@
             transition: all 0.3s ease;
             box-shadow: 0 0 15px rgba(127, 237, 254, 0.3);
             text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .ark-btn-neon:hover {
