@@ -275,7 +275,7 @@
                     container.innerHTML = data.participants.map(p => `
                         <div class="participant-card p-4 flex items-center gap-4">
                             <div class="flex-shrink-0">
-                                <img src="${p.foto || '{{ asset('images/default-avatar.png') }}'}" 
+                                <img src="${p.foto || '{{ asset('images/default-avatar.png') }}'}"  
                                      alt="${p.name}" 
                                      class="w-12 h-12 rounded-full border-2 border-cyan-500/30 object-cover">
                             </div>

@@ -10,7 +10,7 @@
 <?php $component->withAttributes([]); ?>
     
     <div class="fixed inset-0 -z-10">
-        <img src="<?php echo e(asset('images/fundo_index.png')); ?>" alt="Background" 
+        <img src="<?php echo e(asset('images/Fundo_index.png')); ?>" alt="Background" 
              class="w-full h-full object-cover opacity-30">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>

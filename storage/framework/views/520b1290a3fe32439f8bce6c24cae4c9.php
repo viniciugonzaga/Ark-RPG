@@ -8,7 +8,14 @@
     <title><?php echo $__env->yieldContent('title', config('app.name', 'ARK RPG')); ?></title>
     <link rel="icon" type="image/png" href="<?php echo e(asset('favicon.png')); ?>?v=2">
 
-    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
+    
+    <?php if(file_exists(public_path('build/manifest.json'))): ?>
+        <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
+    <?php else: ?>
+        
+        <link rel="stylesheet" href="<?php echo e(asset('build/app.css')); ?>">
+        <script src="<?php echo e(asset('build/app.js')); ?>" defer></script>
+    <?php endif; ?>
 
     <?php echo $__env->yieldPushContent('styles'); ?>
 
@@ -316,7 +323,7 @@
                         radius: Math.random() * 2 + 1,
                         speedY: Math.random() * 1.2 + 0.4,
                         alpha: Math.random() * 0.6 + 0.2,
-                        colorShift: Math.random() // 0 a 1, controla gradiente branco->azul
+                        colorShift: Math.random()
                     });
                 }
             }
@@ -325,18 +332,12 @@
                 if (!ctx) return;
                 ctx.clearRect(0, 0, width, height);
                 for (let p of particles) {
-                    // Atualiza posição (sobe)
                     p.y -= p.speedY;
                     if (p.y < 0) {
                         p.y = height;
                         p.x = Math.random() * width;
                     }
-                    // Quanto mais alto (menor Y), mais azul
-                    const progress = 1 - (p.y / height); // 0 em baixo, 1 no topo
-                    const r = 255;
-                    const g = 255 - (progress * 100); // diminui verde
-                    const b = 255 - (progress * 50);
-                    // Branco (255,255,255) no início, azul claro (180,220,255) no topo
+                    const progress = 1 - (p.y / height);
                     const finalR = 255;
                     const finalG = 255 - progress * 80;
                     const finalB = 255 - progress * 40;
@@ -378,27 +379,23 @@
                 }
             }
 
-        
             document.addEventListener('mousemove', updateVirusEffect);
-            // Garantir que o efeito só funcione dentro do footer
         })();
-              setInterval(() => {
-        fetch('/ping', { credentials: 'same-origin' })
-        .then(response => response.json())
-        .catch(err => console.warn('Keep-alive falhou', err));
-        }, 300000); // 5 minutos
+
+        // Keep-alive
+        setInterval(() => {
+            fetch('/ping', { credentials: 'same-origin' })
+            .then(response => response.json())
+            .catch(err => console.warn('Keep-alive falhou', err));
+        }, 300000);
     </script>
 
-    
     <style>
         #particles-canvas { position: fixed; top: 0; left: 0; z-index: 0; }
         .ark-container, .ark-header, nav, footer { position: relative; z-index: 2; background-color: transparent; }
-        /* Para que os gradientes apareçam, mantemos o fundo escuro nos elementos, mas o canvas por baixo */
         body { background: var(--black); }
         .ark-card, .ark-panel, .creature-card, .modal-content { background: var(--grad-dark) !important; backdrop-filter: blur(0px); }
-        /* Garantir que textos não fiquem transparentes */
         .text-glow, .text-rare { background: transparent; }
-        /* Corrigir botões de carrossel */
         .carousel-control svg { filter: drop-shadow(0 0 2px rgba(142, 234, 255, 0.5)); }
     </style>
 </body>

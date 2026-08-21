@@ -36,10 +36,6 @@ class SessionController extends Controller
         return redirect()->route('rolagens.index')->with('session_code', $session->session_code);
     }
 
-    /**
-     * Retorna informações da sessão atual do jogador com dados dos participantes
-     * Otimizado com agrupamento e fotos
-     */
     public function getMinhaSessao(Request $request)
     {
         $user = Auth::user();
@@ -54,7 +50,6 @@ class SessionController extends Controller
         $session = $participant->session;
         $participants = $session->participants()->with('user')->get();
 
-        // Busca a última rolagem de cada usuário em uma consulta
         $userIds = $participants->pluck('user_id')->unique();
         $lastRolls = RollLog::whereIn('user_id', $userIds)
             ->orderBy('created_at', 'desc')
@@ -69,7 +64,7 @@ class SessionController extends Controller
             $data[] = [
                 'name' => $u->name,
                 'crystal_id' => $u->crystal_id,
-                'foto' => $u->foto ? asset('storage/' . $u->foto) : null,
+                'foto' => $u->foto ? route('media.show', $u->foto) : null, // CORRIGIDO
                 'last_dice' => $roll ? $roll->dice_result : 'Nenhuma rolagem',
                 'last_event' => $roll ? $roll->event_result : 'Nenhum evento',
                 'is_master' => ($u->id === $session->master_user_id),

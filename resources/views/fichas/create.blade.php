@@ -411,25 +411,25 @@
     <script>
         // ========== MAPEAMENTOS ==========
         const backgroundByPeculiaridade = {
-            'Padrão': 'fundo_create_padrao.png',
-            'Caribidis': 'fundo_create_caribidis.png',
-            'Pandora': 'fundo_create_pandora.png',
-            'Pandemônio': 'fundo_create_pandemonio.png',
-            'Argana': 'fundo_create_argana.png',
-            'Cabibis': 'fundo_create_cabibis.png',
-            'Hades': 'fundo_create_hades.png',
-            'Abismo': 'fundo_create_abismo.png',
-            'Hipnos': 'fundo_create_hipnos.png'
+            'Padrão': 'Fundo_create_padrao.png',
+            'Caribidis': 'Fundo_create_caribidis.png',
+            'Pandora': 'Fundo_create_pandora.png',
+            'Pandemônio': 'Fundo_create_pandemonio.png',
+            'Argana': 'Fundo_create_argana.png',
+            'Cabibis': 'Fundo_create_cabibis.png',
+            'Hades': 'Fundo_create_hades.png',
+            'Abismo': 'Fundo_create_abismo.png',
+            'Hipnos': 'Fundo_create_hipnos.png'
         };
 
         const backgroundByOrigin = {
-            'Gládio': 'fundo_create_gladios.png',
-            'Iberos': 'fundo_create_iberus.png',
-            'Orc': 'fundo_create_orcs.png',
-            'Fungo': 'fundo_create_fungos.png',
-            'Escarlate': 'fundo_create_escarlate.png',
-            'Bandidos': 'fundo_create_bandidos.png',
-            'Tormenta': 'fundo_create_tormenta.png'
+            'Gládio': 'Fundo_create_gladios.png',
+            'Iberos': 'Fundo_create_iberus.png',
+            'Orc': 'Fundo_create_orcs.png',
+            'Fungo': 'Fundo_create_fungos.png',
+            'Escarlate': 'Fundo_create_escarlate.png',
+            'Bandidos': 'Fundo_create_bandidos.png',
+            'Tormenta': 'Fundo_create_tormenta.png'
         };
 
         const themeColors = {
@@ -450,8 +450,8 @@
             'Caribidis': 'watermark_pegada_caribidis.png',
             'Pandora': 'watermark_pegada_pandora.png',
             'Pandemônio': 'watermark_pegada_pandemonio.png',
-            'Argana': 'watermark_pegada_Argana.png',
-            'Cabibis': 'watermark_pegada_Cabibis.png',
+            'Argana': 'watermark_pegada_argana.png',
+            'Cabibis': 'watermark_pegada_cabibis.png',
             'Hades': 'watermark_pegada_hades.png',
             'Abismo': 'watermark_pegada_abismo.png',
             'Hipnos': 'watermark_pegada_hipnos.png'

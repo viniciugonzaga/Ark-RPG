@@ -1,7 +1,7 @@
 <x-app-layout>
     {{-- Fundo dinâmico --}}
     <div class="fixed inset-0 -z-10">
-        <img src="{{ asset('images/fundo_index.png') }}" alt="Background" 
+        <img src="{{ asset('images/Fundo_index.png') }}" alt="Background" 
              class="w-full h-full object-cover opacity-30">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>

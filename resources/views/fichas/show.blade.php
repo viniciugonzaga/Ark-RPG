@@ -34,26 +34,26 @@
         $watermarkFilePdf = $watermarksByPeculiaridade[$peculiaridade] ?? 'watermark_pegada.png';
 
         $backgroundShowByOrigin = [
-            'Gládio' => 'fundo_show_gladios.png',
-            'Iberos' => 'fundo_show_iberus.png',
-            'Orc' => 'fundo_show_orcs.png',
-            'Fungo' => 'fundo_show_fungos.png',
-            'Escarlate' => 'fundo_show_escarlate.png',
-            'Bandidos' => 'fundo_show_bandidos.png',
-            'Tormenta' => 'fundo_show_tormenta.png',
+            'Gládio' => 'Fundo_show_gladios.png',
+            'Iberos' => 'Fundo_show_iberus.png',
+            'Orc' => 'Fundo_show_orcs.png',
+            'Fungo' => 'Fundo_show_fungos.png',
+            'Escarlate' => 'Fundo_show_escarlate.png',
+            'Bandidos' => 'Fundo_show_bandidos.png',
+            'Tormenta' => 'Fundo_show_tormenta.png',
         ];
         $backgroundShowByPeculiaridade = [
-            'Padrão' => 'fundo_show_padrao.png',
-            'Caribidis' => 'fundo_show_caribidis.png',
-            'Pandora' => 'fundo_show_pandora.png',
-            'Pandemônio' => 'fundo_show_pandemonio.png',
-            'Argana' => 'fundo_show_argana.png',
-            'Cabibis' => 'fundo_show_cabibis.png',
-            'Hades' => 'fundo_show_hades.png',
-            'Abismo' => 'fundo_show_abismo.png',
-            'Hipnos' => 'fundo_show_hipnos.png',
+            'Padrão' => 'Fundo_show_padrao.png',
+            'Caribidis' => 'Fundo_show_caribidis.png',
+            'Pandora' => 'Fundo_show_pandora.png',
+            'Pandemônio' => 'Fundo_show_pandemonio.png',
+            'Argana' => 'Fundo_show_argana.png',
+            'Cabibis' => 'Fundo_show_cabibis.png',
+            'Hades' => 'Fundo_show_hades.png',
+            'Abismo' => 'Fundo_show_abismo.png',
+            'Hipnos' => 'Fundo_show_hipnos.png',
         ];
-        $bgShow = $backgroundShowByOrigin[$origem] ?? $backgroundShowByPeculiaridade[$peculiaridade] ?? 'fundo_show_padrao.png';
+        $bgShow = $backgroundShowByOrigin[$origem] ?? $backgroundShowByPeculiaridade[$peculiaridade] ?? 'Fundo_show_padrao.png';
 
         $atributosImg = [
             'Padrão' => 'icon_atributos_ark.png',

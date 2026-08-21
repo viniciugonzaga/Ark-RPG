@@ -48,7 +48,11 @@ class User extends Authenticatable
             }
         });
     }
-
+// App/Models/User.php
+public function getFotoUrlAttribute()
+{
+    return $this->foto ? route('media.show', $this->foto) : null;
+}
     public static function generateUniqueCrystalId()
     {
         do {

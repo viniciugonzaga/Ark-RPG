@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Route;
 // =====================================================
 // ROTAS PÚBLICAS (sem autenticação e SEM SESSÃO)
 // =====================================================
-
 Route::get('/media/{path}', [MediaController::class, 'show'])
     ->where('path', '.*')
     ->name('media.show')
@@ -86,7 +85,23 @@ Route::middleware(['auth'])->prefix('sessao')->name('session.')->group(function 
 // =====================================================
 // ROTAS DE TESTE
 // =====================================================
+Route::get('/criar-link-storage', function () {
+    try {
+        Artisan::call('storage:link');
+        return '✅ Link simbólico do storage criado com sucesso!';
+    } catch (\Exception $e) {
+        return '❌ Erro: ' . $e->getMessage();
+    }
+});
 
+Route::get('/limpar-cache', function () {
+    try {
+        Artisan::call('optimize:clear');
+        return '✅ Cache do Laravel limpo com sucesso!';
+    } catch (\Exception $e) {
+        return '❌ Erro: ' . $e->getMessage();
+    }
+});
 Route::get('/test-419', function () {
     throw new \Illuminate\Session\TokenMismatchException();
 });
@@ -96,3 +111,5 @@ Route::get('/ping', function () {
 })->middleware('auth');
 
 require __DIR__ . '/auth.php';
+//https://rpgark.com.br/limpar-cache
+//https://rpgark.com.br/criar-link-storage

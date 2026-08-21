@@ -28,12 +28,13 @@
                         <div class="relative group">
                             <div class="w-32 h-32 bg-black/50 border-2 border-cyan-500/40 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(0,242,255,0.2)] mb-4 overflow-hidden transition-all duration-300 group-hover:shadow-[0_0_30px_cyan]">
                                <?php if($user->foto): ?>
-                               <img id="img_preview" src="<?php echo e(route('media.show', $user->foto)); ?>" class="w-full h-full object-cover">
+                                  <img id="img_preview" src="<?php echo e(route('media.show', $user->foto)); ?>" class="w-full h-full object-cover">
                                <?php else: ?>
-                                <div id="img_placeholder" class="w-full h-full flex items-center justify-center">
-                                 <span class="text-5xl font-black text-cyan-400 uppercase"><?php echo e(substr($user->name, 0, 1)); ?></span>
-                                </div>
-                                 <img id="img_preview" class="w-full h-full object-cover hidden">
+                                   <div id="img_placeholder" class="w-full h-full flex items-center justify-center">
+                                        <span class="text-5xl font-black text-cyan-400 uppercase"><?php echo e(substr($user->name, 0, 1)); ?></span>
+                                    </div>
+                              </div>
+                                   <img id="img_preview" class="w-full h-full object-cover hidden">
                                <?php endif; ?>
                             </div>
                             <label for="foto" class="absolute inset-0 flex items-center justify-center bg-black/70 opacity-0 group-hover:opacity-100 transition cursor-pointer rounded-full backdrop-blur-sm">
