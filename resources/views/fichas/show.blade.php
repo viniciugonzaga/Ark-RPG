@@ -358,112 +358,110 @@
                     </div>
                 </div>
 
-                <!-- Mutações e Bônus -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="ark-panel !p-6" x-data="{ expanded: false }">
-                        <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
-                            <h3 class="text-lg font-medieval font-black theme-text-primary uppercase tracking-wider">Mutações</h3>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] theme-text-primary opacity-70">Genéticas</span>
-                                <button @click="expanded = !expanded" class="toggle-btn">
-                                    <svg x-show="!expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                    <svg x-show="expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
-                            <div class="space-y-4">
-                                @forelse($ficha->mutations ?? [] as $m)
-                                    <div class="bg-black/40 p-4 rounded-lg border border-white/10 hover:border-opacity-50 transition-all" style="border-color:var(--theme-border)">
-                                        <div class="text-[10px] theme-text-primary font-bold uppercase tracking-wider">{{ $m->origin }}</div>
-                                        <div class="font-medieval font-bold text-white uppercase text-base mt-1">{{ $m->name }}</div>
-                                        <p class="text-xs text-gray-400 mt-2 leading-relaxed">{{ $m->description }}</p>
-                                    </div>
-                                @empty
-                                    <p class="text-gray-500 italic text-sm text-center py-4">Nenhuma mutação registrada.</p>
-                                @endforelse
-                            </div>
+                <!-- MUTAÇÕES -->
+                <div class="ark-panel !p-6" x-data="{ expanded: false }">
+                    <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
+                        <h3 class="text-lg font-medieval font-black theme-text-primary uppercase tracking-wider">Mutações</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] theme-text-primary opacity-70">Genéticas</span>
+                            <button @click="expanded = !expanded" class="toggle-btn">
+                                <svg x-show="!expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                <svg x-show="expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                            </button>
                         </div>
                     </div>
-
-                    <div class="ark-panel !p-6" x-data="{ expanded: false }">
-                        <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
-                            <h3 class="text-lg font-medieval font-black theme-text-primary uppercase tracking-wider">Bônus</h3>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] theme-text-primary opacity-70">Incrementos</span>
-                                <button @click="expanded = !expanded" class="toggle-btn">
-                                    <svg x-show="!expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                    <svg x-show="expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
-                            <div class="space-y-3">
-                                @forelse($ficha->bonuses ?? [] as $b)
-                                    <div class="flex justify-between items-center bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
-                                        <span class="text-sm uppercase font-bold text-gray-200">{{ $b->name }}</span>
-                                        <span class="theme-text-primary font-medieval font-black text-xl">+{{ $b->value }}</span>
-                                    </div>
-                                @empty
-                                    <p class="text-gray-500 italic text-sm text-center py-4">Nenhum bônus detectado.</p>
-                                @endforelse
-                            </div>
+                    <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
+                        <div class="space-y-4">
+                            @forelse($ficha->mutations ?? [] as $m)
+                                <div class="bg-black/40 p-4 rounded-lg border border-white/10 hover:border-opacity-50 transition-all" style="border-color:var(--theme-border)">
+                                    <div class="text-[10px] theme-text-primary font-bold uppercase tracking-wider">{{ $m->origin }}</div>
+                                    <div class="font-medieval font-bold text-white uppercase text-base mt-1">{{ $m->name }}</div>
+                                    <p class="text-xs text-gray-400 mt-2 leading-relaxed">{{ $m->description }}</p>
+                                </div>
+                            @empty
+                                <p class="text-gray-500 italic text-sm text-center py-4">Nenhuma mutação registrada.</p>
+                            @endforelse
                         </div>
                     </div>
                 </div>
 
-                <!-- Poderes e Rituais -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="ark-panel !p-6" x-data="{ expanded: false }">
-                        <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
-                            <h3 class="text-lg font-medieval font-black theme-text-primary uppercase tracking-wider">Poderes de Sobrevivente</h3>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] theme-text-primary opacity-70">Habilidades</span>
-                                <button @click="expanded = !expanded" class="toggle-btn">
-                                    <svg x-show="!expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                    <svg x-show="expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
-                            <div class="space-y-4">
-                                @forelse($ficha->survivorPowers ?? [] as $p)
-                                    <div class="bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
-                                        <div class="font-medieval font-bold text-white uppercase text-base">{{ $p->name }}</div>
-                                        <p class="text-xs text-gray-400 mt-2 leading-relaxed">{{ $p->description }}</p>
-                                    </div>
-                                @empty
-                                    <p class="text-gray-500 italic text-sm text-center py-4">Sem poderes registrados.</p>
-                                @endforelse
-                            </div>
+                <!-- BÔNUS -->
+                <div class="ark-panel !p-6" x-data="{ expanded: false }">
+                    <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
+                        <h3 class="text-lg font-medieval font-black theme-text-primary uppercase tracking-wider">Bônus</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] theme-text-primary opacity-70">Incrementos</span>
+                            <button @click="expanded = !expanded" class="toggle-btn">
+                                <svg x-show="!expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                <svg x-show="expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                            </button>
                         </div>
                     </div>
-
-                    <div class="ark-panel !p-6" x-data="{ expanded: false }">
-                        <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
-                            <h3 class="text-lg font-medieval font-black theme-text-primary uppercase tracking-wider">Rituais</h3>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] theme-text-primary opacity-70">Pactos</span>
-                                <button @click="expanded = !expanded" class="toggle-btn">
-                                    <svg x-show="!expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                    <svg x-show="expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
-                                </button>
-                            </div>
+                    <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
+                        <div class="space-y-3">
+                            @forelse($ficha->bonuses ?? [] as $b)
+                                <div class="flex justify-between items-center bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
+                                    <span class="text-sm uppercase font-bold text-gray-200">{{ $b->name }}</span>
+                                    <span class="theme-text-primary font-medieval font-black text-xl">+{{ $b->value }}</span>
+                                </div>
+                            @empty
+                                <p class="text-gray-500 italic text-sm text-center py-4">Nenhum bônus detectado.</p>
+                            @endforelse
                         </div>
-                        <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
-                            <div class="space-y-4">
-                                @forelse($ficha->rituals ?? [] as $r)
-                                    <div class="bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <span class="text-[8px] bg-red-900/60 text-red-200 px-2 py-0.5 rounded uppercase font-black tracking-wider">{{ $r->type ?? 'Protocolo' }}</span>
-                                            <span class="font-medieval font-bold text-white uppercase text-base">{{ $r->name }}</span>
-                                        </div>
-                                        <p class="text-xs text-gray-400 mt-2 leading-relaxed">{{ $r->description }}</p>
+                    </div>
+                </div>
+
+                <!-- PODERES DE SOBREVIVENTE -->
+                <div class="ark-panel !p-6" x-data="{ expanded: false }">
+                    <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
+                        <h3 class="text-lg font-medieval font-black theme-text-primary uppercase tracking-wider">Poderes de Sobrevivente</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] theme-text-primary opacity-70">Habilidades</span>
+                            <button @click="expanded = !expanded" class="toggle-btn">
+                                <svg x-show="!expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                <svg x-show="expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
+                        <div class="space-y-4">
+                            @forelse($ficha->survivorPowers ?? [] as $p)
+                                <div class="bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
+                                    <div class="font-medieval font-bold text-white uppercase text-base">{{ $p->name }}</div>
+                                    <p class="text-xs text-gray-400 mt-2 leading-relaxed">{{ $p->description }}</p>
+                                </div>
+                            @empty
+                                <p class="text-gray-500 italic text-sm text-center py-4">Sem poderes registrados.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RITUAIS -->
+                <div class="ark-panel !p-6" x-data="{ expanded: false }">
+                    <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
+                        <h3 class="text-lg font-medieval font-black theme-text-primary uppercase tracking-wider">Rituais</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] theme-text-primary opacity-70">Pactos</span>
+                            <button @click="expanded = !expanded" class="toggle-btn">
+                                <svg x-show="!expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                <svg x-show="expanded" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
+                        <div class="space-y-4">
+                            @forelse($ficha->rituals ?? [] as $r)
+                                <div class="bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-[8px] bg-red-900/60 text-red-200 px-2 py-0.5 rounded uppercase font-black tracking-wider">{{ $r->type ?? 'Protocolo' }}</span>
+                                        <span class="font-medieval font-bold text-white uppercase text-base">{{ $r->name }}</span>
                                     </div>
-                                @empty
-                                    <p class="text-gray-500 italic text-sm text-center py-4">Sem rituais manifestados.</p>
-                                @endforelse
-                            </div>
+                                    <p class="text-xs text-gray-400 mt-2 leading-relaxed">{{ $r->description }}</p>
+                                </div>
+                            @empty
+                                <p class="text-gray-500 italic text-sm text-center py-4">Sem rituais manifestados.</p>
+                            @endforelse
                         </div>
                     </div>
                 </div>
