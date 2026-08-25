@@ -93,7 +93,7 @@ class CharacterController extends Controller
     public function update(Request $request, $id)
     {
         $ficha = Character::findOrFail($id);
-        
+
         if ($ficha->user_id !== Auth::id()) abort(403);
 
         $data = $request->except(['mutations', 'bonuses', 'powers', 'rituals', 'image']);
@@ -129,11 +129,23 @@ class CharacterController extends Controller
             abort(403, 'Ação não autorizada.');
         }
 
-        if ($character->image) {
-            Storage::disk($this->getStorageDisk())->delete($character->image);
-        }
+        DB::transaction(function () use ($character) {
+            // CORREÇÃO: apaga os relacionamentos ANTES de apagar a ficha,
+            // para não deixar linhas órfãs em mutations/bonuses/survivor_powers/rituals.
+            // Antes disso, essas linhas ficavam no banco para sempre, mesmo depois
+            // da ficha ser excluída (foi o que gerou os registros de teste órfãos
+            // que encontramos, ex: "TESTE 67").
+            $character->mutations()->delete();
+            $character->bonuses()->delete();
+            $character->survivorPowers()->delete();
+            $character->rituals()->delete();
 
-        $character->delete();
+            if ($character->image) {
+                Storage::disk($this->getStorageDisk())->delete($character->image);
+            }
+
+            $character->delete();
+        });
 
         return redirect()->route('fichas.index')->with('success', 'Unidade eliminada.');
     }

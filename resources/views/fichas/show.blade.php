@@ -268,6 +268,7 @@
         @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Coluna 1: Imagem, Status, Atributos -->
             <div class="space-y-6 animate-fadeInUp" style="animation-delay:0.1s">
                 <div class="ark-panel !p-1 relative group overflow-hidden dna-overlay">
                     <div id="watermark-image-show" class="absolute inset-0 bg-cover bg-center opacity-20 pointer-events-none"
@@ -326,6 +327,7 @@
                 </div>
             </div>
 
+            <!-- Colunas 2 e 3: Detalhes -->
             <div class="lg:col-span-2 space-y-6 animate-fadeInUp" style="animation-delay:0.2s">
                 <div class="ark-panel !p-8 relative overflow-hidden">
                     <div class="absolute top-0 right-0 p-6 opacity-5 text-8xl font-medieval font-black uppercase italic pointer-events-none">{{ $ficha->class_main }}</div>
@@ -356,6 +358,7 @@
                     </div>
                 </div>
 
+                <!-- Mutações e Bônus -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="ark-panel !p-6" x-data="{ expanded: false }">
                         <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
@@ -409,6 +412,7 @@
                     </div>
                 </div>
 
+                <!-- Poderes e Rituais -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="ark-panel !p-6" x-data="{ expanded: false }">
                         <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
@@ -464,6 +468,7 @@
                     </div>
                 </div>
 
+                <!-- Inventário -->
                 <div class="ark-panel !p-6" x-data="{ expanded: false }">
                     <div class="flex items-center justify-between border-b pb-3 mb-5" style="border-color:var(--theme-border)">
                         <h3 class="text-lg font-medieval font-black theme-text-primary uppercase tracking-wider">Inventário</h3>
@@ -498,6 +503,21 @@
             <div class="mt-6 flex justify-end">
                 <button onclick="fecharModalShare()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm transition">Fechar</button>
             </div>
+        </div>
+    </div>
+
+    <div id="resgatar-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div class="bg-gray-900 border border-cyan-500/30 rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl">
+            <h3 class="text-xl font-medieval font-black text-cyan-400 uppercase tracking-wider mb-4">Resgatar Ficha</h3>
+            <p class="text-gray-300 text-sm mb-2">Insira o código de compartilhamento:</p>
+            <form action="{{ route('fichas.resgatar') }}" method="POST">
+                @csrf
+                <input type="text" name="code" placeholder="Ex: A1B2C3D4" class="w-full bg-black/60 border border-cyan-500/30 text-white font-mono text-lg px-4 py-2 rounded focus:outline-none focus:border-cyan-400">
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('resgatar-modal').classList.add('hidden')" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm transition">Cancelar</button>
+                    <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 px-4 py-2 rounded text-sm font-bold transition">Resgatar</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -826,19 +846,200 @@
     </div>
 
     <div id="pdf-page-history" class="pdf-page">
-        <!-- ... (conteúdo igual ao anterior, mantenha o que já tem) ... -->
+        <div class="pdfi-root" style="--P:{{ $primaryColor }};--B:{{ $primaryColor }}40;">
+            <div class="pdfi-watermark"><img src="{{ asset('images/'.$watermarkFilePdf) }}"></div>
+            <div style="position:relative;z-index:1;">
+                <div class="pdfi-header">
+                    <div class="pdfi-header-left">
+                        <img class="pdfi-header-logo" src="{{ asset('images/Icone_ark_v4_sum_fundo.png') }}">
+                        <div>
+                            <div class="pdfi-header-title">HISTÓRIA COMPLETA</div>
+                            <div class="pdfi-header-sub">{{ $ficha->name }} · Lore</div>
+                        </div>
+                    </div>
+                    <div class="pdfi-header-right">
+                        <div class="pdfi-header-name">{{ $ficha->name }}</div>
+                        <div class="pdfi-header-class">{{ $ficha->class_sub }} — NV {{ $ficha->level }}</div>
+                    </div>
+                </div>
+                <div class="pdfi-big-card">
+                    <div class="pdfi-big-card-top"></div>
+                    <div style="display:flex;gap:16px;align-items:center;margin-bottom:12px;">
+                        <div class="pdfi-big-card-icon"><span>📜</span></div>
+                        <div class="pdfi-big-card-name">Registro Histórico</div>
+                    </div>
+                    <div class="pdfi-big-card-desc" style="white-space:pre-wrap;font-size:12px;line-height:1.9;color:#bbb;">
+                        {{ $ficha->lore ?: 'Nenhum registro de lore encontrado.' }}
+                    </div>
+                </div>
+                <div class="pdfi-footer">
+                    <span>ARK — Sistema de RPG</span>
+                    <span>{{ $ficha->name }} · História</span>
+                    <span>Gerado em {{ now()->format('d/m/Y') }}</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="pdf-page-2" class="pdf-page">
-        <!-- ... -->
+        <div class="pdfi-root" style="--P:{{ $primaryColor }};--B:{{ $primaryColor }}40;">
+            <div class="pdfi-watermark"><img src="{{ asset('images/'.$watermarkFilePdf) }}"></div>
+            <div style="position:relative;z-index:1;">
+                <div class="pdfi-header">
+                    <div class="pdfi-header-left">
+                        <img class="pdfi-header-logo" src="{{ asset('images/Icone_ark_v4_sum_fundo.png') }}">
+                        <div>
+                            <div class="pdfi-header-title">MUTAÇÕES E BÔNUS</div>
+                            <div class="pdfi-header-sub">{{ $ficha->name }} · Complementos</div>
+                        </div>
+                    </div>
+                    <div class="pdfi-header-right">
+                        <div class="pdfi-header-name">{{ $ficha->name }}</div>
+                        <div class="pdfi-header-class">{{ $ficha->class_sub }} — NV {{ $ficha->level }}</div>
+                    </div>
+                </div>
+                <div class="pdfi-flow-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                    <div>
+                        <div class="pdfi-panel">
+                            <div class="pdfi-panel-head">
+                                <span class="pdfi-panel-title">MUTAÇÕES</span>
+                                <span class="pdfi-panel-sub">Genéticas</span>
+                            </div>
+                            @forelse($ficha->mutations ?? [] as $m)
+                                <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;border:1px solid var(--B);margin-bottom:10px;">
+                                    <div style="font-size:8px;color:var(--P);font-weight:700;text-transform:uppercase;letter-spacing:2px;">{{ $m->origin }}</div>
+                                    <div style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;margin:2px 0;">{{ $m->name }}</div>
+                                    <div style="font-size:11px;color:#888;line-height:1.6;">{{ $m->description }}</div>
+                                </div>
+                            @empty
+                                <p style="font-size:11px;color:#444;font-style:italic;text-align:center;padding:12px 0;">Nenhuma mutação registrada.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                    <div>
+                        <div class="pdfi-panel">
+                            <div class="pdfi-panel-head">
+                                <span class="pdfi-panel-title">BÔNUS</span>
+                                <span class="pdfi-panel-sub">Incrementos</span>
+                            </div>
+                            @forelse($ficha->bonuses ?? [] as $b)
+                                <div class="pdfi-bonus-row">
+                                    <div class="pdfi-bonus-bar"></div>
+                                    <span class="pdfi-bonus-name">{{ $b->name }}</span>
+                                    <span class="pdfi-bonus-val">+{{ $b->value }}</span>
+                                </div>
+                            @empty
+                                <p style="font-size:11px;color:#444;font-style:italic;text-align:center;padding:12px 0;">Nenhum bônus detectado.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+                <div class="pdfi-footer">
+                    <span>ARK — Sistema de RPG</span>
+                    <span>{{ $ficha->name }} · Mutações/Bônus</span>
+                    <span>Gerado em {{ now()->format('d/m/Y') }}</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="pdf-page-3" class="pdf-page">
-        <!-- ... -->
+        <div class="pdfi-root" style="--P:{{ $primaryColor }};--B:{{ $primaryColor }}40;">
+            <div class="pdfi-watermark"><img src="{{ asset('images/'.$watermarkFilePdf) }}"></div>
+            <div style="position:relative;z-index:1;">
+                <div class="pdfi-header">
+                    <div class="pdfi-header-left">
+                        <img class="pdfi-header-logo" src="{{ asset('images/Icone_ark_v4_sum_fundo.png') }}">
+                        <div>
+                            <div class="pdfi-header-title">PODERES E RITUAIS</div>
+                            <div class="pdfi-header-sub">{{ $ficha->name }} · Habilidades</div>
+                        </div>
+                    </div>
+                    <div class="pdfi-header-right">
+                        <div class="pdfi-header-name">{{ $ficha->name }}</div>
+                        <div class="pdfi-header-class">{{ $ficha->class_sub }} — NV {{ $ficha->level }}</div>
+                    </div>
+                </div>
+                <div class="pdfi-flow-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                    <div>
+                        <div class="pdfi-panel">
+                            <div class="pdfi-panel-head">
+                                <span class="pdfi-panel-title">PODERES</span>
+                                <span class="pdfi-panel-sub">Habilidades</span>
+                            </div>
+                            @forelse($ficha->survivorPowers ?? [] as $p)
+                                <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;border:1px solid var(--B);margin-bottom:10px;">
+                                    <div style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;">{{ $p->name }}</div>
+                                    <div style="font-size:11px;color:#888;line-height:1.6;">{{ $p->description }}</div>
+                                </div>
+                            @empty
+                                <p style="font-size:11px;color:#444;font-style:italic;text-align:center;padding:12px 0;">Sem poderes registrados.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                    <div>
+                        <div class="pdfi-panel">
+                            <div class="pdfi-panel-head">
+                                <span class="pdfi-panel-title">RITUAIS</span>
+                                <span class="pdfi-panel-sub">Pactos</span>
+                            </div>
+                            @forelse($ficha->rituals ?? [] as $r)
+                                <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;border:1px solid var(--B);margin-bottom:10px;">
+                                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                                        <span style="font-size:7px;background:rgba(153,27,27,0.6);color:#fca5a5;padding:2px 6px;border-radius:3px;font-weight:900;text-transform:uppercase;">{{ $r->type??'Protocolo' }}</span>
+                                        <span style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;">{{ $r->name }}</span>
+                                    </div>
+                                    <div style="font-size:11px;color:#888;line-height:1.6;">{{ $r->description }}</div>
+                                </div>
+                            @empty
+                                <p style="font-size:11px;color:#444;font-style:italic;text-align:center;padding:12px 0;">Sem rituais manifestados.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+                <div class="pdfi-footer">
+                    <span>ARK — Sistema de RPG</span>
+                    <span>{{ $ficha->name }} · Poderes/Rituais</span>
+                    <span>Gerado em {{ now()->format('d/m/Y') }}</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="pdf-page-4" class="pdf-page">
-        <!-- ... -->
+        <div class="pdfi-root" style="--P:{{ $primaryColor }};--B:{{ $primaryColor }}40;">
+            <div class="pdfi-watermark"><img src="{{ asset('images/'.$watermarkFilePdf) }}"></div>
+            <div style="position:relative;z-index:1;">
+                <div class="pdfi-header">
+                    <div class="pdfi-header-left">
+                        <img class="pdfi-header-logo" src="{{ asset('images/Icone_ark_v4_sum_fundo.png') }}">
+                        <div>
+                            <div class="pdfi-header-title">INVENTÁRIO</div>
+                            <div class="pdfi-header-sub">{{ $ficha->name }} · Carga</div>
+                        </div>
+                    </div>
+                    <div class="pdfi-header-right">
+                        <div class="pdfi-header-name">{{ $ficha->name }}</div>
+                        <div class="pdfi-header-class">{{ $ficha->class_sub }} — NV {{ $ficha->level }}</div>
+                    </div>
+                </div>
+                <div class="pdfi-big-card" style="margin-top:12px;">
+                    <div class="pdfi-big-card-top"></div>
+                    <div style="display:flex;gap:16px;align-items:center;margin-bottom:12px;">
+                        <div class="pdfi-big-card-icon"><span>🎒</span></div>
+                        <div class="pdfi-big-card-name">Inventário</div>
+                    </div>
+                    <div style="font-family:monospace;font-size:12px;color:#aaa;background:rgba(0,0,0,0.4);padding:16px;border-radius:6px;border:1px solid var(--B);white-space:pre-wrap;line-height:1.8;">
+                        {{ trim($ficha->arsenal) ?: 'NENHUM EQUIPAMENTO REGISTRADO.' }}
+                    </div>
+                </div>
+                <div class="pdfi-footer">
+                    <span>ARK — Sistema de RPG</span>
+                    <span>{{ $ficha->name }} · Inventário</span>
+                    <span>Gerado em {{ now()->format('d/m/Y') }}</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Botão voltar ao topo --}}
