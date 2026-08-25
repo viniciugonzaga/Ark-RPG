@@ -70,15 +70,15 @@ class CharacterController extends Controller
         return redirect()->route('fichas.show', $character->id)->with('success', 'Unidade Registrada.');
     }
 
-    public function show($id)
-    {
-        $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
-                          ->findOrFail($id);
+public function show($id)
+{
+    $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
+                      ->findOrFail($id);
 
-        if ($ficha->user_id !== Auth::id()) abort(403, 'Acesso negado a Ficha.');
+    if ($ficha->user_id !== Auth::id()) abort(403, 'Acesso negado a Ficha.');
 
-        return view('fichas.show', compact('ficha'));
-    }
+    return view('fichas.show', compact('ficha'));
+}
 
     public function edit($id)
     {
