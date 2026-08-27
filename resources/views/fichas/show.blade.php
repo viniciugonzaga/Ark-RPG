@@ -29,6 +29,7 @@
 
         $primaryColor = $cores[$peculiaridade]['primary'] ?? '#00f2ff';
         $secondaryColor = $cores[$peculiaridade]['secondary'] ?? '#4deaff';
+
         $watermarkFile = $watermarksByPeculiaridade[$peculiaridade] ?? 'watermark_pegada.png';
         $watermarkFilePdf = $watermarksByPeculiaridade[$peculiaridade] ?? 'watermark_pegada.png';
 
@@ -134,73 +135,6 @@
         ];
         $posAtual = $posicoes[$peculiaridade] ?? $posicoes['Padrão'];
     @endphp
-
-    {{-- BLOCO DE DEPURAÇÃO (ativado com ?debug=1) --}}
-    @if(request()->has('debug'))
-        @php
-            use Illuminate\Support\Facades\DB;
-            $mutationsDB = DB::table('mutations')->where('character_id', $ficha->id)->get();
-            $bonusesDB = DB::table('bonuses')->where('character_id', $ficha->id)->get();
-            $powersDB = DB::table('survivor_powers')->where('character_id', $ficha->id)->get();
-            $ritualsDB = DB::table('rituals')->where('character_id', $ficha->id)->get();
-        @endphp
-        <div style="background: #1a1a1a; border: 2px solid #fbbf24; padding: 20px; margin: 20px; color: #e5e7eb; font-family: monospace; position: relative; z-index: 9999; border-radius: 8px;">
-            <h2 style="color: #fbbf24; margin-top: 0;">🔍 DEPURAÇÃO DA FICHA (ID: {{ $ficha->id }})</h2>
-            <p><strong>Relacionamentos carregados com 'with':</strong></p>
-            <ul>
-                <li>mutations: {{ $ficha->relationLoaded('mutations') ? '✅ SIM' : '❌ NÃO' }}</li>
-                <li>bonuses: {{ $ficha->relationLoaded('bonuses') ? '✅ SIM' : '❌ NÃO' }}</li>
-                <li>survivorPowers: {{ $ficha->relationLoaded('survivorPowers') ? '✅ SIM' : '❌ NÃO' }}</li>
-                <li>rituals: {{ $ficha->relationLoaded('rituals') ? '✅ SIM' : '❌ NÃO' }}</li>
-            </ul>
-            <p><strong>Contagem via relação:</strong></p>
-            <ul>
-                <li>Mutações: {{ $ficha->mutations ? $ficha->mutations->count() : 0 }}</li>
-                <li>Bônus: {{ $ficha->bonuses ? $ficha->bonuses->count() : 0 }}</li>
-                <li>Poderes: {{ $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0 }}</li>
-                <li>Rituais: {{ $ficha->rituals ? $ficha->rituals->count() : 0 }}</li>
-            </ul>
-            <p><strong>Dump dos dados carregados:</strong></p>
-            <pre style="background: #000; padding: 10px; overflow: auto; max-height: 300px; border: 1px solid #555; color: #0f0;">
-MUTATIONS:
-{{ var_export($ficha->mutations ? $ficha->mutations->toArray() : [], true) }}
-
-BONUSES:
-{{ var_export($ficha->bonuses ? $ficha->bonuses->toArray() : [], true) }}
-
-POWERS:
-{{ var_export($ficha->survivorPowers ? $ficha->survivorPowers->toArray() : [], true) }}
-
-RITUALS:
-{{ var_export($ficha->rituals ? $ficha->rituals->toArray() : [], true) }}
-            </pre>
-            <p><strong>Consulta direta ao banco (ignorando Eloquent):</strong></p>
-            <ul>
-                <li>Mutações (DB): {{ $mutationsDB->count() }} registros</li>
-                <li>Bônus (DB): {{ $bonusesDB->count() }} registros</li>
-                <li>Poderes (DB): {{ $powersDB->count() }} registros</li>
-                <li>Rituais (DB): {{ $ritualsDB->count() }} registros</li>
-            </ul>
-            @if($mutationsDB->count() > 0)
-                <pre style="background: #000; padding: 10px; overflow: auto; max-height: 200px;">{{ var_export($mutationsDB->toArray(), true) }}</pre>
-            @endif
-            @php
-                \Illuminate\Support\Facades\Log::debug('DEPURAÇÃO SHOW', [
-                    'ficha_id' => $ficha->id,
-                    'mutations_count' => $ficha->mutations ? $ficha->mutations->count() : 0,
-                    'bonuses_count' => $ficha->bonuses ? $ficha->bonuses->count() : 0,
-                    'powers_count' => $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0,
-                    'rituals_count' => $ficha->rituals ? $ficha->rituals->count() : 0,
-                    'mutations_data' => $ficha->mutations ? $ficha->mutations->toArray() : [],
-                    'bonuses_data' => $ficha->bonuses ? $ficha->bonuses->toArray() : [],
-                    'powers_data' => $ficha->survivorPowers ? $ficha->survivorPowers->toArray() : [],
-                    'rituals_data' => $ficha->rituals ? $ficha->rituals->toArray() : [],
-                ]);
-            @endphp
-            <p style="color: #4ade80;">✅ Log enviado para <code>storage/logs/laravel.log</code></p>
-            <p style="color: #f87171;"><em>Remova este bloco após identificar o erro. Para esconder, acesse a URL sem <code>?debug=1</code>.</em></p>
-        </div>
-    @endif
 
     <div class="fixed inset-0 -z-10">
         <img src="{{ asset('images/'.$bgShow) }}" alt="Background" class="w-full h-full object-cover opacity-40">
@@ -808,7 +742,7 @@ RITUALS:
                                 <div style="background:rgba(0,0,0,0.4);padding:10px;border-radius:6px;border:1px solid var(--B);margin-bottom:8px;">
                                     <div style="font-size:8px;color:var(--P);font-weight:700;text-transform:uppercase;letter-spacing:2px;">{{ $m->origin }}</div>
                                     <div style="font-size:12px;font-weight:900;color:#fff;text-transform:uppercase;margin:2px 0;">{{ $m->name }}</div>
-                                    <div style="font-size:10px;color:#888;line-height:1.5;">{{ Str::limit($m->description,90) }}</div>
+                                    <div style="font-size:10px;color:#888;line-height:1.5;">{{ \Illuminate\Support\Str::limit($m->description,90) }}</div>
                                 </div>
                             @empty
                                 <p style="font-size:11px;color:#444;font-style:italic;text-align:center;padding:12px 0;">Nenhuma mutação.</p>
@@ -822,7 +756,7 @@ RITUALS:
                                 <span class="pdfi-panel-title">BÔNUS</span>
                                 <span class="pdfi-panel-sub">Incrementos</span>
                             </div>
-                            @forelse(collect($ficha->bonuses ?? [])->sortByDesc('value')->take(4) as $b)
+                            @forelse(collect($ficha->bonuses ?? collect())->sortByDesc('value')->take(4) as $b)
                                 <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.4);padding:8px 10px;border-radius:6px;border:1px solid var(--B);margin-bottom:6px;">
                                     <span style="font-size:10px;font-weight:700;color:#ccc;text-transform:uppercase;">{{ $b->name }}</span>
                                     <span style="font-size:18px;font-weight:900;color:var(--P);">+{{ $b->value }}</span>
