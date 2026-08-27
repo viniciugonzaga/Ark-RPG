@@ -70,22 +70,26 @@ class CharacterController extends Controller
         return redirect()->route('fichas.show', $character->id)->with('success', 'Unidade Registrada.');
     }
 
-public function show($id)
-{
-    $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
-                      ->findOrFail($id);
+    public function show($id)
+    {
+        $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
+                          ->findOrFail($id);
 
-    if ($ficha->user_id !== Auth::id()) abort(403, 'Acesso negado a Ficha.');
+        if ($ficha->user_id !== Auth::id()) {
+            abort(403, 'Acesso negado a Ficha.');
+        }
 
-    return view('fichas.show', compact('ficha'));
-}
+        return view('fichas.show', compact('ficha'));
+    }
 
     public function edit($id)
     {
         $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
                           ->findOrFail($id);
 
-        if ($ficha->user_id !== Auth::id()) abort(403);
+        if ($ficha->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         return view('fichas.edit', compact('ficha'));
     }
@@ -94,7 +98,9 @@ public function show($id)
     {
         $ficha = Character::findOrFail($id);
 
-        if ($ficha->user_id !== Auth::id()) abort(403);
+        if ($ficha->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         $data = $request->except(['mutations', 'bonuses', 'powers', 'rituals', 'image']);
 
@@ -130,11 +136,6 @@ public function show($id)
         }
 
         DB::transaction(function () use ($character) {
-            // CORREÇÃO: apaga os relacionamentos ANTES de apagar a ficha,
-            // para não deixar linhas órfãs em mutations/bonuses/survivor_powers/rituals.
-            // Antes disso, essas linhas ficavam no banco para sempre, mesmo depois
-            // da ficha ser excluída (foi o que gerou os registros de teste órfãos
-            // que encontramos, ex: "TESTE 67").
             $character->mutations()->delete();
             $character->bonuses()->delete();
             $character->survivorPowers()->delete();
@@ -161,26 +162,20 @@ public function show($id)
         return response()->json(['code' => $code]);
     }
 
-    /**
-     * Resgatar uma ficha compartilhada
-     */
     public function resgatar(Request $request)
     {
         $request->validate([
             'code' => 'required|string|exists:fichas,share_code',
         ]);
 
-        // Carrega a ficha original com TODOS os relacionamentos que serão clonados
         $original = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
                     ->where('share_code', $request->code)
                     ->firstOrFail();
 
-        // Impedir que o próprio dono resgate
         if ($original->user_id === Auth::id()) {
             return back()->with('error', 'Você já é o dono desta ficha.');
         }
 
-        // Clonar a ficha
         $nova = $original->replicate();
         $nova->user_id = Auth::id();
         $nova->share_code = null;
@@ -188,10 +183,8 @@ public function show($id)
         $nova->original_user_id = $original->user_id;
         $nova->save();
 
-        // Copiar relacionamentos (agora com segurança)
         $relacoes = ['mutations', 'bonuses', 'survivorPowers', 'rituals'];
         foreach ($relacoes as $rel) {
-            // Verificação extra para evitar erro (opcional, mas seguro)
             if ($original->$rel) {
                 foreach ($original->$rel as $item) {
                     $newItem = $item->replicate();

@@ -372,7 +372,7 @@
                     </div>
                     <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
                         <div class="space-y-4">
-                            @forelse($ficha->mutations ?? [] as $m)
+                            @forelse($ficha->mutations as $m)
                                 <div class="bg-black/40 p-4 rounded-lg border border-white/10 hover:border-opacity-50 transition-all" style="border-color:var(--theme-border)">
                                     <div class="text-[10px] theme-text-primary font-bold uppercase tracking-wider">{{ $m->origin }}</div>
                                     <div class="font-medieval font-bold text-white uppercase text-base mt-1">{{ $m->name }}</div>
@@ -399,7 +399,7 @@
                     </div>
                     <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
                         <div class="space-y-3">
-                            @forelse($ficha->bonuses ?? [] as $b)
+                            @forelse($ficha->bonuses as $b)
                                 <div class="flex justify-between items-center bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
                                     <span class="text-sm uppercase font-bold text-gray-200">{{ $b->name }}</span>
                                     <span class="theme-text-primary font-medieval font-black text-xl">+{{ $b->value }}</span>
@@ -425,7 +425,7 @@
                     </div>
                     <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
                         <div class="space-y-4">
-                            @forelse($ficha->survivorPowers ?? [] as $p)
+                            @forelse($ficha->survivorPowers as $p)
                                 <div class="bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
                                     <div class="font-medieval font-bold text-white uppercase text-base">{{ $p->name }}</div>
                                     <p class="text-xs text-gray-400 mt-2 leading-relaxed">{{ $p->description }}</p>
@@ -451,7 +451,7 @@
                     </div>
                     <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
                         <div class="space-y-4">
-                            @forelse($ficha->rituals ?? [] as $r)
+                            @forelse($ficha->rituals as $r)
                                 <div class="bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-[8px] bg-red-900/60 text-red-200 px-2 py-0.5 rounded uppercase font-black tracking-wider">{{ $r->type ?? 'Protocolo' }}</span>
@@ -519,7 +519,7 @@
         </div>
     </div>
 
-    {{-- PÁGINAS PDF --}}
+    {{-- PÁGINAS PDF (apenas o necessário, mas vou manter a estrutura) --}}
     <style>
         .pdf-page { display:none !important; }
         .pdfi-root {
@@ -903,7 +903,7 @@
                                 <span class="pdfi-panel-title">MUTAÇÕES</span>
                                 <span class="pdfi-panel-sub">Genéticas</span>
                             </div>
-                            @forelse($ficha->mutations ?? [] as $m)
+                            @forelse($ficha->mutations as $m)
                                 <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;border:1px solid var(--B);margin-bottom:10px;">
                                     <div style="font-size:8px;color:var(--P);font-weight:700;text-transform:uppercase;letter-spacing:2px;">{{ $m->origin }}</div>
                                     <div style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;margin:2px 0;">{{ $m->name }}</div>
@@ -920,7 +920,7 @@
                                 <span class="pdfi-panel-title">BÔNUS</span>
                                 <span class="pdfi-panel-sub">Incrementos</span>
                             </div>
-                            @forelse($ficha->bonuses ?? [] as $b)
+                            @forelse($ficha->bonuses as $b)
                                 <div class="pdfi-bonus-row">
                                     <div class="pdfi-bonus-bar"></div>
                                     <span class="pdfi-bonus-name">{{ $b->name }}</span>
@@ -965,7 +965,7 @@
                                 <span class="pdfi-panel-title">PODERES</span>
                                 <span class="pdfi-panel-sub">Habilidades</span>
                             </div>
-                            @forelse($ficha->survivorPowers ?? [] as $p)
+                            @forelse($ficha->survivorPowers as $p)
                                 <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;border:1px solid var(--B);margin-bottom:10px;">
                                     <div style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;">{{ $p->name }}</div>
                                     <div style="font-size:11px;color:#888;line-height:1.6;">{{ $p->description }}</div>
@@ -981,7 +981,7 @@
                                 <span class="pdfi-panel-title">RITUAIS</span>
                                 <span class="pdfi-panel-sub">Pactos</span>
                             </div>
-                            @forelse($ficha->rituals ?? [] as $r)
+                            @forelse($ficha->rituals as $r)
                                 <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;border:1px solid var(--B);margin-bottom:10px;">
                                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
                                         <span style="font-size:7px;background:rgba(153,27,27,0.6);color:#fca5a5;padding:2px 6px;border-radius:3px;font-weight:900;text-transform:uppercase;">{{ $r->type??'Protocolo' }}</span>
