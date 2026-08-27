@@ -68,7 +68,6 @@ class CharacterController extends Controller
             return $char;
         });
 
-        // LOG após criar
         Log::debug('STORE - Ficha criada', [
             'character_id' => $character->id,
             'mutations_count' => $character->mutations()->count(),
@@ -83,13 +82,20 @@ class CharacterController extends Controller
     public function show($id)
     {
         $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
-                      ->findOrFail($id);
+            ->findOrFail($id);
 
         if ($ficha->user_id !== Auth::id()) {
             abort(403, 'Acesso negado a Ficha.');
         }
 
-        // LOG: verifica se os relacionamentos foram carregados
+        $ficha->loadMissing(['mutations', 'bonuses', 'survivorPowers', 'rituals']);
+
+        // Garante coleções sempre consistentes para a view
+        $ficha->setRelation('mutations', $ficha->mutations ?? collect());
+        $ficha->setRelation('bonuses', $ficha->bonuses ?? collect());
+        $ficha->setRelation('survivorPowers', $ficha->survivorPowers ?? collect());
+        $ficha->setRelation('rituals', $ficha->rituals ?? collect());
+
         Log::debug('SHOW - Relações carregadas', [
             'id' => $ficha->id,
             'mutations_loaded' => $ficha->relationLoaded('mutations'),
@@ -102,18 +108,17 @@ class CharacterController extends Controller
             'rituals_count'    => $ficha->rituals->count(),
         ]);
 
-        // Garantir que os relacionamentos sejam coleções vazias se não houver dados
-        $ficha->loadMissing(['mutations', 'bonuses', 'survivorPowers', 'rituals']);
-
         return view('fichas.show', compact('ficha'));
     }
 
     public function edit($id)
     {
         $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
-                          ->findOrFail($id);
+            ->findOrFail($id);
 
-        if ($ficha->user_id !== Auth::id()) abort(403);
+        if ($ficha->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         return view('fichas.edit', compact('ficha'));
     }
@@ -122,7 +127,9 @@ class CharacterController extends Controller
     {
         $ficha = Character::findOrFail($id);
 
-        if ($ficha->user_id !== Auth::id()) abort(403);
+        if ($ficha->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         $data = $request->except(['mutations', 'bonuses', 'powers', 'rituals', 'image']);
 
@@ -146,7 +153,6 @@ class CharacterController extends Controller
             $this->syncRelationsBulk($ficha, $request);
         });
 
-        // LOG após atualizar
         Log::debug('UPDATE - Ficha atualizada', [
             'character_id' => $ficha->id,
             'mutations_count' => $ficha->mutations()->count(),
@@ -182,13 +188,13 @@ class CharacterController extends Controller
         return redirect()->route('fichas.index')->with('success', 'Unidade eliminada.');
     }
 
-    // ========== COMPARTILHAMENTO ==========
     public function share($id)
     {
         $ficha = Character::findOrFail($id);
         if ($ficha->user_id !== Auth::id()) {
             abort(403, 'Você não é o dono desta ficha.');
         }
+
         $code = $ficha->share();
         return response()->json(['code' => $code]);
     }
@@ -200,8 +206,8 @@ class CharacterController extends Controller
         ]);
 
         $original = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
-                    ->where('share_code', $request->code)
-                    ->firstOrFail();
+            ->where('share_code', $request->code)
+            ->firstOrFail();
 
         if ($original->user_id === Auth::id()) {
             return back()->with('error', 'Você já é o dono desta ficha.');
@@ -216,25 +222,21 @@ class CharacterController extends Controller
 
         $relacoes = ['mutations', 'bonuses', 'survivorPowers', 'rituals'];
         foreach ($relacoes as $rel) {
-            if ($original->$rel) {
-                foreach ($original->$rel as $item) {
-                    $newItem = $item->replicate();
-                    $newItem->character_id = $nova->id;
-                    $newItem->save();
-                }
+            foreach ($original->$rel as $item) {
+                $newItem = $item->replicate();
+                $newItem->character_id = $nova->id;
+                $newItem->save();
             }
         }
 
         return redirect()->route('fichas.show', $nova->id)
-                         ->with('success', 'Ficha resgatada com sucesso!');
+            ->with('success', 'Ficha resgatada com sucesso!');
     }
 
-    // ========== MÉTODO AUXILIAR ==========
     private function syncRelationsBulk(Character $character, Request $request)
     {
         $now = now();
 
-        // MUTAÇÕES
         if ($request->has('mutations') && is_array($request->mutations)) {
             $mutationsData = [];
             foreach ($request->mutations as $mut) {
@@ -250,14 +252,10 @@ class CharacterController extends Controller
                 }
             }
             if (!empty($mutationsData)) {
-                Log::debug('SYNC - Inserindo mutações', $mutationsData);
                 $character->mutations()->insert($mutationsData);
-            } else {
-                Log::debug('SYNC - Nenhuma mutação para inserir');
             }
         }
 
-        // BÔNUS
         if ($request->has('bonuses') && is_array($request->bonuses)) {
             $bonusesData = [];
             foreach ($request->bonuses as $bonus) {
@@ -272,14 +270,10 @@ class CharacterController extends Controller
                 }
             }
             if (!empty($bonusesData)) {
-                Log::debug('SYNC - Inserindo bônus', $bonusesData);
                 $character->bonuses()->insert($bonusesData);
-            } else {
-                Log::debug('SYNC - Nenhum bônus para inserir');
             }
         }
 
-        // RITUAIS
         if ($request->has('rituals') && is_array($request->rituals)) {
             $ritualsData = [];
             foreach ($request->rituals as $ritual) {
@@ -295,14 +289,10 @@ class CharacterController extends Controller
                 }
             }
             if (!empty($ritualsData)) {
-                Log::debug('SYNC - Inserindo rituais', $ritualsData);
                 $character->rituals()->insert($ritualsData);
-            } else {
-                Log::debug('SYNC - Nenhum ritual para inserir');
             }
         }
 
-        // PODERES
         if ($request->has('powers') && is_array($request->powers)) {
             $powersData = [];
             foreach ($request->powers as $power) {
@@ -317,10 +307,7 @@ class CharacterController extends Controller
                 }
             }
             if (!empty($powersData)) {
-                Log::debug('SYNC - Inserindo poderes', $powersData);
                 $character->survivorPowers()->insert($powersData);
-            } else {
-                Log::debug('SYNC - Nenhum poder para inserir');
             }
         }
     }

@@ -135,11 +135,17 @@
         $posAtual = $posicoes[$peculiaridade] ?? $posicoes['Padrão'];
     @endphp
 
-    {{-- ==================== BLOCO DE DEPURAÇÃO ==================== --}}
+    {{-- BLOCO DE DEPURAÇÃO (ativado com ?debug=1) --}}
     @if(request()->has('debug'))
+        @php
+            use Illuminate\Support\Facades\DB;
+            $mutationsDB = DB::table('mutations')->where('character_id', $ficha->id)->get();
+            $bonusesDB = DB::table('bonuses')->where('character_id', $ficha->id)->get();
+            $powersDB = DB::table('survivor_powers')->where('character_id', $ficha->id)->get();
+            $ritualsDB = DB::table('rituals')->where('character_id', $ficha->id)->get();
+        @endphp
         <div style="background: #1a1a1a; border: 2px solid #fbbf24; padding: 20px; margin: 20px; color: #e5e7eb; font-family: monospace; position: relative; z-index: 9999; border-radius: 8px;">
             <h2 style="color: #fbbf24; margin-top: 0;">🔍 DEPURAÇÃO DA FICHA (ID: {{ $ficha->id }})</h2>
-
             <p><strong>Relacionamentos carregados com 'with':</strong></p>
             <ul>
                 <li>mutations: {{ $ficha->relationLoaded('mutations') ? '✅ SIM' : '❌ NÃO' }}</li>
@@ -147,37 +153,27 @@
                 <li>survivorPowers: {{ $ficha->relationLoaded('survivorPowers') ? '✅ SIM' : '❌ NÃO' }}</li>
                 <li>rituals: {{ $ficha->relationLoaded('rituals') ? '✅ SIM' : '❌ NÃO' }}</li>
             </ul>
-
             <p><strong>Contagem via relação:</strong></p>
             <ul>
-                <li>Mutações: {{ $ficha->mutations->count() }}</li>
-                <li>Bônus: {{ $ficha->bonuses->count() }}</li>
-                <li>Poderes: {{ $ficha->survivorPowers->count() }}</li>
-                <li>Rituais: {{ $ficha->rituals->count() }}</li>
+                <li>Mutações: {{ $ficha->mutations ? $ficha->mutations->count() : 0 }}</li>
+                <li>Bônus: {{ $ficha->bonuses ? $ficha->bonuses->count() : 0 }}</li>
+                <li>Poderes: {{ $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0 }}</li>
+                <li>Rituais: {{ $ficha->rituals ? $ficha->rituals->count() : 0 }}</li>
             </ul>
-
             <p><strong>Dump dos dados carregados:</strong></p>
             <pre style="background: #000; padding: 10px; overflow: auto; max-height: 300px; border: 1px solid #555; color: #0f0;">
-                @php
-                    echo "MUTATIONS:\n";
-                    var_dump($ficha->mutations->toArray());
-                    echo "\nBONUSES:\n";
-                    var_dump($ficha->bonuses->toArray());
-                    echo "\nPOWERS:\n";
-                    var_dump($ficha->survivorPowers->toArray());
-                    echo "\nRITUALS:\n";
-                    var_dump($ficha->rituals->toArray());
-                @endphp
-            </pre>
+MUTATIONS:
+{{ var_export($ficha->mutations ? $ficha->mutations->toArray() : [], true) }}
 
-            {{-- Consulta direta ao banco --}}
-            @php
-                use Illuminate\Support\Facades\DB;
-                $mutationsDB = DB::table('mutations')->where('character_id', $ficha->id)->get();
-                $bonusesDB = DB::table('bonuses')->where('character_id', $ficha->id)->get();
-                $powersDB = DB::table('survivor_powers')->where('character_id', $ficha->id)->get();
-                $ritualsDB = DB::table('rituals')->where('character_id', $ficha->id)->get();
-            @endphp
+BONUSES:
+{{ var_export($ficha->bonuses ? $ficha->bonuses->toArray() : [], true) }}
+
+POWERS:
+{{ var_export($ficha->survivorPowers ? $ficha->survivorPowers->toArray() : [], true) }}
+
+RITUALS:
+{{ var_export($ficha->rituals ? $ficha->rituals->toArray() : [], true) }}
+            </pre>
             <p><strong>Consulta direta ao banco (ignorando Eloquent):</strong></p>
             <ul>
                 <li>Mutações (DB): {{ $mutationsDB->count() }} registros</li>
@@ -188,25 +184,23 @@
             @if($mutationsDB->count() > 0)
                 <pre style="background: #000; padding: 10px; overflow: auto; max-height: 200px;">{{ var_export($mutationsDB->toArray(), true) }}</pre>
             @endif
-
             @php
-                Log::debug('DEPURAÇÃO SHOW', [
+                \Illuminate\Support\Facades\Log::debug('DEPURAÇÃO SHOW', [
                     'ficha_id' => $ficha->id,
-                    'mutations_count' => $ficha->mutations->count(),
-                    'bonuses_count' => $ficha->bonuses->count(),
-                    'powers_count' => $ficha->survivorPowers->count(),
-                    'rituals_count' => $ficha->rituals->count(),
-                    'mutations_data' => $ficha->mutations->toArray(),
-                    'bonuses_data' => $ficha->bonuses->toArray(),
-                    'powers_data' => $ficha->survivorPowers->toArray(),
-                    'rituals_data' => $ficha->rituals->toArray(),
+                    'mutations_count' => $ficha->mutations ? $ficha->mutations->count() : 0,
+                    'bonuses_count' => $ficha->bonuses ? $ficha->bonuses->count() : 0,
+                    'powers_count' => $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0,
+                    'rituals_count' => $ficha->rituals ? $ficha->rituals->count() : 0,
+                    'mutations_data' => $ficha->mutations ? $ficha->mutations->toArray() : [],
+                    'bonuses_data' => $ficha->bonuses ? $ficha->bonuses->toArray() : [],
+                    'powers_data' => $ficha->survivorPowers ? $ficha->survivorPowers->toArray() : [],
+                    'rituals_data' => $ficha->rituals ? $ficha->rituals->toArray() : [],
                 ]);
             @endphp
             <p style="color: #4ade80;">✅ Log enviado para <code>storage/logs/laravel.log</code></p>
             <p style="color: #f87171;"><em>Remova este bloco após identificar o erro. Para esconder, acesse a URL sem <code>?debug=1</code>.</em></p>
         </div>
     @endif
-    {{-- ==================== FIM DA DEPURAÇÃO ==================== --}}
 
     <div class="fixed inset-0 -z-10">
         <img src="{{ asset('images/'.$bgShow) }}" alt="Background" class="w-full h-full object-cover opacity-40">
@@ -444,10 +438,7 @@
                     </div>
                     <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
                         <div class="space-y-4">
-                            @if(request()->has('debug') && $ficha->mutations->count() === 0)
-                                <div style="background: #dc2626; color: white; padding: 10px; margin-bottom: 10px;">⚠️ NENHUMA MUTAÇÃO ENCONTRADA NA RELAÇÃO! Verifique o dump acima.</div>
-                            @endif
-                            @forelse(($ficha->mutations ?? []) as $m)
+                            @forelse(($ficha->mutations ?? collect()) as $m)
                                 <div class="bg-black/40 p-4 rounded-lg border border-white/10 hover:border-opacity-50 transition-all" style="border-color:var(--theme-border)">
                                     <div class="text-[10px] theme-text-primary font-bold uppercase tracking-wider">{{ $m->origin }}</div>
                                     <div class="font-medieval font-bold text-white uppercase text-base mt-1">{{ $m->name }}</div>
@@ -474,7 +465,7 @@
                     </div>
                     <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
                         <div class="space-y-3">
-                            @forelse(($ficha->bonuses ?? []) as $b)
+                            @forelse(($ficha->bonuses ?? collect()) as $b)
                                 <div class="flex justify-between items-center bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
                                     <span class="text-sm uppercase font-bold text-gray-200">{{ $b->name }}</span>
                                     <span class="theme-text-primary font-medieval font-black text-xl">+{{ $b->value }}</span>
@@ -500,7 +491,7 @@
                     </div>
                     <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
                         <div class="space-y-4">
-                            @forelse(($ficha->survivorPowers ?? []) as $p)
+                            @forelse(($ficha->survivorPowers ?? collect()) as $p)
                                 <div class="bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
                                     <div class="font-medieval font-bold text-white uppercase text-base">{{ $p->name }}</div>
                                     <p class="text-xs text-gray-400 mt-2 leading-relaxed">{{ $p->description }}</p>
@@ -526,7 +517,7 @@
                     </div>
                     <div :class="expanded ? 'expanded' : 'collapsed'" class="collapse-container collapsed">
                         <div class="space-y-4">
-                            @forelse(($ficha->rituals ?? []) as $r)
+                            @forelse(($ficha->rituals ?? collect()) as $r)
                                 <div class="bg-black/40 p-4 rounded-lg border" style="border-color:var(--theme-border)">
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-[8px] bg-red-900/60 text-red-200 px-2 py-0.5 rounded uppercase font-black tracking-wider">{{ $r->type ?? 'Protocolo' }}</span>
@@ -576,6 +567,21 @@
             <div class="mt-6 flex justify-end">
                 <button onclick="fecharModalShare()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm transition">Fechar</button>
             </div>
+        </div>
+    </div>
+
+    <div id="resgatar-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div class="bg-gray-900 border border-cyan-500/30 rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl">
+            <h3 class="text-xl font-medieval font-black text-cyan-400 uppercase tracking-wider mb-4">Resgatar Ficha</h3>
+            <p class="text-gray-300 text-sm mb-2">Insira o código de compartilhamento:</p>
+            <form action="{{ route('fichas.resgatar') }}" method="POST">
+                @csrf
+                <input type="text" name="code" placeholder="Ex: A1B2C3D4" class="w-full bg-black/60 border border-cyan-500/30 text-white font-mono text-lg px-4 py-2 rounded focus:outline-none focus:border-cyan-400">
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('resgatar-modal').classList.add('hidden')" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm transition">Cancelar</button>
+                    <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 px-4 py-2 rounded text-sm font-bold transition">Resgatar</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -963,7 +969,7 @@
                                 <span class="pdfi-panel-title">MUTAÇÕES</span>
                                 <span class="pdfi-panel-sub">Genéticas</span>
                             </div>
-                            @forelse(($ficha->mutations ?? []) as $m)
+                            @forelse(($ficha->mutations ?? collect()) as $m)
                                 <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;border:1px solid var(--B);margin-bottom:10px;">
                                     <div style="font-size:8px;color:var(--P);font-weight:700;text-transform:uppercase;letter-spacing:2px;">{{ $m->origin }}</div>
                                     <div style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;margin:2px 0;">{{ $m->name }}</div>
@@ -980,7 +986,7 @@
                                 <span class="pdfi-panel-title">BÔNUS</span>
                                 <span class="pdfi-panel-sub">Incrementos</span>
                             </div>
-                            @forelse(($ficha->bonuses ?? []) as $b)
+                            @forelse(($ficha->bonuses ?? collect()) as $b)
                                 <div class="pdfi-bonus-row">
                                     <div class="pdfi-bonus-bar"></div>
                                     <span class="pdfi-bonus-name">{{ $b->name }}</span>
@@ -1025,7 +1031,7 @@
                                 <span class="pdfi-panel-title">PODERES</span>
                                 <span class="pdfi-panel-sub">Habilidades</span>
                             </div>
-                            @forelse(($ficha->survivorPowers ?? []) as $p)
+                            @forelse(($ficha->survivorPowers ?? collect()) as $p)
                                 <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;border:1px solid var(--B);margin-bottom:10px;">
                                     <div style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;">{{ $p->name }}</div>
                                     <div style="font-size:11px;color:#888;line-height:1.6;">{{ $p->description }}</div>
@@ -1041,7 +1047,7 @@
                                 <span class="pdfi-panel-title">RITUAIS</span>
                                 <span class="pdfi-panel-sub">Pactos</span>
                             </div>
-                            @forelse(($ficha->rituals ?? []) as $r)
+                            @forelse(($ficha->rituals ?? collect()) as $r)
                                 <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;border:1px solid var(--B);margin-bottom:10px;">
                                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
                                         <span style="font-size:7px;background:rgba(153,27,27,0.6);color:#fca5a5;padding:2px 6px;border-radius:3px;font-weight:900;text-transform:uppercase;">{{ $r->type??'Protocolo' }}</span>
