@@ -102,10 +102,6 @@ Route::get('/limpar-cache', function () {
         return '❌ Erro: ' . $e->getMessage();
     }
 });
-Route::get('/dump-autoload', function () {
-    exec('composer dump-autoload');
-    return 'Autoload recarregado!';
-});
 Route::get('/test-419', function () {
     throw new \Illuminate\Session\TokenMismatchException();
 });
@@ -117,4 +113,3 @@ Route::get('/ping', function () {
 require __DIR__ . '/auth.php';
 //https://rpgark.com.br/limpar-cache
 //https://rpgark.com.br/criar-link-storage
-//https://rpgark.com.br/dump-autoload

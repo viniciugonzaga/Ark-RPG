@@ -73,11 +73,15 @@ class CharacterController extends Controller
     public function show($id)
     {
         $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
-                          ->findOrFail($id);
+                      ->findOrFail($id);
 
         if ($ficha->user_id !== Auth::id()) {
             abort(403, 'Acesso negado a Ficha.');
         }
+
+        // Garantir que os relacionamentos sejam coleções vazias se não houver dados
+        // Isso evita null no foreach
+        $ficha->loadMissing(['mutations', 'bonuses', 'survivorPowers', 'rituals']);
 
         return view('fichas.show', compact('ficha'));
     }
@@ -87,9 +91,7 @@ class CharacterController extends Controller
         $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
                           ->findOrFail($id);
 
-        if ($ficha->user_id !== Auth::id()) {
-            abort(403);
-        }
+        if ($ficha->user_id !== Auth::id()) abort(403);
 
         return view('fichas.edit', compact('ficha'));
     }
@@ -98,9 +100,7 @@ class CharacterController extends Controller
     {
         $ficha = Character::findOrFail($id);
 
-        if ($ficha->user_id !== Auth::id()) {
-            abort(403);
-        }
+        if ($ficha->user_id !== Auth::id()) abort(403);
 
         $data = $request->except(['mutations', 'bonuses', 'powers', 'rituals', 'image']);
 
