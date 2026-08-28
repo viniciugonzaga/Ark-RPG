@@ -199,7 +199,13 @@
                     'Accept': 'application/json',
                 }
             })
-            .then(res => res.json())
+            .then(async (res) => {
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data.message || 'Erro ao compartilhar ficha.');
+                }
+                return data;
+            })
             .then(data => {
                 if (data.code) {
                     document.getElementById('share-code').value = data.code;
@@ -209,7 +215,7 @@
                 }
             })
             .catch(err => {
-                alert('Erro ao compartilhar ficha.');
+                alert(err.message || 'Erro ao compartilhar ficha.');
                 console.error(err);
             });
         }

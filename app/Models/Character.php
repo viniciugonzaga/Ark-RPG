@@ -17,6 +17,7 @@ class Character extends Model
         'share_code',
         'is_resgatada',
         'original_user_id',
+        'original_character_id',
         'name',
         'image',
         'level',
@@ -45,6 +46,11 @@ class Character extends Model
     public function originalUser()
     {
         return $this->belongsTo(User::class, 'original_user_id');
+    }
+
+    public function originalCharacter()
+    {
+        return $this->belongsTo(self::class, 'original_character_id');
     }
 
     public function mutations()

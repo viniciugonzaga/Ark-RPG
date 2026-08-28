@@ -1024,7 +1024,7 @@
                 <div class="pdfi-big-card" style="margin-top:12px;">
                     <div class="pdfi-big-card-top"></div>
                     <div style="display:flex;gap:16px;align-items:center;margin-bottom:12px;">
-                        <div class="pdfi-big-card-icon"><span>🎒</span></div>
+                        <div class="pdfi-big-card-icon"><span></span></div>
                         <div class="pdfi-big-card-name">Inventário</div>
                     </div>
                     <div style="font-family:monospace;font-size:12px;color:#aaa;background:rgba(0,0,0,0.4);padding:16px;border-radius:6px;border:1px solid var(--B);white-space:pre-wrap;line-height:1.8;">
@@ -1071,7 +1071,13 @@
                     'Accept': 'application/json',
                 }
             })
-            .then(res => res.json())
+            .then(async (res) => {
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data.message || 'Erro ao compartilhar ficha.');
+                }
+                return data;
+            })
             .then(data => {
                 if (data.code) {
                     document.getElementById('share-code').value = data.code;
@@ -1081,7 +1087,7 @@
                 }
             })
             .catch(err => {
-                alert('Erro ao compartilhar ficha.');
+                alert(err.message || 'Erro ao compartilhar ficha.');
                 console.error(err);
             });
         }

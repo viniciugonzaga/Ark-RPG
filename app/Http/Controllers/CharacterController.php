@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class CharacterController extends Controller
 {
@@ -80,30 +82,30 @@ class CharacterController extends Controller
     }
 
     public function show($id)
-    {
-        $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
-            ->findOrFail($id);
+{
+    $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
+        ->findOrFail($id);
 
-        if ($ficha->user_id !== Auth::id()) {
-            abort(403, 'Acesso negado a Ficha.');
-        }
-
-        $ficha->loadMissing(['mutations', 'bonuses', 'survivorPowers', 'rituals']);
-
-        Log::debug('SHOW - Relações carregadas', [
-            'id' => $ficha->id,
-            'mutations_loaded' => $ficha->relationLoaded('mutations'),
-            'bonuses_loaded'   => $ficha->relationLoaded('bonuses'),
-            'powers_loaded'    => $ficha->relationLoaded('survivorPowers'),
-            'rituals_loaded'   => $ficha->relationLoaded('rituals'),
-            'mutations_count'  => $ficha->mutations ? $ficha->mutations->count() : 0,
-            'bonuses_count'    => $ficha->bonuses ? $ficha->bonuses->count() : 0,
-            'powers_count'     => $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0,
-            'rituals_count'    => $ficha->rituals ? $ficha->rituals->count() : 0,
-        ]);
-
-        return view('fichas.show', compact('ficha'));
+    if ($ficha->user_id !== Auth::id()) {
+        abort(403, 'Acesso negado a Ficha.');
     }
+
+    $ficha->loadMissing(['mutations', 'bonuses', 'survivorPowers', 'rituals']);
+
+    Log::debug('SHOW - Relações carregadas', [
+        'id' => $ficha->id,
+        'mutations_loaded' => $ficha->relationLoaded('mutations'),
+        'bonuses_loaded'   => $ficha->relationLoaded('bonuses'),
+        'powers_loaded'    => $ficha->relationLoaded('survivorPowers'),
+        'rituals_loaded'   => $ficha->relationLoaded('rituals'),
+        'mutations_count'  => $ficha->mutations ? $ficha->mutations->count() : 0,
+        'bonuses_count'    => $ficha->bonuses ? $ficha->bonuses->count() : 0,
+        'powers_count'     => $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0,
+        'rituals_count'    => $ficha->rituals ? $ficha->rituals->count() : 0,
+    ]);
+
+    return view('fichas.show', compact('ficha'));
+}
 
     public function edit($id)
     {
@@ -182,11 +184,22 @@ class CharacterController extends Controller
         return redirect()->route('fichas.index')->with('success', 'Unidade eliminada.');
     }
 
-    public function share($id)
+    public function share(Request $request, $id)
     {
+        if (!$this->shareSchemaIsAvailable()) {
+            $message = 'O compartilhamento de ficha não está disponível: estrutura do banco incompleta (share_code/is_resgatada/original_user_id).';
+            return response()->json(['message' => $message], 503);
+        }
+
         $ficha = Character::findOrFail($id);
         if ($ficha->user_id !== Auth::id()) {
             abort(403, 'Você não é o dono desta ficha.');
+        }
+
+        if ($ficha->is_resgatada) {
+            return response()->json([
+                'message' => 'Fichas resgatadas não podem ser compartilhadas.',
+            ], 422);
         }
 
         $code = $ficha->share();
@@ -195,16 +208,40 @@ class CharacterController extends Controller
 
     public function resgatar(Request $request)
     {
+        if (!$this->shareSchemaIsAvailable()) {
+            return back()->with('error', 'O resgate de ficha não está disponível: estrutura do banco incompleta (share_code/is_resgatada/original_user_id).');
+        }
+
+        $code = strtoupper(trim((string) $request->input('code')));
+        $request->merge(['code' => $code]);
+
         $request->validate([
-            'code' => 'required|string|exists:fichas,share_code',
+            'code' => [
+                'required',
+                'string',
+                Rule::exists('fichas', 'share_code')->where(function ($query) {
+                    $query->where('is_resgatada', false);
+                }),
+            ],
         ]);
 
         $original = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals'])
-            ->where('share_code', $request->code)
+            ->whereRaw('UPPER(share_code) = ?', [$code])
+            ->where('is_resgatada', false)
             ->firstOrFail();
 
         if ($original->user_id === Auth::id()) {
             return back()->with('error', 'Você já é o dono desta ficha.');
+        }
+
+        if (Schema::hasColumn('fichas', 'original_character_id')) {
+            $alreadyRescued = Character::where('user_id', Auth::id())
+                ->where('original_character_id', $original->id)
+                ->exists();
+
+            if ($alreadyRescued) {
+                return back()->with('error', 'Você já resgatou esta ficha.');
+            }
         }
 
         $nova = $original->replicate();
@@ -212,6 +249,9 @@ class CharacterController extends Controller
         $nova->share_code = null;
         $nova->is_resgatada = true;
         $nova->original_user_id = $original->user_id;
+        if (Schema::hasColumn('fichas', 'original_character_id')) {
+            $nova->original_character_id = $original->id;
+        }
         $nova->save();
 
         $relacoes = ['mutations', 'bonuses', 'survivorPowers', 'rituals'];
@@ -223,8 +263,8 @@ class CharacterController extends Controller
             }
         }
 
-        return redirect()->route('fichas.show', $nova->id)
-            ->with('success', 'Ficha resgatada com sucesso!');
+        return redirect()->route('fichas.index')
+            ->with('success', 'Ficha resgatada com sucesso! Ela agora está na sua galeria.');
     }
 
     private function syncRelationsBulk(Character $character, Request $request)
@@ -244,6 +284,7 @@ class CharacterController extends Controller
                         'updated_at'   => $now,
                     ];
                 }
+
             }
             if (!empty($mutationsData)) {
                 $character->mutations()->insert($mutationsData);
@@ -304,5 +345,10 @@ class CharacterController extends Controller
                 $character->survivorPowers()->insert($powersData);
             }
         }
+    }
+
+    private function shareSchemaIsAvailable(): bool
+    {
+        return Schema::hasColumns('fichas', ['share_code', 'is_resgatada', 'original_user_id']);
     }
 }
