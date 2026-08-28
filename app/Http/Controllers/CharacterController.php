@@ -80,30 +80,30 @@ class CharacterController extends Controller
     }
 
     public function show($id)
-{
-    $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
-        ->findOrFail($id);
+    {
+        $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
+            ->findOrFail($id);
 
-    if ($ficha->user_id !== Auth::id()) {
-        abort(403, 'Acesso negado a Ficha.');
+        if ($ficha->user_id !== Auth::id()) {
+            abort(403, 'Acesso negado a Ficha.');
+        }
+
+        $ficha->loadMissing(['mutations', 'bonuses', 'survivorPowers', 'rituals']);
+
+        Log::debug('SHOW - Relações carregadas', [
+            'id' => $ficha->id,
+            'mutations_loaded' => $ficha->relationLoaded('mutations'),
+            'bonuses_loaded'   => $ficha->relationLoaded('bonuses'),
+            'powers_loaded'    => $ficha->relationLoaded('survivorPowers'),
+            'rituals_loaded'   => $ficha->relationLoaded('rituals'),
+            'mutations_count'  => $ficha->mutations ? $ficha->mutations->count() : 0,
+            'bonuses_count'    => $ficha->bonuses ? $ficha->bonuses->count() : 0,
+            'powers_count'     => $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0,
+            'rituals_count'    => $ficha->rituals ? $ficha->rituals->count() : 0,
+        ]);
+
+        return view('fichas.show', compact('ficha'));
     }
-
-    $ficha->loadMissing(['mutations', 'bonuses', 'survivorPowers', 'rituals']);
-
-    Log::debug('SHOW - Relações carregadas', [
-        'id' => $ficha->id,
-        'mutations_loaded' => $ficha->relationLoaded('mutations'),
-        'bonuses_loaded'   => $ficha->relationLoaded('bonuses'),
-        'powers_loaded'    => $ficha->relationLoaded('survivorPowers'),
-        'rituals_loaded'   => $ficha->relationLoaded('rituals'),
-        'mutations_count'  => $ficha->mutations ? $ficha->mutations->count() : 0,
-        'bonuses_count'    => $ficha->bonuses ? $ficha->bonuses->count() : 0,
-        'powers_count'     => $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0,
-        'rituals_count'    => $ficha->rituals ? $ficha->rituals->count() : 0,
-    ]);
-
-    return view('fichas.show', compact('ficha'));
-}
 
     public function edit($id)
     {
