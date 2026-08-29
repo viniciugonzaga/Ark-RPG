@@ -11,6 +11,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\DinoController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AmorController;
 
 // =====================================================
 // ROTAS PÚBLICAS (sem autenticação e SEM SESSÃO)
@@ -81,6 +82,8 @@ Route::middleware(['auth'])->prefix('sessao')->name('session.')->group(function 
     Route::get('/minha-sessao', [SessionController::class, 'getMinhaSessao'])->name('minha');
     Route::post('/sair', [SessionController::class, 'sair'])->name('sair');
 });
+
+Route::get('/amor', [AmorController::class, 'index'])->name('amor');
 
 // =====================================================
 // ROTAS DE TESTE
