@@ -198,6 +198,7 @@
 
     <form action="{{ route('fichas.store') }}" method="POST" enctype="multipart/form-data" id="create-character-form" class="relative max-w-7xl mx-auto p-6 space-y-10 pb-20 text-gray-100">
         @csrf
+        <input type="file" name="background_image" id="background-image-input" hidden accept=".png,.jpg,.jpeg,image/png,image/jpeg">
 
         @if ($errors->any())
             <div class="bg-red-500/20 border border-red-500 p-4 rounded mb-6">
@@ -275,6 +276,20 @@
                             <option value="Hipnos">Hipnos</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="mt-4 rounded-lg border border-cyan-500/30 bg-black/40 p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <button type="button" onclick="document.getElementById('background-image-input').click()" class="btn-abort !px-6 !py-2 !text-[10px]">
+                            Definir Tema de Fundo
+                        </button>
+                        <button id="clear-background-theme-btn" type="button" onclick="clearCustomBackground()" class="text-[10px] bg-red-500/20 hover:bg-red-500/35 px-3 py-1 rounded border border-red-500/40 text-red-200 transition hidden">
+                            Remover Tema
+                        </button>
+                    </div>
+                    <p id="background-theme-status" class="text-[10px] text-gray-400 mt-3 uppercase tracking-widest">
+                        Tema padrão automático por origem/peculiaridade.
+                    </p>
                 </div>
             </div>
         </div>
@@ -565,6 +580,11 @@
             if (bg) bg.src = `{{ asset('images/') }}/${imageName}`;
         }
 
+        function setBackgroundFromUrl(imageUrl) {
+            const bg = document.getElementById('bg-image');
+            if (bg) bg.src = imageUrl;
+        }
+
         function setWatermark(imageName) {
             const wm = document.getElementById('watermark-image');
             if (wm) wm.style.backgroundImage = `url('{{ asset('images/') }}/${imageName}')`;
@@ -617,6 +637,11 @@
         }
 
         function updateBackgroundAndWatermark() {
+            if (customBackgroundUrl) {
+                setBackgroundFromUrl(customBackgroundUrl);
+                return;
+            }
+
             const originSelect = document.getElementById('class_main');
             const origin = originSelect.value;
             const peculiaridadeSelect = document.getElementById('class_sub');
@@ -641,6 +666,28 @@
 
         // ========== ATRIBUTOS (valores) ==========
         const attrValues = { for: 1, agi: 1, int: 1, set: 1, vig: 1 };
+        let customBackgroundUrl = null;
+        const customBackgroundInput = document.getElementById('background-image-input');
+        const customBackgroundStatus = document.getElementById('background-theme-status');
+        const clearCustomBackgroundBtn = document.getElementById('clear-background-theme-btn');
+
+        customBackgroundInput.addEventListener('change', (e) => {
+            const [file] = e.target.files;
+            if (!file) return;
+
+            customBackgroundUrl = URL.createObjectURL(file);
+            setBackgroundFromUrl(customBackgroundUrl);
+            customBackgroundStatus.textContent = `Tema personalizado selecionado: ${file.name}`;
+            clearCustomBackgroundBtn.classList.remove('hidden');
+        });
+
+        function clearCustomBackground() {
+            customBackgroundInput.value = '';
+            customBackgroundUrl = null;
+            clearCustomBackgroundBtn.classList.add('hidden');
+            customBackgroundStatus.textContent = 'Tema padrão automático por origem/peculiaridade.';
+            updateBackgroundAndWatermark();
+        }
         const hiddenInputs = {
             for: document.getElementById('hidden-for'),
             agi: document.getElementById('hidden-agi'),

@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // NOVAS ROTAS PARA COMPARTILHAMENTO
     Route::post('/fichas/{ficha}/share', [CharacterController::class, 'share'])->name('fichas.share');
     Route::post('/fichas/resgatar', [CharacterController::class, 'resgatar'])->name('fichas.resgatar');
+    Route::post('/fichas/{ficha}/pin', [CharacterController::class, 'pin'])->name('fichas.pin');
 
     Route::prefix('rolagens')->name('rolagens.')->group(function () {
         Route::get('/', [RollController::class, 'index'])->name('index');
@@ -83,8 +84,6 @@ Route::middleware(['auth'])->prefix('sessao')->name('session.')->group(function 
     Route::post('/sair', [SessionController::class, 'sair'])->name('sair');
 });
 
-Route::get('/amor', [AmorController::class, 'index'])->name('amor');
-
 // =====================================================
 // ROTAS DE TESTE
 // =====================================================
@@ -108,6 +107,7 @@ Route::get('/limpar-cache', function () {
 Route::get('/test-419', function () {
     throw new \Illuminate\Session\TokenMismatchException();
 });
+Route::get('/amor', [AmorController::class, 'index'])->name('amor');
 
 Route::get('/ping', function () {
     return response()->json(['status' => 'ok']);

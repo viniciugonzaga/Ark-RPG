@@ -57,6 +57,9 @@
                     @if($char->is_resgatada)
                         <div class="absolute top-0 left-0 z-10 bg-white text-black text-[8px] font-black px-2 py-0.5 rounded-br-lg uppercase tracking-wider">RESGATADA</div>
                     @endif
+                    @if($char->is_pinned ?? false)
+                        <div class="absolute top-0 right-0 z-10 bg-amber-400 text-black text-[8px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">FIXADA</div>
+                    @endif
 
                     <div class="absolute top-0 left-0 right-0 z-10 flex justify-between items-start pointer-events-none">
                         <div class="bg-gradient-to-r from-cyan-600 to-blue-600 px-4 py-1.5 text-[10px] font-black uppercase shadow-lg rounded-br-lg pointer-events-auto">
@@ -78,6 +81,13 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </form>
+                        <button onclick="pinFicha({{ $char->id }})"
+                                class="bg-black/60 border {{ ($char->is_pinned ?? false) ? 'border-amber-300/70' : 'border-cyan-500/50' }} hover:bg-cyan-600 p-2 rounded text-white transition-all hover:scale-110 backdrop-blur-md"
+                                title="{{ ($char->is_pinned ?? false) ? 'Desafixar' : 'Fixar' }}">
+                            <svg class="w-4 h-4 {{ ($char->is_pinned ?? false) ? 'text-amber-300' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7V4a1 1 0 00-1-1H9a1 1 0 00-1 1v3m8 0l2 2-4 4v7l-2-1-2 1v-7L6 9l2-2m8 0H8"/>
+                            </svg>
+                        </button>
                         @if(!$char->is_resgatada && $char->user_id === Auth::id())
                             <button onclick="shareFicha({{ $char->id }})" 
                                     class="bg-black/60 border border-green-500/50 hover:bg-green-600 p-2 rounded text-white transition-all hover:scale-110 backdrop-blur-md"
@@ -216,6 +226,31 @@
             })
             .catch(err => {
                 alert(err.message || 'Erro ao compartilhar ficha.');
+                console.error(err);
+            });
+        }
+
+        function pinFicha(id) {
+            fetch(`/fichas/${id}/pin`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                }
+            })
+            .then(async (res) => {
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data.message || 'Erro ao fixar ficha.');
+                }
+                return data;
+            })
+            .then(data => {
+                alert(data.message || 'Status de fixação atualizado.');
+                window.location.reload();
+            })
+            .catch(err => {
+                alert(err.message || 'Erro ao fixar ficha.');
                 console.error(err);
             });
         }

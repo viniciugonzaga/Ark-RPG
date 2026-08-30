@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="fixed inset-0 -z-10">
-        <img id="bg-image" src="{{ asset('images/Fundo_edit.png') }}" alt="Background" class="w-full h-full object-cover opacity-40">
+        <img id="bg-image" src="{{ $ficha->background_image ? route('media.show', $ficha->background_image) : asset('images/Fundo_edit.png') }}" alt="Background" class="w-full h-full object-cover opacity-40">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>
 
@@ -142,6 +142,24 @@
                         <img src="{{ route('media.show', $ficha->image) }}" class="w-full h-48 object-cover rounded-lg mb-4 border" style="border-color: var(--theme-border)">
                        @endif
                         <input type="file" name="image" class="w-full text-xs text-gray-400 ark-input">
+                    </div>
+
+                    <div class="ark-panel !p-4">
+                       <label class="text-[10px] font-medieval font-black theme-text-primary block mb-3 uppercase tracking-widest">Tema de Fundo</label>
+                       @if($ficha->background_image)
+                           <img src="{{ route('media.show', $ficha->background_image) }}" class="w-full h-32 object-cover rounded-lg mb-3 border" style="border-color: var(--theme-border)">
+                       @endif
+                       <input type="file" name="background_image" id="background-image-edit-input" hidden accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+                       <button type="button" onclick="document.getElementById('background-image-edit-input').click()" class="btn-neon !text-[10px] !px-4 !py-2 w-full">
+                           Definir Tema de Fundo
+                       </button>
+                       <p id="background-theme-edit-status" class="text-[10px] text-gray-400 mt-3 uppercase tracking-widest">
+                           {{ $ficha->background_image ? 'Tema personalizado ativo.' : 'Tema padrão automático por origem/peculiaridade.' }}
+                       </p>
+                       <label class="flex items-center gap-2 mt-3 text-[10px] text-red-300 uppercase tracking-widest">
+                           <input type="checkbox" name="remove_background_image" id="remove-background-image" value="1" class="rounded border-red-400/50 bg-black/40">
+                           Remover tema personalizado
+                       </label>
                     </div>
 
                     <div class="ark-panel !p-6">
@@ -388,12 +406,21 @@
             if (bg) bg.src = `{{ asset('images/') }}/${image}`;
         }
 
+        function setBackgroundEditFromUrl(imageUrl) {
+            const bg = document.getElementById('bg-image');
+            if (bg) bg.src = imageUrl;
+        }
+
         function setWatermarkEdit(image) {
             const wm = document.getElementById('watermark-image-edit');
             if (wm) wm.style.backgroundImage = `url('{{ asset('images/') }}/${image}')`;
         }
 
         function updateAll() {
+            if (customBackgroundActive) {
+                return;
+            }
+
             const origin = document.getElementById('class_main_edit').value;
             const peculiaridade = document.getElementById('class_sub_edit').value;
 
@@ -409,6 +436,36 @@
         }
 
         document.addEventListener('DOMContentLoaded', updateAll);
+
+        const backgroundImageEditInput = document.getElementById('background-image-edit-input');
+        const backgroundThemeEditStatus = document.getElementById('background-theme-edit-status');
+        const removeBackgroundCheckbox = document.getElementById('remove-background-image');
+        let customBackgroundActive = {{ $ficha->background_image ? 'true' : 'false' }};
+
+        backgroundImageEditInput.addEventListener('change', (e) => {
+            const [file] = e.target.files;
+            if (!file) return;
+
+            customBackgroundActive = true;
+            removeBackgroundCheckbox.checked = false;
+            setBackgroundEditFromUrl(URL.createObjectURL(file));
+            backgroundThemeEditStatus.textContent = `Novo tema personalizado selecionado: ${file.name}`;
+        });
+
+        removeBackgroundCheckbox.addEventListener('change', () => {
+            if (removeBackgroundCheckbox.checked) {
+                customBackgroundActive = false;
+                backgroundImageEditInput.value = '';
+                backgroundThemeEditStatus.textContent = 'Tema personalizado será removido ao salvar.';
+                updateAll();
+                return;
+            }
+
+            customBackgroundActive = {{ $ficha->background_image ? 'true' : 'false' }};
+            backgroundThemeEditStatus.textContent = customBackgroundActive
+                ? 'Tema personalizado ativo.'
+                : 'Tema padrão automático por origem/peculiaridade.';
+        });
 
         // ========== ADICIONAR CAMPOS ==========
         let counts = {

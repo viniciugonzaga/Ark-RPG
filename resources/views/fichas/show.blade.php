@@ -54,6 +54,7 @@
             'Hipnos' => 'Fundo_show_hipnos.png',
         ];
         $bgShow = $backgroundShowByOrigin[$origem] ?? $backgroundShowByPeculiaridade[$peculiaridade] ?? 'Fundo_show_padrao.png';
+        $fichaBackgroundUrl = $ficha->background_image ? route('media.show', $ficha->background_image) : asset('images/'.$bgShow);
 
         $atributosImg = [
             'Padrão' => 'icon_atributos_ark.png',
@@ -137,7 +138,7 @@
     @endphp
 
     <div class="fixed inset-0 -z-10">
-        <img src="{{ asset('images/'.$bgShow) }}" alt="Background" class="w-full h-full object-cover opacity-40">
+        <img src="{{ $fichaBackgroundUrl }}" alt="Background" class="w-full h-full object-cover opacity-40">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>
 

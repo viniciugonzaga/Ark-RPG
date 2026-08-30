@@ -139,11 +139,17 @@
                 groundOffset: 34,
                 gravity: 1400,
                 jumpForce: 540,
-                initialSpeed: 6.5,
-                maxSpeed: 16,
-                speedGainPerSecond: 0.14,
-                spawnFreqMultiplier: 1,
-                birdUnlockTime: 12,
+                fastFallBoostGravity: 1700,
+                initialSpeed: 6.2,
+                maxSpeed: 13.8,
+                speedGainPerSecond: 0.1,
+                birdUnlockTime: 16,
+                maxObstaclesOnScreen: 3,
+                spawnMinGapPxStart: 360,
+                spawnMaxGapPxStart: 560,
+                spawnMinGapPxEnd: 245,
+                spawnMaxGapPxEnd: 410,
+                difficultyRampTime: 95,
                 duckHeightFactor: 0.60,   // agachamento natural (60% da altura)
                 birdAnimInterval: 0.5,
                 birdFlightOffset: 76,     // pássaro mais alto
@@ -247,7 +253,7 @@
             let stars = [];
             function initStars() {
                 stars = [];
-                for (let i = 0; i < 40; i++) {
+                for (let i = 0; i < 28; i++) {
                     stars.push({
                         x: Math.random() * CONFIG.width,
                         y: Math.random() * (groundY * 0.7),
@@ -290,6 +296,7 @@
                     vy: 0,
                     grounded: true,
                     ducking: false,
+                    fastFalling: false,
                 };
                 obstacles = [];
                 speed = CONFIG.initialSpeed;
@@ -297,7 +304,7 @@
                 spawnTimer = 1.0;
                 bgOffsetX = 0;
                 groundTicks = [];
-                for (let i = 0; i < 40; i++) groundTicks.push(Math.random() * CONFIG.width);
+                for (let i = 0; i < 30; i++) groundTicks.push(Math.random() * CONFIG.width);
 
                 clouds = [];
                 for (let i = 0; i < 5; i++) spawnCloud(true);
@@ -370,7 +377,7 @@
 
             function updateSpawning(dt) {
                 spawnTimer -= dt;
-                if (spawnTimer <= 0) {
+                if (spawnTimer <= 0 && obstacles.length < CONFIG.maxObstaclesOnScreen) {
                     const type = pickObstacleType();
                     const flying = type.kind === 'bird';
                     obstacles.push({
@@ -383,9 +390,16 @@
                         spriteState: 'front',
                         jumpedOver: false,
                     });
-                    const baseGap = 0.9 + Math.random() * 0.9;
-                    spawnTimer = baseGap * CONFIG.spawnFreqMultiplier * (8 / speed);
+                    spawnTimer = calculateSpawnDelaySeconds();
                 }
+            }
+
+            function calculateSpawnDelaySeconds() {
+                const progress = Math.min(1, elapsed / CONFIG.difficultyRampTime);
+                const minGapPx = CONFIG.spawnMinGapPxStart + (CONFIG.spawnMinGapPxEnd - CONFIG.spawnMinGapPxStart) * progress;
+                const maxGapPx = CONFIG.spawnMaxGapPxStart + (CONFIG.spawnMaxGapPxEnd - CONFIG.spawnMaxGapPxStart) * progress;
+                const gapPx = minGapPx + Math.random() * (maxGapPx - minGapPx);
+                return gapPx / (speed * SPEED_SCALE);
             }
 
             // ========== FÍSICA (com agachamento instantâneo) ==========
@@ -397,6 +411,7 @@
             function jump() {
                 if (gameState === 'idle') startRun();
                 if (gameState !== 'running') return;
+                player.fastFalling = false;
                 if (player.grounded && !player.ducking) {
                     player.vy = -CONFIG.jumpForce;
                     player.grounded = false;
@@ -406,12 +421,21 @@
 
             function setDuck(value) {
                 if (gameState === 'idle') startRun();
+                if (value && !player.grounded) {
+                    player.fastFalling = true;
+                    return;
+                }
+
                 if (value && player.grounded) {
                     player.ducking = true;
                     player.y = groundY - player.heightDuck;
                 } else if (!value && player.ducking) {
                     player.ducking = false;
                     player.y = groundY - player.heightStand;
+                }
+
+                if (!value) {
+                    player.fastFalling = false;
                 }
             }
 
@@ -422,12 +446,16 @@
             function updatePlayer(dt) {
                 const h = currentPlayerHeight();
                 player.vy += CONFIG.gravity * dt;
+                if (!player.grounded && player.fastFalling && player.vy > 0) {
+                    player.vy += CONFIG.fastFallBoostGravity * dt;
+                }
                 player.y += player.vy * dt;
                 const floor = groundY - h;
                 if (player.y >= floor) {
                     player.y = floor;
                     player.vy = 0;
                     player.grounded = true;
+                    player.fastFalling = false;
                 } else {
                     player.grounded = false;
                 }

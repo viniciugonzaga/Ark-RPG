@@ -20,10 +20,14 @@ class CharacterController extends Controller
 
     public function index()
     {
-        $characters = Auth::user()->characters()
-            ->with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'originalUser'])
-            ->latest()
-            ->get();
+        $query = Auth::user()->characters()
+            ->with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'originalUser']);
+
+        if (Schema::hasColumn('fichas', 'is_pinned')) {
+            $query->orderByDesc('is_pinned');
+        }
+
+        $characters = $query->latest()->get();
 
         return view('fichas.index', compact('characters'));
     }
@@ -38,6 +42,7 @@ class CharacterController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'background_image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
             'level' => 'required|integer|min:1',
             'age' => 'nullable|integer',
             'class_main' => 'required|string',
@@ -57,9 +62,11 @@ class CharacterController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $disk = $this->getStorageDisk();
-            $path = $request->file('image')->store('characters', $disk);
-            $data['image'] = $path;
+            $data['image'] = $this->storeCharacterImage($request->file('image'));
+        }
+
+        if ($request->hasFile('background_image')) {
+            $data['background_image'] = $this->storeBackgroundImage($request->file('background_image'));
         }
 
         $data['user_id'] = Auth::id();
@@ -127,15 +134,29 @@ class CharacterController extends Controller
             abort(403);
         }
 
-        $data = $request->except(['mutations', 'bonuses', 'powers', 'rituals', 'image']);
+        $request->validate([
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'background_image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'remove_background_image' => 'nullable|boolean',
+        ]);
+
+        $data = $request->except([
+            'mutations', 'bonuses', 'powers', 'rituals',
+            'image', 'background_image', 'remove_background_image',
+            'share_code', 'is_resgatada', 'is_pinned', 'original_user_id', 'original_character_id',
+        ]);
+
+        $oldImagePath = $ficha->image;
+        $oldBackgroundPath = $ficha->background_image;
 
         if ($request->hasFile('image')) {
-            $disk = $this->getStorageDisk();
-            if ($ficha->image) {
-                Storage::disk($disk)->delete($ficha->image);
-            }
-            $path = $request->file('image')->store('characters', $disk);
-            $data['image'] = $path;
+            $data['image'] = $this->storeCharacterImage($request->file('image'));
+        }
+
+        if ($request->hasFile('background_image')) {
+            $data['background_image'] = $this->storeBackgroundImage($request->file('background_image'));
+        } elseif ($request->boolean('remove_background_image')) {
+            $data['background_image'] = null;
         }
 
         DB::transaction(function () use ($ficha, $data, $request) {
@@ -148,6 +169,14 @@ class CharacterController extends Controller
 
             $this->syncRelationsBulk($ficha, $request);
         });
+
+        if (array_key_exists('image', $data) && $oldImagePath && $oldImagePath !== $data['image']) {
+            $this->deleteStoredFileIfUnused('image', $oldImagePath, $ficha->id);
+        }
+
+        if (array_key_exists('background_image', $data) && $oldBackgroundPath && $oldBackgroundPath !== $data['background_image']) {
+            $this->deleteStoredFileIfUnused('background_image', $oldBackgroundPath, $ficha->id);
+        }
 
         Log::debug('UPDATE - Ficha atualizada', [
             'character_id' => $ficha->id,
@@ -173,15 +202,53 @@ class CharacterController extends Controller
             $character->bonuses()->delete();
             $character->survivorPowers()->delete();
             $character->rituals()->delete();
-
-            if ($character->image) {
-                Storage::disk($this->getStorageDisk())->delete($character->image);
-            }
-
             $character->delete();
         });
 
+        if ($character->image) {
+            $this->deleteStoredFileIfUnused('image', $character->image);
+        }
+
+        if ($character->background_image) {
+            $this->deleteStoredFileIfUnused('background_image', $character->background_image);
+        }
+
         return redirect()->route('fichas.index')->with('success', 'Unidade eliminada.');
+    }
+
+    public function pin($id)
+    {
+        if (!Schema::hasColumn('fichas', 'is_pinned')) {
+            return response()->json([
+                'message' => 'A funcionalidade de fixar ficha não está disponível: estrutura do banco incompleta (is_pinned).',
+            ], 503);
+        }
+
+        $ficha = Character::findOrFail($id);
+
+        if ($ficha->user_id !== Auth::id()) {
+            abort(403, 'Ação não autorizada.');
+        }
+
+        if (!$ficha->is_pinned) {
+            $pinnedCount = Character::where('user_id', Auth::id())
+                ->where('is_pinned', true)
+                ->count();
+
+            if ($pinnedCount >= 3) {
+                return response()->json([
+                    'message' => 'Você já tem 3 fichas fixadas. Desafixe uma ficha para continuar.',
+                ], 422);
+            }
+        }
+
+        $ficha->is_pinned = !$ficha->is_pinned;
+        $ficha->save();
+
+        return response()->json([
+            'pinned' => (bool) $ficha->is_pinned,
+            'message' => $ficha->is_pinned ? 'Ficha fixada com sucesso.' : 'Ficha desafixada com sucesso.',
+        ]);
     }
 
     public function share(Request $request, $id)
@@ -246,8 +313,11 @@ class CharacterController extends Controller
 
         $nova = $original->replicate();
         $nova->user_id = Auth::id();
+        $nova->image = $this->copyStoredFile($original->image, 'characters');
+        $nova->background_image = $this->copyStoredFile($original->background_image, 'BackgroundPerso');
         $nova->share_code = null;
         $nova->is_resgatada = true;
+        $nova->is_pinned = false;
         $nova->original_user_id = $original->user_id;
         if (Schema::hasColumn('fichas', 'original_character_id')) {
             $nova->original_character_id = $original->id;
@@ -350,5 +420,51 @@ class CharacterController extends Controller
     private function shareSchemaIsAvailable(): bool
     {
         return Schema::hasColumns('fichas', ['share_code', 'is_resgatada', 'original_user_id']);
+    }
+
+    private function storeCharacterImage($file): string
+    {
+        return $file->store('characters', $this->getStorageDisk());
+    }
+
+    private function storeBackgroundImage($file): string
+    {
+        return $file->store('BackgroundPerso', $this->getStorageDisk());
+    }
+
+    private function copyStoredFile(?string $path, string $directory): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        $disk = $this->getStorageDisk();
+        if (!Storage::disk($disk)->exists($path)) {
+            return $path;
+        }
+
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $newName = uniqid('copy_', true) . ($extension ? ('.' . $extension) : '');
+        $newPath = trim($directory, '\\/') . '/' . $newName;
+
+        Storage::disk($disk)->copy($path, $newPath);
+        return $newPath;
+    }
+
+    private function deleteStoredFileIfUnused(string $column, ?string $path, ?int $excludingCharacterId = null): void
+    {
+        if (!$path) {
+            return;
+        }
+
+        $query = Character::where($column, $path);
+
+        if ($excludingCharacterId) {
+            $query->where('id', '!=', $excludingCharacterId);
+        }
+
+        if (!$query->exists()) {
+            Storage::disk($this->getStorageDisk())->delete($path);
+        }
     }
 }
