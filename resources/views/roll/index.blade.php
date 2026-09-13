@@ -9,7 +9,7 @@
 
     {{-- Fundo fixo com imagem e overlay --}}
     <div class="fixed inset-0 -z-10">
-        <img src="{{ asset('images/fundo_rolagens.png') }}" class="w-full h-full object-cover opacity-40">
+        <img src="{{ asset('images/fundo_rolagens.png') }}" class="w-full h-full object-cover opacity-40" alt="">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>
 
@@ -48,10 +48,15 @@
             0%, 100% { filter: drop-shadow(0 0 2px var(--theme-primary)); }
             50% { filter: drop-shadow(0 0 8px var(--theme-primary)); }
         }
+        @keyframes live-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.35); opacity: 0.5; }
+        }
         .animate-fadeInUp { animation: fadeInUp 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards; opacity: 0; }
         .animate-scan-line { animation: scan-line 3s linear infinite; }
         .rotate-icon { animation: rotate-icon 0.6s ease-out; }
         .pulse-glow { animation: pulse-glow 1.5s infinite; }
+        .live-dot { animation: live-pulse 1.4s infinite; }
 
         .ark-panel {
             @apply bg-black/40 backdrop-blur-md shadow-xl;
@@ -124,17 +129,9 @@
             overflow-y: auto;
             padding-right: 5px;
         }
-        .historico-scroll::-webkit-scrollbar {
-            width: 5px;
-        }
-        .historico-scroll::-webkit-scrollbar-track {
-            background: #1a1a1a;
-            border-radius: 10px;
-        }
-        .historico-scroll::-webkit-scrollbar-thumb {
-            background: var(--theme-primary);
-            border-radius: 10px;
-        }
+        .historico-scroll::-webkit-scrollbar { width: 5px; }
+        .historico-scroll::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 10px; }
+        .historico-scroll::-webkit-scrollbar-thumb { background: var(--theme-primary); border-radius: 10px; }
 
         .attr-icon {
             display: inline-flex;
@@ -147,24 +144,12 @@
             border: 1px solid var(--theme-primary);
             margin-right: 8px;
         }
-        .attr-icon img {
-            width: 20px;
-            height: 20px;
-            filter: brightness(0) invert(1);
-        }
+        .attr-icon img { width: 20px; height: 20px; filter: brightness(0) invert(1); }
 
-        /* Bloco de evento (layout em grid) */
         .events-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 16px;
-        }
-        #extreme-popup.show {
-         opacity: 1;
-         pointer-events: auto;
-     }
-       #extreme-popup.show > div {
-        transform: scale(1);
         }
         .event-block {
             display: flex;
@@ -187,16 +172,9 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        .event-icon:hover {
-            transform: scale(1.05);
-        }
-        .event-icon:active {
-            transform: scale(0.95);
-        }
-        .event-text-img {
-            height: 32px;
-            object-fit: contain;
-        }
+        .event-icon:hover { transform: scale(1.05); }
+        .event-icon:active { transform: scale(0.95); }
+        .event-text-img { height: 32px; object-fit: contain; }
         .event-label {
             font-size: 11px;
             font-weight: bold;
@@ -217,10 +195,7 @@
             color: #d8b4fe;
             display: none;
         }
-        .tooltip-icon {
-            position: relative;
-            cursor: help;
-        }
+        .tooltip-icon { position: relative; cursor: help; }
         .tooltip-icon::after {
             content: "Clique para girar";
             position: absolute;
@@ -238,35 +213,224 @@
             transition: opacity 0.2s;
             z-index: 10;
         }
-        .tooltip-icon:hover::after {
-            opacity: 1;
-        }
+        .tooltip-icon:hover::after { opacity: 1; }
 
         /* Popup 20 Natural */
-        #extreme-popup {
-            transition: opacity 0.3s ease;
+        #extreme-popup { transition: opacity 0.3s ease; }
+        #extreme-popup.show { opacity: 1; pointer-events: auto; }
+        #extreme-popup.show > div { transform: scale(1); }
+
+        /* ========== MESA ATIVA ========== */
+        .session-card {
+            background: linear-gradient(145deg, rgba(0,20,30,0.7) 0%, rgba(0,0,0,0.65) 100%);
+            border: 1px solid var(--theme-border);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
-        #extreme-popup.show {
-            opacity: 1;
-            pointer-events: auto;
+        .session-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 0%, rgba(0,242,255,0.05) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.8s ease;
+            pointer-events: none;
+        }
+        .session-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--theme-primary);
+            box-shadow: 0 0 22px var(--theme-glow);
+        }
+        .session-card:hover::before { transform: translateX(100%); }
+
+        .session-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--theme-primary);
+            box-shadow: 0 0 12px var(--theme-glow);
+            flex-shrink: 0;
+        }
+        .session-avatar-fallback {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,242,255,0.1);
+            border: 2px solid var(--theme-primary);
+            color: var(--theme-primary);
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            font-size: 22px;
+            box-shadow: 0 0 12px var(--theme-glow);
+            flex-shrink: 0;
+        }
+        .master-badge {
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            color: #e9d5ff;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .roll-line {
+            font-size: 11px;
+            display: flex;
+            gap: 6px;
+            align-items: flex-start;
+            line-height: 1.35;
+        }
+        .roll-line .label {
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .roll-line.dice .label { color: #67e8f9; }
+        .roll-line.event .label { color: #d8b4fe; }
+        .roll-line .value {
+            font-family: ui-monospace, monospace;
+            color: #e5e7eb;
+            word-break: break-word;
+        }
+
+        /* Pulse para atualização (destaca quando o dado muda) */
+        @keyframes rollFlash {
+            0%   { background-color: rgba(0, 242, 255, 0.25); }
+            100% { background-color: transparent; }
+        }
+        .roll-updated {
+            animation: rollFlash 1.2s ease-out;
+            border-radius: 6px;
+            padding: 2px 4px;
+            margin: -2px -4px;
+        }
+
+        /* ========== PAINEL DE ARMAS ========== */
+        .weapon-card {
+            background: rgba(0,0,0,0.45);
+            border: 1px solid var(--theme-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.25s ease;
+        }
+        .weapon-card:hover {
+            border-color: var(--theme-primary);
+            box-shadow: 0 0 18px var(--theme-glow);
+        }
+        .weapon-title {
+            color: var(--theme-primary);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 13px;
+        }
+        .weapon-formula {
+            font-family: ui-monospace, monospace;
+            font-size: 11px;
+            color: #cbd5e1;
+        }
+        .weapon-formula strong { color: #67e8f9; }
+        .weapon-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .weapon-btn.attack {
+            background: rgba(6, 182, 212, 0.25);
+            border-color: rgba(6, 182, 212, 0.6);
+            color: #cffafe;
+        }
+        .weapon-btn.attack:hover {
+            background: rgba(6, 182, 212, 0.6);
+            color: #001b1f;
+        }
+        .weapon-btn.damage {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: rgba(168, 85, 247, 0.6);
+            color: #f3e8ff;
+        }
+        .weapon-btn.damage:hover {
+            background: rgba(168, 85, 247, 0.6);
+            color: #1b0020;
         }
     </style>
 
     <div class="relative z-10 max-w-7xl mx-auto p-6 space-y-8 text-white">
-        
+
         {{-- PARÁGRAFO EXPLICATIVO --}}
         <div class="ark-panel p-4 text-center animate-fadeInUp">
             <p class="text-sm theme-text-primary">
-                Para utilizar o sistema de rolagens, você deve ter pelo menos uma <strong class="font-bold">Ficha de Personagem</strong> salva na página de <strong class="font-bold">Fichas</strong>. 
+                Para utilizar o sistema de rolagens, você deve ter pelo menos uma <strong class="font-bold">Ficha de Personagem</strong> salva na página de <strong class="font-bold">Fichas</strong>.
                 Selecione uma ficha no menu abaixo para sincronizar os atributos e bônus.
             </p>
+        </div>
+
+        {{-- ============================================================ --}}
+        {{-- MESA ATIVA (no TOPO da página)                               --}}
+        {{-- ============================================================ --}}
+        <div id="session-area" class="ark-panel p-6 hidden animate-fadeInUp">
+            <div class="flex flex-wrap justify-between items-start gap-4 mb-5 pb-4 border-b" style="border-color: var(--theme-border)">
+                <div class="flex items-center gap-3">
+                    <span class="relative flex h-3 w-3">
+                        <span class="live-dot absolute inline-flex h-full w-full rounded-full bg-emerald-400"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </span>
+                    <div>
+                        <h3 class="text-xl font-medieval font-black theme-text-primary tracking-widest">MESA ATIVA</h3>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Código da sessão:
+                            <strong id="session-code-display" class="font-mono text-cyan-300 tracking-widest"></strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <label class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400 cursor-pointer">
+                        <input type="checkbox" id="auto-reload-session" checked class="accent-cyan-500">
+                        Tempo real
+                    </label>
+                    <button id="reload-session" class="bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-500/30 px-3 py-1.5 rounded text-xs uppercase tracking-widest text-cyan-200 transition">
+                        Atualizar
+                    </button>
+                    <form action="{{ route('session.sair') }}" method="POST" onsubmit="return confirm('Deseja sair da sessão atual?')">
+                        @csrf
+                        <button type="submit" class="bg-red-900/40 hover:bg-red-800/60 border border-red-500/30 text-red-200 px-3 py-1.5 rounded text-xs uppercase tracking-widest transition">
+                            Sair
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div id="session-participants-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <p class="text-gray-400 text-sm">Carregando participantes...</p>
+            </div>
         </div>
 
         {{-- HEADER E HISTÓRICO RÁPIDO --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 ark-panel p-6 relative overflow-hidden animate-fadeInUp">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-scan-line"></div>
-                <div class="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none bg-no-repeat bg-right" 
+                <div class="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none bg-no-repeat bg-right"
                      style="background-image: url('{{ asset('images/bg_scan.gif') }}'); background-size: 200px; background-position: right center;"></div>
                 <h2 class="relative text-xl font-medieval font-black uppercase tracking-widest theme-text-primary mb-4">
                     [ Menu de Operações de Ficha ]
@@ -274,7 +438,9 @@
                 <select id="character-select" class="ark-input w-full">
                     <option value="" class="bg-black">-- Selecione uma Ficha --</option>
                     @foreach($characters as $char)
-                        <option value="{{ $char->id }}" data-civilization="{{ strtolower($char->class_sub) }}" class="bg-black">{{ strtoupper($char->name) }} (NÍVEL {{ $char->level }})</option>
+                        <option value="{{ $char->id }}" data-civilization="{{ strtolower($char->class_sub) }}" class="bg-black">
+                            {{ strtoupper($char->name) }} (NÍVEL {{ $char->level }})
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -282,20 +448,19 @@
             <div class="ark-panel p-5 animate-fadeInUp" style="animation-delay: 0.1s">
                 <h3 class="text-xs theme-text-primary uppercase mb-3 font-bold tracking-widest border-b pb-2" style="border-color: var(--theme-border)">Última Rolagem de Dado</h3>
                 <div id="history-dice" class="text-sm text-white font-mono italic bg-black/20 p-3 rounded-lg border" style="border-color: var(--theme-border)">--</div>
-                
+
                 <h3 class="text-xs text-purple-300 uppercase mt-5 mb-3 font-bold tracking-widest border-b pb-2" style="border-color: rgba(168,85,247,0.4)">Última Rolagem de Evento</h3>
                 <div id="history-event" class="text-sm text-purple-200 font-mono italic bg-black/20 p-3 rounded-lg border" style="border-color: rgba(168,85,247,0.4)">--</div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
+
             {{-- COLUNA ESQUERDA: STATUS E TESTES --}}
             <div class="space-y-6">
                 <div id="char-preview" class="ark-panel p-6 relative overflow-hidden opacity-40 transition-all duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                     <h3 class="text-xs uppercase theme-text-primary mb-5 tracking-widest font-medieval">Status da Ficha Selecionada</h3>
-                    
+
                     <div id="attr-preview" class="grid grid-cols-5 gap-3 text-center text-[10px] mb-8">
                         @foreach(['for','agi','int','vig','set'] as $a)
                             <div class="bg-black/30 backdrop-blur-sm p-3 rounded-xl border" style="border-color: var(--theme-border)">
@@ -324,29 +489,31 @@
                     </div>
                 </div>
 
+                {{-- ARMAS SALVAS --}}
                 <div id="weapon-panel" class="ark-panel p-6 hidden animate-fadeInUp" style="animation-delay: 0.25s">
                     <h3 class="text-base font-medieval font-black theme-text-primary mb-5 uppercase tracking-wider">Armas Salvas</h3>
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                        <input id="weapon-name" type="text" placeholder="Nome da arma" class="ark-input text-sm">
-                        <input id="weapon-hit" type="text" placeholder="Acerto: 3d20+15" class="ark-input text-sm">
-                        <input id="weapon-damage" type="text" placeholder="Dano: 6d12+15" class="ark-input text-sm">
+                        <input id="weapon-name"   type="text" placeholder="Nome da arma"      class="ark-input text-sm">
+                        <input id="weapon-hit"    type="text" placeholder="Acerto: 3d20+15"    class="ark-input text-sm">
+                        <input id="weapon-damage" type="text" placeholder="Dano: 6d12+15"      class="ark-input text-sm">
                     </div>
                     <button id="save-weapon-btn" class="btn-neon w-full">Definir arma</button>
-                    <div id="weapon-list" class="mt-4 space-y-3"></div>
+
+                    <div id="weapon-list" class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                 </div>
             </div>
 
             {{-- COLUNA DIREITA: DADOS LIVRES E EVENTOS --}}
             <div class="space-y-6">
-                {{-- DICE SYSTEM 3D --}}
                 <div class="ark-panel p-6 animate-fadeInUp" style="animation-delay: 0.3s">
                     <h3 class="text-xs font-bold theme-text-primary uppercase mb-5 tracking-widest font-medieval border-b pb-3 flex justify-between items-center" style="border-color: var(--theme-border)">
                         Manual De Dados
                         <span class="text-[8px] text-gray-400 font-normal normal-case tracking-normal">Clique esquerdo: +1 | Clique direito: -1</span>
                     </h3>
-                    
+
                     <div id="dice-container" class="grid grid-cols-7 gap-2 mb-8"></div>
-                    
+
                     <div class="space-y-5">
                         <div class="flex gap-3">
                             <select id="mode" class="ark-input flex-1 text-xs uppercase font-bold">
@@ -371,7 +538,7 @@
                             Rolar Dados
                         </button>
                     </div>
-                    
+
                     <div id="dice-result-display" class="mt-8 p-6 bg-black/40 backdrop-blur-sm border rounded-xl hidden" style="border-color: var(--theme-border)">
                         <div class="flex items-center justify-center gap-8 flex-wrap md:flex-nowrap">
                             <div id="dice-3d-container" class="dice-3d-container"></div>
@@ -383,132 +550,48 @@
                     </div>
                 </div>
 
-                {{-- MANUAL DE EVENTOS ALEATÓRIOS --}}
                 <div class="ark-panel p-6 animate-fadeInUp" style="animation-delay: 0.4s">
                     <h3 class="font-medieval font-bold text-base text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-purple-300 mb-5 uppercase tracking-wider">Manual de Eventos Aleatórios</h3>
-                    
+
                     <div class="events-grid">
-                        {{-- Sobrevivência --}}
-                        <div class="event-block" data-event-type="sobrevivencia">
-                            <img src="{{ asset('images/evento_sobrevivencia_icon.png') }}" class="event-icon tooltip-icon pulse-glow" alt="Ícone Sobrevivência">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="event-label">Sobrevivência</span>
-                                <img src="{{ asset('images/rolar_evento_text.png') }}" class="event-text-img" alt="Rolar Evento">
+                        @foreach([
+                            'sobrevivencia' => 'Sobrevivência',
+                            'efeito'        => 'Efeito',
+                            'item'          => 'Item',
+                            'traumas'       => 'Traumas',
+                            'epicos'        => 'Épicos',
+                            'joias'         => 'Joias',
+                            'joias_raras'   => 'Joias Raras',
+                            'frutas'        => 'Frutas',
+                        ] as $key => $label)
+                            <div class="event-block" data-event-type="{{ $key }}">
+                                <img src="{{ asset('images/evento_'.$key.'_icon.png') }}" class="event-icon tooltip-icon pulse-glow" alt="Ícone {{ $label }}">
+                                <div class="flex flex-col items-start gap-1">
+                                    <span class="event-label">{{ $label }}</span>
+                                    <img src="{{ asset('images/rolar_evento_text.png') }}" class="event-text-img" alt="Rolar Evento">
+                                </div>
                             </div>
-                        </div>
-                        <div id="event-result-sobrevivencia" class="event-result col-span-full"></div>
-
-                        {{-- Efeito --}}
-                        <div class="event-block" data-event-type="efeito">
-                            <img src="{{ asset('images/evento_efeito_icon.png') }}" class="event-icon tooltip-icon pulse-glow" alt="Ícone Efeito">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="event-label">Efeito</span>
-                                <img src="{{ asset('images/rolar_evento_text.png') }}" class="event-text-img" alt="Rolar Evento">
-                            </div>
-                        </div>
-                        <div id="event-result-efeito" class="event-result col-span-full"></div>
-
-                        {{-- Item --}}
-                        <div class="event-block" data-event-type="item">
-                            <img src="{{ asset('images/evento_item_icon.png') }}" class="event-icon tooltip-icon pulse-glow" alt="Ícone Item">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="event-label">Item</span>
-                                <img src="{{ asset('images/rolar_evento_text.png') }}" class="event-text-img" alt="Rolar Evento">
-                            </div>
-                        </div>
-                        <div id="event-result-item" class="event-result col-span-full"></div>
-
-                        {{-- Traumas --}}
-                        <div class="event-block" data-event-type="traumas">
-                            <img src="{{ asset('images/evento_traumas_icon.png') }}" class="event-icon tooltip-icon pulse-glow" alt="Ícone Traumas">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="event-label">Traumas</span>
-                                <img src="{{ asset('images/rolar_evento_text.png') }}" class="event-text-img" alt="Rolar Evento">
-                            </div>
-                        </div>
-                        <div id="event-result-traumas" class="event-result col-span-full"></div>
-
-                        {{-- Épicos --}}
-                        <div class="event-block" data-event-type="epicos">
-                            <img src="{{ asset('images/evento_epicos_icon.png') }}" class="event-icon tooltip-icon pulse-glow" alt="Ícone Épicos">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="event-label">Épicos</span>
-                                <img src="{{ asset('images/rolar_evento_text.png') }}" class="event-text-img" alt="Rolar Evento">
-                            </div>
-                        </div>
-                        <div id="event-result-epicos" class="event-result col-span-full"></div>
-
-                        {{-- Joias --}}
-                        <div class="event-block" data-event-type="joias">
-                            <img src="{{ asset('images/evento_joias_icon.png') }}" class="event-icon tooltip-icon pulse-glow" alt="Ícone Joias">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="event-label">Joias</span>
-                                <img src="{{ asset('images/rolar_evento_text.png') }}" class="event-text-img" alt="Rolar Evento">
-                            </div>
-                        </div>
-                        <div id="event-result-joias" class="event-result col-span-full"></div>
-
-                        {{-- Joias Raras --}}
-                        <div class="event-block" data-event-type="joias_raras">
-                            <img src="{{ asset('images/evento_joias_raras_icon.png') }}" class="event-icon tooltip-icon pulse-glow" alt="Ícone Joias Raras">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="event-label">Joias Raras</span>
-                                <img src="{{ asset('images/rolar_evento_text.png') }}" class="event-text-img" alt="Rolar Evento">
-                            </div>
-                        </div>
-                        <div id="event-result-joias_raras" class="event-result col-span-full"></div>
-
-                        {{-- Frutas --}}
-                        <div class="event-block" data-event-type="frutas">
-                            <img src="{{ asset('images/evento_frutas_icon.png') }}" class="event-icon tooltip-icon pulse-glow" alt="Ícone Frutas">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="event-label">Frutas</span>
-                                <img src="{{ asset('images/rolar_evento_text.png') }}" class="event-text-img" alt="Rolar Evento">
-                            </div>
-                        </div>
-                        <div id="event-result-frutas" class="event-result col-span-full"></div>
+                            <div id="event-result-{{ $key }}" class="event-result col-span-full"></div>
+                        @endforeach
                     </div>
                 </div>
             </div>
         </div>
-
-        {{-- ÁREA DE SESSÃO ATIVA (oculta por padrão) --}}
-        <div id="session-area" class="ark-panel p-6 hidden animate-fadeInUp mt-8">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h3 class="text-xl font-medieval font-black theme-text-primary">Mesa Ativa</h3>
-                    <p class="text-sm text-gray-300">Você está participando da sessão <strong id="session-code-display" class="font-mono text-cyan-300"></strong></p>
-                </div>
-                <form action="{{ route('session.sair') }}" method="POST" onsubmit="return confirm('Deseja sair da sessão atual?')">
-                    @csrf
-                    <button type="submit" class="bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded text-sm">Sair da Sessão</button>
-                </form>
-            </div>
-            <div class="flex justify-between items-center mb-3">
-                <div class="flex gap-3">
-                    <button id="reload-session" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded text-sm">Recarregar</button>
-                    <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" id="auto-reload-session"> Auto (5s)
-                    </label>
-                </div>
-            </div>
-            <div id="session-participants-list" class="space-y-3">
-                <p class="text-gray-400">Carregando participantes...</p>
-            </div>
-        </div>
-{{-- POPUP 20 NATURAL --}}
- <div id="extreme-popup" class="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
-    <div class="bg-black/80 backdrop-blur-md rounded-3xl p-8 text-center shadow-[0_0_30px_rgba(0,242,255,0.3)] border border-cyan-500/30 max-w-md mx-4 transform scale-95 transition-all duration-300">
-        <img src="{{ asset('images/Dado_extremo.gif') }}" alt="20 Natural" class="w-40 h-40 mx-auto mb-4 drop-shadow-[0_0_15px_cyan]">
-        <div class="text-5xl font-medieval font-black bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent tracking-widest drop-shadow-[0_0_30px_rgba(0,242,255,0.3))] animate-pulse">
-            20 NATURAL
-        </div>
-        <div class="text-3xl font-bold text-red-500 uppercase mt-3 animate-bounce drop-shadow-[0_0_6px_red]">
-            EXTREMO!
-        </div>
-        <div class="mt-4 w-24 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent mx-auto"></div>
     </div>
- </div>
+
+    {{-- POPUP 20 NATURAL --}}
+    <div id="extreme-popup" class="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+        <div class="bg-black/80 backdrop-blur-md rounded-3xl p-8 text-center shadow-[0_0_30px_rgba(0,242,255,0.3)] border border-cyan-500/30 max-w-md mx-4 transform scale-95 transition-all duration-300">
+            <img src="{{ asset('images/Dado_extremo.gif') }}" alt="20 Natural" class="w-40 h-40 mx-auto mb-4 drop-shadow-[0_0_15px_cyan]">
+            <div class="text-5xl font-medieval font-black bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent tracking-widest drop-shadow-[0_0_30px_rgba(0,242,255,0.3)] animate-pulse">
+                20 NATURAL
+            </div>
+            <div class="text-3xl font-bold text-red-500 uppercase mt-3 animate-bounce drop-shadow-[0_0_6px_red]">
+                EXTREMO!
+            </div>
+            <div class="mt-4 w-24 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent mx-auto"></div>
+        </div>
+    </div>
 
     <script>
         // ========== COMPONENTE 20 NATURAL ==========
@@ -519,15 +602,13 @@
             if (!popup) return;
             if (extremeTimeout) clearTimeout(extremeTimeout);
             popup.classList.remove('show');
-            void popup.offsetWidth; // força reflow
+            void popup.offsetWidth;
             popup.classList.add('show');
-            extremeTimeout = setTimeout(() => {
-                popup.classList.remove('show');
-            }, 3000);
+            extremeTimeout = setTimeout(() => popup.classList.remove('show'), 3000);
         }
 
         function checkNatural20(rolls, diceType) {
-            if (diceType != 20) return false;
+            if (parseInt(diceType) !== 20) return false;
             return rolls.includes(20);
         }
 
@@ -588,11 +669,11 @@
 
         // ========== SISTEMA DE TEMAS ==========
         const themeColors = {
-            padrao: { primary: '#00f2ff', secondary: '#4deaff' },
-            gladio: { primary: '#f97316', secondary: '#fdba74' },
-            iberos: { primary: '#38bdf8', secondary: '#f472b6' },
-            orc: { primary: '#4ade80', secondary: '#854d0e' },
-            fungo: { primary: '#a855f7', secondary: '#d8b4fe' },
+            padrao:    { primary: '#00f2ff', secondary: '#4deaff' },
+            gladio:    { primary: '#f97316', secondary: '#fdba74' },
+            iberos:    { primary: '#38bdf8', secondary: '#f472b6' },
+            orc:       { primary: '#4ade80', secondary: '#854d0e' },
+            fungo:     { primary: '#a855f7', secondary: '#d8b4fe' },
             escarlate: { primary: '#ef4444', secondary: '#fca5a5' }
         };
 
@@ -665,7 +746,7 @@
             positions.forEach(pos => {
                 const face = document.createElement('div');
                 face.className = `dice-face face-${pos}`;
-                face.textContent = pos === 'front' ? faceValue : ['1', '2', '3', '4', '5', '6'][Math.floor(Math.random()*6)];
+                face.textContent = pos === 'front' ? faceValue : ['1', '2', '3', '4', '5', '6'][Math.floor(Math.random() * 6)];
                 dice.appendChild(face);
             });
             container3d.appendChild(dice);
@@ -687,10 +768,10 @@
             requestAnimationFrame(animateSpin);
         }
 
-        // CARREGA PERSONAGEM
+        // ========== CARREGA PERSONAGEM ==========
         charSelect.addEventListener('change', async function() {
             selectedCharId = this.value;
-            if(!selectedCharId) return;
+            if (!selectedCharId) return;
             const res = await fetch(`/rolagens/char/${selectedCharId}`);
             const data = await res.json();
             selectedCharData = data.char;
@@ -704,9 +785,9 @@
                     </div>
                 `).join('')}
             `;
-            document.getElementById('bonus-preview').innerHTML = data.char.bonuses?.map(b => `<div class="flex justify-between"><span>${b.name}</span><span class="text-emerald-300">+${b.value}</span></div>`).join('') || 'Nenhum bônus neural.';
-            document.getElementById('mutation-preview').innerHTML = data.char.mutations?.map(m => `<div>${m.name}</div>`).join('') || 'DNA estável.';
-            if(data.lastRoll){
+            document.getElementById('bonus-preview').innerHTML = data.char.bonuses?.map(b => `<div class="flex justify-between"><span>${escapeHtml(b.name)}</span><span class="text-emerald-300">+${b.value}</span></div>`).join('') || 'Nenhum bônus neural.';
+            document.getElementById('mutation-preview').innerHTML = data.char.mutations?.map(m => `<div>${escapeHtml(m.name)}</div>`).join('') || 'DNA estável.';
+            if (data.lastRoll) {
                 document.getElementById('history-dice').innerText = data.lastRoll.dice_result || '--';
                 document.getElementById('history-event').innerText = data.lastRoll.event_result || '--';
             }
@@ -715,9 +796,9 @@
         });
 
         function generateAttrBlocks() {
-            const container = document.getElementById('attr-rolls');
-            container.innerHTML = '';
-            for(let i=0; i<3; i++){
+            const c = document.getElementById('attr-rolls');
+            c.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
                 const div = document.createElement('div');
                 div.className = "bg-black/40 backdrop-blur-sm border p-4 rounded-xl flex items-center gap-3 flex-wrap md:flex-nowrap";
                 div.style.borderColor = "var(--theme-border)";
@@ -736,17 +817,13 @@
                     <button onclick="rollAttribute(${i})" class="bg-cyan-600 hover:bg-cyan-500 px-5 py-2 rounded-lg text-xs font-black uppercase tracking-wider text-black transition-all ml-auto">Rolar</button>
                     <div id="result-${i}" class="min-w-[100px] text-right font-medieval font-black theme-text-primary text-lg">---</div>
                 `;
-                container.appendChild(div);
+                c.appendChild(div);
             }
         }
 
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
             }[char]));
         }
 
@@ -774,29 +851,18 @@
 
         function rollDiceExpression(expr, mode = 'damage') {
             const parsed = parseDiceExpression(expr);
-            if (!parsed) {
-                throw new Error('Fórmula de dado inválida. Use algo como 3d20+15 ou 6d12+15.');
-            }
-
+            if (!parsed) throw new Error('Fórmula de dado inválida. Use algo como 3d20+15 ou 6d12+15.');
             const rolls = [];
             for (let i = 0; i < parsed.diceQty; i++) {
                 rolls.push(Math.floor(Math.random() * parsed.diceSides) + 1);
             }
-
             let total = 0;
             if (mode === 'attack') {
                 total = Math.max(...rolls) + parsed.modifier;
             } else {
                 total = rolls.reduce((sum, current) => sum + current, 0) + parsed.modifier;
             }
-
-            return {
-                total,
-                rolls,
-                modifier: parsed.modifier,
-                mode,
-                label: mode === 'attack' ? 'ATAQUE' : 'DANO'
-            };
+            return { total, rolls, modifier: parsed.modifier, mode, label: mode === 'attack' ? 'ATAQUE' : 'DANO' };
         }
 
         function renderArmas() {
@@ -813,20 +879,19 @@
 
             panel.classList.remove('hidden');
             list.innerHTML = arsenal.map((weapon, index) => {
-                const name = escapeHtml(weapon?.name || 'Arma');
-                const hit = escapeHtml(weapon?.hit || '--');
+                const name   = escapeHtml(weapon?.name || 'Arma');
+                const hit    = escapeHtml(weapon?.hit  || '--');
                 const damage = escapeHtml(weapon?.damage || '--');
                 return `
-                    <div class="bg-black/35 border border-cyan-400/20 rounded-xl p-3">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                            <div>
-                                <div class="text-cyan-300 font-bold uppercase text-sm">${name}</div>
-                                <div class="text-xs text-gray-300">Acerto: ${hit} · Dano: ${damage}</div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button data-weapon-index="${index}" data-weapon-action="attack" class="weapon-roll bg-cyan-600/80 hover:bg-cyan-500 text-black px-3 py-1.5 rounded text-xs font-bold uppercase">Acerto</button>
-                                <button data-weapon-index="${index}" data-weapon-action="damage" class="weapon-roll bg-purple-600/80 hover:bg-purple-500 text-white px-3 py-1.5 rounded text-xs font-bold uppercase">Dano</button>
-                            </div>
+                    <div class="weapon-card">
+                        <div class="weapon-title">${name}</div>
+                        <div class="weapon-formula">
+                            <div>Acerto: <strong>${hit}</strong></div>
+                            <div>Dano:   <strong>${damage}</strong></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button data-weapon-index="${index}" data-weapon-action="attack" class="weapon-roll weapon-btn attack">Rolar Acerto</button>
+                            <button data-weapon-index="${index}" data-weapon-action="damage" class="weapon-roll weapon-btn damage">Rolar Dano</button>
                         </div>
                     </div>
                 `;
@@ -843,14 +908,23 @@
                         alert('Esta arma ainda não tem a fórmula de ' + (action === 'attack' ? 'acerto' : 'dano') + '.');
                         return;
                     }
-
                     try {
                         const result = rollDiceExpression(expression, action === 'attack' ? 'attack' : 'damage');
                         const label = action === 'attack' ? 'ACERTO' : 'DANO';
                         const finalText = `${label} ${weapon.name.toUpperCase()}: ${result.total} (${result.rolls.join(', ')}${result.modifier !== 0 ? ` ${result.modifier >= 0 ? '+' : ''}${result.modifier}` : ''})`;
+
                         animateDice3D(result.total);
+                        const display = document.getElementById('dice-result-display');
+                        display.classList.remove('hidden');
+                        document.getElementById('total-result').innerText = result.total;
+                        document.getElementById('individual-rolls').innerText = `${label} - [${result.rolls.join(', ')}] ${result.modifier >= 0 ? '+' : ''}${result.modifier}`;
+
                         saveToDB(finalText, null);
                         document.getElementById('history-dice').innerText = finalText;
+
+                        if (action === 'attack' && checkNatural20(result.rolls, 20)) {
+                            showExtremePopup();
+                        }
                     } catch (error) {
                         alert(error.message);
                     }
@@ -863,21 +937,18 @@
                 alert('Selecione uma ficha antes de salvar a arma.');
                 return;
             }
-
-            const name = document.getElementById('weapon-name').value.trim();
-            const hit = document.getElementById('weapon-hit').value.trim();
+            const name   = document.getElementById('weapon-name').value.trim();
+            const hit    = document.getElementById('weapon-hit').value.trim();
             const damage = document.getElementById('weapon-damage').value.trim();
 
             if (!name) {
                 alert('Digite o nome da arma.');
                 return;
             }
-
             if (!hit && !damage) {
                 alert('Informe ao menos o acerto ou o dano da arma.');
                 return;
             }
-
             try {
                 const response = await fetch('/rolagens/arma/salvar', {
                     method: 'POST',
@@ -890,12 +961,8 @@
                         weapon: { name, hit, damage }
                     })
                 });
-
                 const payload = await response.json();
-                if (!response.ok) {
-                    throw new Error(payload.message || 'Não foi possível salvar a arma.');
-                }
-
+                if (!response.ok) throw new Error(payload.message || 'Não foi possível salvar a arma.');
                 selectedCharData.arsenal = payload.arsenal || [];
                 document.getElementById('weapon-name').value = '';
                 document.getElementById('weapon-hit').value = '';
@@ -908,33 +975,32 @@
 
         document.getElementById('save-weapon-btn')?.addEventListener('click', saveWeapon);
 
-        // ========== ROLAGEM POR ATRIBUTO (com detecção de 20 natural) ==========
-        function rollAttribute(i){
-            if(!selectedCharData) return alert('Sincronize uma unidade primeiro!');
+        // ========== ROLAGEM POR ATRIBUTO ==========
+        function rollAttribute(i) {
+            if (!selectedCharData) return alert('Sincronize uma unidade primeiro!');
             const attr = document.getElementById(`attr-${i}`).value;
             const bonus = parseInt(document.getElementById(`bonus-${i}`).value) || 0;
             const qtdDados = selectedCharData[attr];
-            
+
             let rolls = [];
-            for(let x=0; x < qtdDados; x++) rolls.push(Math.floor(Math.random()*20)+1);
+            for (let x = 0; x < qtdDados; x++) rolls.push(Math.floor(Math.random() * 20) + 1);
             const max = Math.max(...rolls);
             const total = max + bonus;
             const resultadoTexto = `TESTE ${attr.toUpperCase()}: ${total} (${max}+${bonus})`;
-            
+
             document.getElementById(`result-${i}`).innerText = resultadoTexto;
             animateDice3D(total);
             saveToDB(resultadoTexto, null);
             document.getElementById('history-dice').innerText = resultadoTexto;
-            
-            if (checkNatural20(rolls, 20)) {
-                showExtremePopup();
-            }
+
+            if (checkNatural20(rolls, 20)) showExtremePopup();
         }
 
-        // ========== ROLAGEM LIVRE (com detecção de 20 natural) ==========
+        // ========== ROLAGEM LIVRE ==========
         function rollDice() {
-            if(!selectedCharId) return alert('Selecione uma unidade!');
-            let total = 0; let rollsDetail = [];
+            if (!selectedCharId) return alert('Selecione uma unidade!');
+            let total = 0;
+            let rollsDetail = [];
             const mode = document.getElementById('mode').value;
             const bonus = parseInt(document.getElementById('bonus-manual').value) || 0;
             let hasNatural20 = false;
@@ -945,14 +1011,12 @@
                     for (let i = 0; i < diceState[d]; i++) currentRolls.push(Math.floor(Math.random() * d) + 1);
                     total += (mode === 'sum') ? currentRolls.reduce((a, b) => a + b, 0) : Math.max(...currentRolls);
                     rollsDetail.push(`D${d}:[${currentRolls.join(',')}]`);
-                    if (parseInt(d) === 20 && checkNatural20(currentRolls, 20)) {
-                        hasNatural20 = true;
-                    }
+                    if (parseInt(d) === 20 && checkNatural20(currentRolls, 20)) hasNatural20 = true;
                 }
             }
             total += bonus;
             const resultadoTexto = `LIVRE: ${total} ${rollsDetail.join(' ')}`;
-            
+
             const display = document.getElementById('dice-result-display');
             display.classList.remove('hidden');
             document.getElementById('total-result').innerText = total;
@@ -960,18 +1024,13 @@
             animateDice3D(total);
             saveToDB(resultadoTexto, null);
             document.getElementById('history-dice').innerText = resultadoTexto;
-            
-            if (hasNatural20) {
-                showExtremePopup();
-            }
+
+            if (hasNatural20) showExtremePopup();
         }
 
         // ========== EVENTOS ==========
-        // ============================================================
-        // COLE AQUI A LISTA COMPLETA DE EVENTOS (sobrevivencia, efeito, item, traumas, epicos, joias, joias_raras, frutas)
-        // ============================================================
         const eventos = {
-           sobrevivencia: [
+            sobrevivencia: [
                 "Nada acontece", "Você ouve um barulho desconhecido", "Você ouve ou vê algo muito útil",
                 "O chão cai", "Você ouve ou vê algo verdadeiramente útil", "Você encontra um comerciante de alguma área da região",
                 "Você encontra um NPC conhecido ou novo na região", "Você encontra um NPC com vontade de aventura",
@@ -1061,8 +1120,8 @@
                 "Criopod com Animal de N-Z aleatório", "Criopod com Animal Médio de Seleção", "Mapa Rasgado de Explorador"
             ],
             traumas: [
-                "Estressado", "Medroso", "Ganancioso", "Paranoico", "Egoísta", 
-                "Estresse Pós-Traumático", "Insano", "Desesperado", "Letárgico", 
+                "Estressado", "Medroso", "Ganancioso", "Paranoico", "Egoísta",
+                "Estresse Pós-Traumático", "Insano", "Desesperado", "Letárgico",
                 "Fanático", "Degenerado", "Obsessivo", "Delirante", "Silencioso", "Detentor"
             ],
             epicos: [
@@ -1082,7 +1141,7 @@
                 "Você encontra uma Jóia Hypo",
                 "Você encontra uma Jóia da Noite",
                 "Você encontra uma quantia de Pérolas Sílicas",
-                "Você encontra uma quantia de Pérolas Negras "
+                "Você encontra uma quantia de Pérolas Negras"
             ],
             joias_raras: [
                 "Você encontra uma Jóia de Elemento",
@@ -1097,14 +1156,13 @@
                 "Você encontra uma Jóia Solar"
             ],
             frutas: [
-                "Amarberry", "Azulberry", "Mejoberry", "Narcoberry", "Stimberry", 
-                "Tintoberry", "Planta X", "Semente de Trigo", "Semente de Arroz", 
-                "Semente de Soja", "Limão", "Milho", "Cenoura", "Batata", "Maçã", 
+                "Amarberry", "Azulberry", "Mejoberry", "Narcoberry", "Stimberry",
+                "Tintoberry", "Planta X", "Semente de Trigo", "Semente de Arroz",
+                "Semente de Soja", "Limão", "Milho", "Cenoura", "Batata", "Maçã",
                 "Banana", "Manga", "Cereja"
             ]
-    };
+        };
 
-        // Adicionar evento de clique em todos os ícones de evento
         document.querySelectorAll('.event-icon').forEach(icon => {
             const block = icon.closest('.event-block');
             const type = block.dataset.eventType;
@@ -1116,7 +1174,7 @@
                 if (list && list.length) {
                     const result = list[Math.floor(Math.random() * list.length)];
                     const resultDiv = document.getElementById(`event-result-${type}`);
-                    resultDiv.innerHTML = `<span class="block text-purple-200">${result}</span>`;
+                    resultDiv.innerHTML = `<span class="block text-purple-200">${escapeHtml(result)}</span>`;
                     resultDiv.style.display = 'block';
                     saveToDB(null, `${type.toUpperCase()}: ${result}`);
                     document.getElementById('history-event').innerText = result;
@@ -1126,55 +1184,224 @@
             });
         });
 
+        // ========== SALVAR + REFRESH IMEDIATO ==========
         function saveToDB(dice, event) {
             if (!selectedCharId) return;
-            fetch('/rolagens/save', {
+            return fetch('/rolagens/save', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-                body: JSON.stringify({ character_id: selectedCharId, dice_result: dice, event_result: event })
-            }).catch(console.error);
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    character_id: selectedCharId,
+                    dice_result: dice,
+                    event_result: event
+                })
+            })
+            .then(() => {
+                // Atualização local instantânea (não espera o SSE empurrar de volta)
+                carregarSessaoAtiva();
+            })
+            .catch(console.error);
         }
 
-        // ========== SESSÃO ATIVA ==========
-        let sessionAutoInterval = null;
+        // ============================================================
+        // SESSAO EM TEMPO REAL — SSE primário, polling como fallback
+        // ============================================================
+        let sessionEventSource = null;
+        let sessionPollingTimer = null;
+        const SESSION_POLL_INTERVAL = 1500; // usado apenas se SSE falhar
 
-        function carregarSessaoAtiva() {
-            fetch('/sessao/minha-sessao')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.in_session) {
-                        document.getElementById('session-area').classList.remove('hidden');
-                        document.getElementById('session-code-display').innerText = data.session_code;
-                        const container = document.getElementById('session-participants-list');
-                        container.innerHTML = data.participants.map(p => `
-                            <div class="bg-black/40 border border-cyan-500/30 rounded-lg p-4 flex flex-wrap justify-between items-center">
-                                <div>
-                                    <strong class="text-cyan-300">${p.name}</strong>
-                                    ${p.is_master ? '<span class="text-purple-400 text-xs ml-2">(Mestre)</span>' : ''}
-                                    <span class="text-xs text-gray-400 ml-2">${p.crystal_id}</span>
+        // Guarda a última rolagem vista por usuário para destacar mudanças
+        const lastSeenRolls = {};
+        const lastSeenEvents = {};
+
+        function buildAvatar(p) {
+            const initial = (p.name || '?').charAt(0).toUpperCase();
+            if (p.foto) {
+                return `<img src="${p.foto}" alt="${escapeHtml(p.name)}" class="session-avatar"
+                    onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'session-avatar-fallback',textContent:'${initial}'}))">`;
+            }
+            return `<div class="session-avatar-fallback">${initial}</div>`;
+        }
+
+        function renderSession(data) {
+            const area = document.getElementById('session-area');
+            if (!area) return;
+
+            if (!data || !data.in_session) {
+                area.classList.add('hidden');
+                return;
+            }
+
+            area.classList.remove('hidden');
+            const codeEl = document.getElementById('session-code-display');
+            if (codeEl) codeEl.innerText = data.session_code || '';
+
+            const c = document.getElementById('session-participants-list');
+            if (!c) return;
+
+            const participants = data.participants || [];
+
+            // Ordena: mestre primeiro, depois por nome
+            participants.sort((a, b) => {
+                if (a.is_master && !b.is_master) return -1;
+                if (!a.is_master && b.is_master) return 1;
+                return (a.name || '').localeCompare(b.name || '');
+            });
+
+            c.innerHTML = participants.map(p => {
+                const uid = p.user_id;
+                const diceChanged  = lastSeenRolls[uid] !== undefined && lastSeenRolls[uid] !== p.last_dice && p.last_dice;
+                const eventChanged = lastSeenEvents[uid] !== undefined && lastSeenEvents[uid] !== p.last_event && p.last_event;
+
+                lastSeenRolls[uid]  = p.last_dice;
+                lastSeenEvents[uid] = p.last_event;
+
+                return `
+                    <div class="session-card">
+                        ${buildAvatar(p)}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <strong class="text-cyan-200 truncate">${escapeHtml(p.name)}</strong>
+                                ${p.is_master ? '<span class="master-badge">Mestre</span>' : ''}
+                            </div>
+                            <div class="text-[10px] text-gray-500 font-mono mt-0.5">${escapeHtml(p.crystal_id || '')}</div>
+                            <div class="mt-2 space-y-1">
+                                <div class="roll-line dice">
+                                    <span class="label">Dado:</span>
+                                    <span class="value ${diceChanged ? 'roll-updated' : ''}">${escapeHtml(p.last_dice || '--')}</span>
                                 </div>
-                                <div class="text-right">
-                                    <div class="text-sm">Dado: <span class="font-mono text-cyan-200">${p.last_dice}</span></div>
-                                    <div class="text-sm">Evento: <span class="font-mono text-purple-200">${p.last_event}</span></div>
+                                <div class="roll-line event">
+                                    <span class="label">Evento:</span>
+                                    <span class="value ${eventChanged ? 'roll-updated' : ''}">${escapeHtml(p.last_event || '--')}</span>
                                 </div>
                             </div>
-                        `).join('');
-                    } else {
-                        document.getElementById('session-area').classList.add('hidden');
-                    }
-                });
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        carregarSessaoAtiva();
+        // ---------- Fallback: polling rápido ----------
+        function startSessionPolling() {
+            if (sessionPollingTimer) return;
+            carregarSessaoAtiva();
+            sessionPollingTimer = setInterval(carregarSessaoAtiva, SESSION_POLL_INTERVAL);
+        }
+        function stopSessionPolling() {
+            if (sessionPollingTimer) {
+                clearInterval(sessionPollingTimer);
+                sessionPollingTimer = null;
+            }
+        }
 
-        document.getElementById('reload-session')?.addEventListener('click', carregarSessaoAtiva);
+        function carregarSessaoAtiva() {
+            return fetch('/sessao/minha-sessao', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => renderSession(data))
+            .catch(() => {});
+        }
+
+        // ---------- Primário: SSE ----------
+        function startSessionStream() {
+            if (sessionEventSource) return;
+            if (!window.EventSource) {
+                startSessionPolling();
+                return;
+            }
+
+            // Carrega estado inicial imediatamente
+            carregarSessaoAtiva();
+
+            try {
+                sessionEventSource = new EventSource('/sessao/stream');
+            } catch (e) {
+                sessionEventSource = null;
+                startSessionPolling();
+                return;
+            }
+
+            sessionEventSource.addEventListener('update', (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    renderSession(data);
+                } catch (err) {
+                    console.error('SSE parse error', err);
+                }
+            });
+
+            sessionEventSource.addEventListener('ended', () => {
+                stopSessionStream();
+                stopSessionPolling();
+                const area = document.getElementById('session-area');
+                if (area) area.classList.add('hidden');
+            });
+
+            sessionEventSource.addEventListener('nosession', () => {
+                stopSessionStream();
+                const area = document.getElementById('session-area');
+                if (area) area.classList.add('hidden');
+            });
+
+            // Reconexão: o browser faz automaticamente. Se falhar 3x, cai para polling.
+            let errorCount = 0;
+            sessionEventSource.onerror = () => {
+                errorCount++;
+                if (errorCount >= 3) {
+                    stopSessionStream();
+                    startSessionPolling();
+                }
+            };
+
+            // Reset do contador quando recebe algo
+            sessionEventSource.addEventListener('update', () => { errorCount = 0; });
+        }
+
+        function stopSessionStream() {
+            if (sessionEventSource) {
+                try { sessionEventSource.close(); } catch (e) {}
+                sessionEventSource = null;
+            }
+        }
+
+        // ---------- Inicialização ----------
+        carregarSessaoAtiva();
+        startSessionStream();
+
+        // ---------- Controles manuais ----------
+        document.getElementById('reload-session')?.addEventListener('click', () => {
+            carregarSessaoAtiva();
+        });
+
         document.getElementById('auto-reload-session')?.addEventListener('change', (e) => {
             if (e.target.checked) {
-                if (sessionAutoInterval) clearInterval(sessionAutoInterval);
-                sessionAutoInterval = setInterval(carregarSessaoAtiva, 5000);
+                startSessionStream();
+                if (!window.EventSource) startSessionPolling();
             } else {
-                if (sessionAutoInterval) clearInterval(sessionAutoInterval);
+                stopSessionStream();
+                stopSessionPolling();
             }
+        });
+
+        // Reconectar quando a aba volta a ficar visível
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                carregarSessaoAtiva();
+                const auto = document.getElementById('auto-reload-session')?.checked;
+                if (auto && !sessionEventSource) {
+                    startSessionStream();
+                }
+            }
+        });
+
+        // Fechar stream ao sair da página
+        window.addEventListener('beforeunload', () => {
+            stopSessionStream();
+            stopSessionPolling();
         });
     </script>
 </x-app-layout>

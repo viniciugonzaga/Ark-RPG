@@ -1,22 +1,23 @@
+{{-- resources/views/fichas/index.blade.php --}}
 <x-app-layout>
     {{-- Fundo dinâmico --}}
     <div class="fixed inset-0 -z-10">
-        <img src="{{ asset('images/Fundo_index.png') }}" alt="Background" 
+        <img src="{{ asset('images/Fundo_index.png') }}" alt="Background"
              class="w-full h-full object-cover opacity-30">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>
 
-    <div class="fixed inset-0 -z-5 pointer-events-none opacity-20" 
+    <div class="fixed inset-0 -z-5 pointer-events-none opacity-20"
          style="background-image: radial-gradient(circle, #06b6d4 1px, transparent 1px); background-size: 50px 50px;"></div>
 
     <div class="relative py-12 px-6 max-w-7xl mx-auto">
-        
+
         <div class="flex flex-col items-center mb-12">
             <x-ark-title title="Suas Fichas" />
             <div class="max-w-2xl mt-6 relative p-4 border-l-2 border-cyan-500/50 bg-cyan-950/20 backdrop-blur-sm animate-fadeIn">
                 <div class="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-cyan-400"></div>
                 <p class="text-gray-300 font-mono text-[11px] leading-relaxed uppercase tracking-widest">
-                    <span class="text-cyan-400 font-bold">Bem vindo sobrevivente!</span> Abaixo estão listados os seus <span class="text-cyan-300">registros de sobreviventes</span>. Cada ficha representa a codificação biológica e as memórias de um sobrevivente que nasceu ou já explorou o Ark. 
+                    <span class="text-cyan-400 font-bold">Bem vindo sobrevivente!</span> Abaixo estão listados os seus <span class="text-cyan-300">registros de sobreviventes</span>. Cada ficha representa a codificação biológica e as memórias de um sobrevivente que nasceu ou já explorou o Ark.
                     <br><br>
                     <span class="italic text-gray-500">Use o livro de Regras do sistema de Rpg-Ark como base na criação da Ficha.</span>
                 </p>
@@ -42,7 +43,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            <a href="{{ route('fichas.create') }}" 
+            <a href="{{ route('fichas.create') }}"
                class="ark-card group h-[400px] flex flex-col items-center justify-center border-dashed !border-2 !border-cyan-500/40 hover:!border-cyan-400 transition-all duration-500 hover:shadow-[0_0_35px_rgba(0,242,255,0.3)] bg-black/40 backdrop-blur-md relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent -translate-y-full group-hover:translate-y-full transition-all duration-[2s] linear infinite"></div>
                 <span class="text-6xl text-cyan-400 group-hover:scale-125 group-hover:rotate-90 transition-all duration-500 drop-shadow-[0_0_12px_cyan] font-thin">+</span>
@@ -51,14 +52,24 @@
             </a>
 
             @foreach($characters as $char)
-                <div class="ark-card group h-[400px] p-0 flex flex-col animate-fadeInUp relative overflow-hidden backdrop-blur-md bg-black/40 border {{ $char->is_resgatada ? 'border-white' : 'border-cyan-500/20' }} hover:border-cyan-400/60 transition-all duration-500 shadow-lg hover:shadow-[0_0_30px_rgba(0,242,255,0.2)]" 
+                @php $isPinned = $char->is_pinned ?? false; @endphp
+                <div class="ark-card group h-[400px] p-0 flex flex-col animate-fadeInUp relative overflow-hidden backdrop-blur-md bg-black/40 border {{ $char->is_resgatada ? 'border-white' : ($isPinned ? 'is-pinned border-amber-400/60' : 'border-cyan-500/20') }} hover:border-cyan-400/60 transition-all duration-500 shadow-lg hover:shadow-[0_0_30px_rgba(0,242,255,0.2)]"
                      style="animation-delay: {{ $loop->index * 0.1 }}s">
-                    
+
                     @if($char->is_resgatada)
-                        <div class="absolute top-0 left-0 z-10 bg-white text-black text-[8px] font-black px-2 py-0.5 rounded-br-lg uppercase tracking-wider">RESGATADA</div>
+                        <div class="absolute top-0 left-0 z-20 bg-white text-black text-[8px] font-black px-2 py-0.5 rounded-br-lg uppercase tracking-wider">RESGATADA</div>
                     @endif
-                    @if($char->is_pinned ?? false)
-                        <div class="absolute top-0 right-0 z-10 bg-amber-400 text-black text-[8px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">FIXADA</div>
+
+                    @if($isPinned)
+                        {{-- Badge FIXADA com brilho --}}
+                        <div class="pin-badge absolute top-0 right-0 z-20">
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3">
+                                <path d="M16 3l5 5-4 4-1 5-3-3-5 5-1-1 5-5-3-3 5-1 4-4z"/>
+                            </svg>
+                            FIXADA
+                        </div>
+                        {{-- Faixa diagonal sutil --}}
+                        <div class="pin-stripes absolute inset-0 pointer-events-none z-[1]"></div>
                     @endif
 
                     <div class="absolute top-0 left-0 right-0 z-10 flex justify-between items-start pointer-events-none">
@@ -67,13 +78,13 @@
                         </div>
                     </div>
 
-                    <div class="absolute top-2 right-2 flex gap-2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                        <a href="{{ route('fichas.edit', $char->id) }}" 
+                    <div class="absolute top-2 right-2 flex gap-2 z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                        <a href="{{ route('fichas.edit', $char->id) }}"
                            class="bg-black/60 border border-amber-500/50 hover:bg-amber-600 p-2 rounded text-white transition-all hover:scale-110 backdrop-blur-md"
                            title="Editar">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                         </a>
-                        <form action="{{ route('fichas.destroy', $char->id) }}" method="POST" 
+                        <form action="{{ route('fichas.destroy', $char->id) }}" method="POST"
                               onsubmit="return confirm('Deseja deletar permanentemente este registro de DNA?')">
                             @csrf @method('DELETE')
                             <button class="bg-black/60 border border-red-500/50 hover:bg-red-600 p-2 rounded text-white transition-all hover:scale-110 backdrop-blur-md"
@@ -82,25 +93,26 @@
                             </button>
                         </form>
                         <button onclick="pinFicha({{ $char->id }})"
-                                class="bg-black/60 border {{ ($char->is_pinned ?? false) ? 'border-amber-300/70' : 'border-cyan-500/50' }} hover:bg-cyan-600 p-2 rounded text-white transition-all hover:scale-110 backdrop-blur-md"
-                                title="{{ ($char->is_pinned ?? false) ? 'Desafixar' : 'Fixar' }}">
-                            <svg class="w-4 h-4 {{ ($char->is_pinned ?? false) ? 'text-amber-300' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7V4a1 1 0 00-1-1H9a1 1 0 00-1 1v3m8 0l2 2-4 4v7l-2-1-2 1v-7L6 9l2-2m8 0H8"/>
+                                class="pin-button {{ $isPinned ? 'is-active' : '' }} bg-black/60 border p-2 rounded text-white transition-all hover:scale-110 backdrop-blur-md"
+                                title="{{ $isPinned ? 'Desafixar' : 'Fixar' }}">
+                            <svg class="w-4 h-4 pin-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M16 7V4a1 1 0 00-1-1H9a1 1 0 00-1 1v3m8 0l2 2-4 4v7l-2-1-2 1v-7L6 9l2-2m8 0H8"/>
                             </svg>
                         </button>
                         @if(!$char->is_resgatada && $char->user_id === Auth::id())
-                            <button onclick="shareFicha({{ $char->id }})" 
+                            <button onclick="shareFicha({{ $char->id }})"
                                     class="bg-black/60 border border-green-500/50 hover:bg-green-600 p-2 rounded text-white transition-all hover:scale-110 backdrop-blur-md"
                                     title="Compartilhar">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
                             </button>
                         @endif
                     </div>
-                    
-                    <a href="{{ route('fichas.show', $char->id) }}" class="flex flex-col h-full">
+
+                    <a href="{{ route('fichas.show', $char->id) }}" class="flex flex-col h-full relative z-[2]">
                         <div class="h-60 overflow-hidden bg-black border-b border-cyan-500/30 relative">
                             @if($char->image)
-                            <img src="{{ route('media.show', $char->image) }}" 
+                            <img src="{{ route('media.show', $char->image) }}"
                               class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 filter saturate-[0.8] group-hover:saturate-100">
                             @else
                             <div class="w-full h-full bg-black/60 flex items-center justify-center">
@@ -109,12 +121,12 @@
                             @endif
                             <div class="absolute inset-0 border-[10px] border-transparent group-hover:border-cyan-500/10 transition-all"></div>
                         </div>
-                        
+
                         <div class="p-5 flex-1 flex flex-col bg-gradient-to-b from-black/80 to-cyan-950/20">
                             <h3 class="text-xl font-display font-black uppercase text-white tracking-tighter truncate border-l-4 border-cyan-500 pl-3 mb-1 group-hover:border-white transition-all">
                                 {{ $char->name }}
                             </h3>
-                            
+
                             <div class="flex justify-between items-center mt-2">
                                 <span class="text-[10px] font-mono text-cyan-400 font-bold">ID_{{ str_pad($char->id, 6, '0', STR_PAD_LEFT) }}</span>
                                 <div class="flex items-center gap-1">
@@ -197,6 +209,77 @@
             background: linear-gradient(145deg, rgba(15,25,30,0.9), rgba(5,5,5,0.95));
             border-radius: 4px;
             clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 5% 100%, 0 95%);
+        }
+
+        /* ========== CARD FIXADO (destaque dourado) ========== */
+        .ark-card.is-pinned {
+            border-color: rgba(251, 191, 36, 0.65) !important;
+            box-shadow:
+                0 0 25px rgba(251, 191, 36, 0.25),
+                inset 0 0 25px rgba(251, 191, 36, 0.06) !important;
+            animation: pinGlow 3s ease-in-out infinite;
+        }
+        .ark-card.is-pinned::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 4px;
+            pointer-events: none;
+            box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.25);
+        }
+        @keyframes pinGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.20), inset 0 0 20px rgba(251, 191, 36, 0.05); }
+            50%      { box-shadow: 0 0 38px rgba(251, 191, 36, 0.45), inset 0 0 30px rgba(251, 191, 36, 0.10); }
+        }
+
+        /* Listras diagonais sutis quando fixado */
+        .pin-stripes {
+            background: repeating-linear-gradient(
+                45deg,
+                transparent 0,
+                transparent 18px,
+                rgba(251, 191, 36, 0.05) 18px,
+                rgba(251, 191, 36, 0.05) 22px
+            );
+            mix-blend-mode: overlay;
+        }
+
+        /* Badge FIXADA dourada */
+        .pin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0b0b0b;
+            font-weight: 900;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            padding: 4px 10px;
+            border-bottom-left-radius: 10px;
+            text-transform: uppercase;
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.55);
+            animation: pinBadgeFloat 2.5s ease-in-out infinite;
+        }
+        @keyframes pinBadgeFloat {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(1px); }
+        }
+
+        /* Botão fixar ativo */
+        .pin-button.is-active {
+            border-color: rgba(251, 191, 36, 0.85) !important;
+            background: rgba(251, 191, 36, 0.15) !important;
+            box-shadow: 0 0 14px rgba(251, 191, 36, 0.55);
+        }
+        .pin-button.is-active .pin-icon {
+            color: #fbbf24;
+            filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.85));
+            transform: rotate(-20deg);
+            transition: transform 0.35s ease;
+        }
+        .pin-button:hover .pin-icon {
+            transform: rotate(15deg);
+            transition: transform 0.35s ease;
         }
     </style>
 

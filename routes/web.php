@@ -81,6 +81,7 @@ Route::middleware(['auth'])->prefix('sessao')->name('session.')->group(function 
     Route::get('/entrar', [SessionController::class, 'entrarForm'])->name('entrar.form');
     Route::post('/entrar', [SessionController::class, 'entrar'])->name('entrar');
     Route::get('/minha-sessao', [SessionController::class, 'getMinhaSessao'])->name('minha');
+    Route::get('/stream', [SessionController::class, 'stream'])->name('stream'); // SSE
     Route::post('/sair', [SessionController::class, 'sair'])->name('sair');
 });
 
