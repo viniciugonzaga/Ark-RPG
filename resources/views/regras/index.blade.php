@@ -141,5 +141,46 @@
         .font-medieval {
             font-family: 'Cinzel', serif;
         }
+        /* ================= RESPONSIVO ADICIONAL — REGRAS ================= */
+
+@media (max-width: 1080px) {
+    .ark-panel-glossy { border-radius: 20px; }
+    .ark-panel-glossy h1 { font-size: 2.25rem !important; letter-spacing: 0.1em !important; }
+    .ark-panel-glossy .w-16.h-16 { width: 3.5rem !important; height: 3.5rem !important; }
+    .ark-panel-glossy .w-16.h-16 svg { width: 1.75rem !important; height: 1.75rem !important; }
+}
+
+@media (max-width: 760px) {
+    .ark-panel-glossy { padding: 2rem 1.25rem !important; border-radius: 16px; }
+    .ark-panel-glossy h1 { font-size: 1.85rem !important; letter-spacing: 0.08em !important; }
+    .ark-panel-glossy .w-32 { width: 5rem !important; margin-bottom: 1.5rem !important; }
+    .ark-panel-glossy p { font-size: 0.9rem !important; }
+    .ark-panel-glossy .bg-black\/50 { padding: 1.25rem !important; }
+    .ark-btn-glitch { padding: 12px 24px !important; font-size: 0.85rem !important; letter-spacing: 2px !important; }
+}
+
+@media (max-width: 480px) {
+    .ark-panel-glossy { padding: 1.5rem 1rem !important; border-radius: 14px; }
+    .ark-panel-glossy h1 { font-size: 1.5rem !important; }
+    .ark-panel-glossy .w-32 { width: 4rem !important; margin-bottom: 1.25rem !important; height: 3px !important; }
+    .ark-panel-glossy p { font-size: 0.8rem !important; }
+    .ark-panel-glossy .bg-black\/50 { padding: 1rem !important; }
+    .ark-panel-glossy .bg-black\/50 p.text-lg { font-size: 0.95rem !important; }
+    .ark-btn-glitch { padding: 10px 18px !important; font-size: 0.75rem !important; letter-spacing: 1.5px !important; width: 100%; justify-content: center; }
+    .ark-btn-glitch svg { width: 16px !important; height: 16px !important; }
+    .ark-panel-glossy p.text-\[9px\] { font-size: 8px !important; }
+    .ark-panel-glossy .w-16.h-16 { width: 3rem !important; height: 3rem !important; }
+    .ark-panel-glossy .w-16.h-16 svg { width: 1.5rem !important; height: 1.5rem !important; }
+}
+
+@media (max-width: 300px) {
+    .ark-panel-glossy { padding: 1rem 0.75rem !important; border-radius: 12px; }
+    .ark-panel-glossy h1 { font-size: 1.15rem !important; }
+    .ark-panel-glossy .w-32 { width: 3rem !important; }
+    .ark-panel-glossy p { font-size: 0.7rem !important; }
+    .ark-btn-glitch { padding: 8px 12px !important; font-size: 0.65rem !important; letter-spacing: 1px !important; }
+    .ark-panel-glossy .w-16.h-16 { width: 2.5rem !important; height: 2.5rem !important; }
+    .ark-panel-glossy .w-16.h-16 svg { width: 1.25rem !important; height: 1.25rem !important; }
+}
     </style>
 </x-app-layout>

@@ -115,6 +115,82 @@
             animation: spin 1s ease-in-out infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+        /* ================= RESPONSIVO ADICIONAL — MASTER/MESA ================= */
+
+@media (max-width: 1080px) {
+    .relative.z-10.max-w-7xl { padding: 1.25rem !important; }
+    .ark-panel.p-6 { padding: 1.25rem !important; }
+    .ark-panel h1 { font-size: 2rem !important; }
+    .code-block { font-size: 1.25rem !important; letter-spacing: 3px !important; padding: 10px 14px !important; }
+}
+
+@media (max-width: 760px) {
+    .relative.z-10.max-w-7xl { padding: 1rem !important; }
+    .ark-panel.p-6 { padding: 1rem !important; }
+
+    /* Bloco código da mesa ativa — empilha */
+    .ark-panel .flex.flex-col.md\:flex-row.items-center.justify-between {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        text-align: center !important;
+    }
+    .ark-panel .flex.flex-col.md\:flex-row.items-center.justify-between > .flex.items-center.gap-3 {
+        justify-content: center !important;
+        flex-wrap: wrap;
+    }
+
+    .ark-panel h1 { font-size: 1.6rem !important; letter-spacing: 0.05em !important; }
+    .code-block { font-size: 1.15rem !important; letter-spacing: 2px !important; padding: 8px 12px !important; }
+    .btn-copy { padding: 6px 14px !important; font-size: 0.7rem !important; }
+
+    /* Grid de "Buscar" e "Criar Mesa" */
+    .grid.md\:grid-cols-2 { grid-template-columns: 1fr !important; gap: 1rem !important; }
+
+    /* Input de busca + botão */
+    .ark-panel .flex.gap-2 { flex-wrap: wrap !important; }
+    .ark-panel .flex.gap-2 .ark-input { flex: 1 1 100% !important; }
+    .ark-panel .flex.gap-2 .btn-neon { flex: 1 1 100% !important; justify-content: center; }
+
+    .btn-neon { padding: 8px 16px !important; font-size: 0.72rem !important; letter-spacing: 0.15em !important; }
+}
+
+@media (max-width: 480px) {
+    .relative.z-10.max-w-7xl { padding: 0.75rem !important; }
+    .ark-panel.p-6 { padding: 0.75rem !important; }
+    .ark-panel h1 { font-size: 1.25rem !important; }
+    .ark-panel p.text-gray-300 { font-size: 0.75rem !important; }
+
+    .code-block { font-size: 1rem !important; letter-spacing: 1.5px !important; padding: 6px 10px !important; }
+    .btn-copy { font-size: 0.62rem !important; padding: 5px 10px !important; }
+
+    .ark-input { font-size: 0.8rem !important; padding: 0.5rem 0.75rem !important; }
+    .btn-neon { padding: 7px 12px !important; font-size: 0.62rem !important; letter-spacing: 0.1em !important; }
+
+    /* Resultado de busca de jogador */
+    .ark-panel .bg-black\/40.border.border-cyan-500\/30 { padding: 0.75rem !important; }
+    #player-foto { width: 2.5rem !important; height: 2.5rem !important; }
+    .ark-panel .text-purple-300 { font-size: 0.7rem !important; }
+    #last-dice, #last-event { font-size: 0.75rem !important; }
+
+    /* Botões de rodapé do card de busca */
+    .ark-panel .flex.justify-between.mt-4 { flex-direction: column !important; gap: 0.5rem !important; }
+    .ark-panel .flex.justify-between.mt-4 button,
+    .ark-panel .flex.justify-between.mt-4 label {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    #copy-toast { font-size: 10px !important; padding: 6px 14px !important; }
+}
+
+@media (max-width: 300px) {
+    .ark-panel.p-6 { padding: 0.6rem !important; }
+    .ark-panel h1 { font-size: 1rem !important; }
+    .code-block { font-size: 0.85rem !important; letter-spacing: 1px !important; padding: 5px 8px !important; }
+    .btn-copy { font-size: 0.55rem !important; padding: 4px 8px !important; }
+    .btn-neon { font-size: 0.55rem !important; padding: 5px 8px !important; }
+}
     </style>
 
     <div class="relative z-10 max-w-7xl mx-auto p-6 space-y-8 text-white">

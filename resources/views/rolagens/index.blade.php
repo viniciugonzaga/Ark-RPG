@@ -375,6 +375,139 @@
             background: rgba(168, 85, 247, 0.6);
             color: #1b0020;
         }
+        /* ================= RESPONSIVO ADICIONAL — ROLAGENS ================= */
+
+@media (max-width: 1080px) {
+    .ark-panel { border-radius: 12px; }
+    #dice-container { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
+    .session-card { padding: 12px; gap: 12px; }
+    .session-avatar, .session-avatar-fallback { width: 48px; height: 48px; font-size: 18px; }
+    .events-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .relative.z-10.max-w-7xl { padding: 1.25rem !important; }
+}
+
+@media (max-width: 760px) {
+    .relative.z-10.max-w-7xl { padding: 1rem !important; }
+    .ark-panel { padding: 1rem !important; }
+
+    /* Dados livres */
+    #dice-container { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 6px !important; }
+    #dice-container > div { padding: 6px !important; border-radius: 10px !important; }
+    #dice-container > div .text-\[11px\] { font-size: 9px !important; }
+    #dice-container > div .text-2xl { font-size: 1.1rem !important; }
+    #dice-container > div span.text-xl { font-size: 1rem !important; }
+
+    /* Eventos */
+    .events-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .event-block { padding: 10px; gap: 10px; border-radius: 12px; }
+    .event-icon { width: 40px; height: 40px; }
+    .event-text-img { height: 24px; }
+    .event-label { font-size: 10px; padding: 2px 6px; }
+
+    /* Preview de atributos */
+    #attr-preview { gap: 6px !important; }
+    #attr-preview > div { padding: 8px 4px !important; }
+    #attr-preview .text-2xl { font-size: 1.1rem !important; }
+    #attr-preview .text-\[10px\] { font-size: 8px !important; }
+
+    /* Bloco de rolagem de atributo */
+    #attr-rolls > div { flex-wrap: wrap !important; gap: 8px !important; padding: 12px !important; }
+    #attr-rolls > div button { margin-left: 0 !important; flex: 1 1 100% !important; }
+
+    /* Dado 3D */
+    .dice-3d-container { width: 80px; height: 80px; }
+    .dice-face { width: 80px; height: 80px; font-size: 32px; border-radius: 12px; }
+    .face-front  { transform: rotateY(0deg) translateZ(40px); }
+    .face-back   { transform: rotateY(180deg) translateZ(40px); }
+    .face-right  { transform: rotateY(90deg) translateZ(40px); }
+    .face-left   { transform: rotateY(-90deg) translateZ(40px); }
+    .face-top    { transform: rotateX(90deg) translateZ(40px); }
+    .face-bottom { transform: rotateX(-90deg) translateZ(40px); }
+    #total-result { font-size: 3rem !important; }
+
+    /* Sessão */
+    .session-card { padding: 10px; gap: 10px; flex-wrap: wrap; }
+    .session-avatar, .session-avatar-fallback { width: 42px; height: 42px; font-size: 16px; }
+    .roll-line { font-size: 10px; }
+
+    /* Botões */
+    .btn-neon { padding: 10px 20px !important; font-size: 0.8rem !important; letter-spacing: 0.15em !important; }
+
+    /* Armas */
+    #weapon-panel .grid-cols-3 { grid-template-columns: 1fr !important; }
+    #weapon-list { grid-template-columns: 1fr !important; }
+
+    /* Popup 20 natural */
+    #extreme-popup img { width: 7rem !important; height: 7rem !important; }
+    #extreme-popup .text-5xl { font-size: 2rem !important; }
+    #extreme-popup .text-3xl { font-size: 1.25rem !important; }
+}
+
+@media (max-width: 480px) {
+    .relative.z-10.max-w-7xl { padding: 0.75rem !important; }
+    .ark-panel { padding: 0.85rem !important; border-radius: 10px !important; }
+
+    #dice-container { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 5px !important; }
+    #dice-container > div { padding: 5px !important; }
+    #dice-container > div .text-2xl { font-size: 0.95rem !important; }
+    #dice-container > div .text-\[11px\] { font-size: 8px !important; }
+
+    .events-grid { grid-template-columns: 1fr; gap: 8px; }
+    .event-icon { width: 36px; height: 36px; }
+    .event-text-img { height: 20px; }
+    .event-label { font-size: 9px; }
+
+    #attr-preview { gap: 4px !important; }
+    #attr-preview > div { padding: 6px 2px !important; border-radius: 8px !important; }
+    #attr-preview .text-2xl { font-size: 0.95rem !important; }
+    #attr-preview .text-\[10px\] { font-size: 7px !important; letter-spacing: 0 !important; }
+
+    .dice-3d-container { width: 64px; height: 64px; }
+    .dice-face { width: 64px; height: 64px; font-size: 26px; border-radius: 10px; }
+    .face-front  { transform: rotateY(0deg) translateZ(32px); }
+    .face-back   { transform: rotateY(180deg) translateZ(32px); }
+    .face-right  { transform: rotateY(90deg) translateZ(32px); }
+    .face-left   { transform: rotateY(-90deg) translateZ(32px); }
+    .face-top    { transform: rotateX(90deg) translateZ(32px); }
+    .face-bottom { transform: rotateX(-90deg) translateZ(32px); }
+
+    #total-result { font-size: 2.25rem !important; }
+    #individual-rolls { font-size: 10px !important; }
+
+    .session-avatar, .session-avatar-fallback { width: 38px; height: 38px; font-size: 14px; }
+    .master-badge { font-size: 7px; padding: 1px 6px; }
+    .session-card strong { font-size: 0.85rem; }
+
+    .btn-neon { padding: 9px 16px !important; font-size: 0.7rem !important; letter-spacing: 0.1em !important; }
+
+    #extreme-popup img { width: 5.5rem !important; height: 5.5rem !important; }
+    #extreme-popup .text-5xl { font-size: 1.5rem !important; }
+    #extreme-popup .text-3xl { font-size: 1rem !important; }
+    #extreme-popup .max-w-md { margin: 0.75rem !important; padding: 1.25rem !important; }
+}
+
+@media (max-width: 300px) {
+    #dice-container { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .event-label { font-size: 8px; padding: 1px 5px; }
+    .event-icon { width: 30px; height: 30px; }
+    .event-text-img { height: 18px; }
+
+    #attr-preview { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+
+    .dice-3d-container { width: 52px; height: 52px; }
+    .dice-face { width: 52px; height: 52px; font-size: 20px; border-radius: 8px; }
+    .face-front  { transform: rotateY(0deg) translateZ(26px); }
+    .face-back   { transform: rotateY(180deg) translateZ(26px); }
+    .face-right  { transform: rotateY(90deg) translateZ(26px); }
+    .face-left   { transform: rotateY(-90deg) translateZ(26px); }
+    .face-top    { transform: rotateX(90deg) translateZ(26px); }
+    .face-bottom { transform: rotateX(-90deg) translateZ(26px); }
+
+    #total-result { font-size: 1.75rem !important; }
+
+    .btn-neon { font-size: 0.6rem !important; padding: 8px 12px !important; }
+    .session-card { padding: 8px; gap: 8px; }
+}
     </style>
 
     <div class="relative z-10 max-w-7xl mx-auto p-6 space-y-8 text-white">
@@ -1030,138 +1163,181 @@
 
         // ========== EVENTOS ==========
         const eventos = {
-            sobrevivencia: [
-                "Nada acontece", "Você ouve um barulho desconhecido", "Você ouve ou vê algo muito útil",
-                "O chão cai", "Você ouve ou vê algo verdadeiramente útil", "Você encontra um comerciante de alguma área da região",
-                "Você encontra um NPC conhecido ou novo na região", "Você encontra um NPC com vontade de aventura",
-                "Você encontra um NPC útil", "Você encontra um NPC verdadeiramente útil", "A PIOR situação acontece...",
-                "A MELHOR situação acontece...", "Um nevoeiro ou neblina domina a região até a noite",
-                "Um nevoeiro ou neblina domina a região até amanhecer", "Uma onda de calor domina a região",
-                "Uma onda de frio domina a região", "Uma onda climática estacional domina a região nesse dia",
-                "Um item da base é saqueado por alguém ou algo, enquanto em jornada",
-                "Um item valioso da base é saqueado por alguém ou algo, enquanto em jornada",
-                "Um item é encontrado", "Um item valioso é encontrado", "Armas de fogo travam ou ficam com defeito na aventura",
-                "Uma arma do grupo enferruja em jornada", "Uma arma do grupo enferruja na base",
-                "Um caminho de sorte é guiado sobre a missão", "Um rastro de um inimigo fica aparente na região",
-                "Um rastro de uma criatura fica aparente na região", "Um rastro de uma criatura Apex ou maior fica aparente na região",
-                "Um rastro de um tesouro ou templo fica aparente na região", "Um rastro de um 'drop' fica aparente no céu",
-                "Um conjunto de recursos animais fica aparente na região", "Um tipo de minério fica aparente na região",
-                "Um tipo de minério raro fica aparente na região", "Um tipo de joia aparece nas praias próximas",
-                "Um item aparece nas praias próximas", "Um náufrago aparece nas praias próximas",
-                "Um item aparece no meio da floresta mais próxima", "Uma carcaça fica aparente na praia",
-                "Um mega tesouro ou estrutura abandonada é encontrada nas praias mais próximas",
-                "Um mega tesouro ou estrutura abandonada é encontrada nas florestas mais próximas",
-                "Uma carcaça de um inimigo fica aparente na região", "Uma carcaça de um inimigo com itens fica à mostra na região",
-                "Você lembra de momentos bons, recupera +20 de Sanidade", "Você lembra de momentos bons, recupera +30 de Sanidade",
-                "Você lembra de momentos ruins, perde 10 de Sanidade", "Você lembra de momentos ruins, perde 20 de Sanidade",
-                "Você lembra de momentos ruins, perde 30 de Sanidade", "Você não se sente bem e contrai uma doença",
-                "Algo do cenário cai em você", "Você tropeça", "Você tropeça e acha algo escondido no chão",
-                "Você encontra uma carcaça grande", "Você encontra uma carcaça pequena", "Você encontra uma carcaça média",
-                "Você encontra uma carcaça de Apex Predador velho ou morto", "Os Deuses não gostaram de você hoje, jogue um dado de efeito",
-                "O Deus Ancião não gostou das suas ações hoje, sua mutação é bloqueada temporariamente.",
-                "O Deus Ancião gostou das suas ações hoje, se for diabólico, recebe +2 dados de dano contra humanos.",
-                "Os Deuses gostaram das suas ações hoje, se tiver religião, ganha +5 em um bônus por 1 dia.",
-                "Você se sente com muita fome, a ilha sabe que todos são animais", "Você sente sede",
-                "Você reflete sobre um cenário em sua mente e ganha uma dica da narrativa.",
-                "Você se sente motivado hoje, recebe mais cargas de mutação (1d4)",
-                "Você encontra um animal do bioma de sua escolha", "Você encontra uma criatura pequena, do bioma",
-                "Você encontra um casal pequeno com filhotes do bioma", "Você encontra um filhote pequeno indefeso do bioma",
-                "Você encontra um animal médio, do bioma", "Você encontra um casal médio, com filhotes do bioma",
-                "Você encontra um filhote médio indefeso do bioma", "Você encontra animais maldosos médios ou pequenos te espreitando",
-                "Você encontra um animal grande ou Apex do bioma", "Você encontra um casal grande ou Apex do bioma, com filhotes",
-                "Você encontra um filhote maldoso grande ou Apex sozinho do bioma", "Você encontra um filhote grande ou Apex indefeso do bioma",
-                "Sua mente é abalada com um encontro de um APEX Predador", "Seu corpo reage contra uma emboscada de um APEX Predador",
-                "Vocês são salvos de algum problema por uma manada de herbívoros",
-                "Vocês são salvos de um Apex Predador por surgir uma manada APEX de herbívoros",
-                "Uma manada surge com filhotes bonzinhos ao lado da base", "Desculpe, mas um chefe encontrou vocês..."
-            ],
-            efeito: [
-                "Buff do dia, acorda estimulado, +5 em algo", "Buff do dia, acorda estimulado, +1 dado em algo",
-                "Buff do dia, acorda estimulado, +1 dado de dano", "Buff do dia, acorda estimulado, Mana infinita",
-                "Buff do dia, acorda estimulado, causa +2 dados de dano em sangramento ou em peste",
-                "Nerf do dia, acorda preguiçoso, -5 no bônus mais usável", "Nerf do dia, acorda amedrontado, -5 de sanidade sempre que errar",
-                "Nerf do dia, acorda defeituoso, -1 dado em vigor e força", "Nerf do dia, dor de cabeça, -1 dado de inteligência e sabedoria",
-                "Condição, se for mulher, acorda com sangramento, 1d12 de dano de sangramento",
-                "Condição, se for homem, acorda distraído, fica marcado a sessão toda",
-                "Condição, sortudo, dobro de rolagens em dados de itens, minérios e drops",
-                "Condição, destroçado, sobreviveu a um combate intenso, -5 em ações no resto do dia",
-                "Condição, protagonista, se sente o especial, fica marcado a sessão toda",
-                "Condição, doente, acorda ou fica fraco no resto do dia, recebe 2d6 de dano de peste",
-                "Condição, calorento, não consegue usar armaduras sem superaquecer ou cheirar mal no resto do dia",
-                "Condição, friento, não consegue ficar sem roupas grossas sem ficar lento, -1 de agilidade",
-                "Condição, com fé, pode usar religião em bônus adicionais de testes",
-                "Condição, sem fé, é proibido o uso de bônus em equipe durante a sessão",
-                "Condição, caçado pelo Lobo, ele está te observando, infelizmente você está exposto no resto da sessão",
-                "Condição, tímido, durante a sessão começa qualquer combate com o efeito Furtivo",
-                "Condição, Diabólico, se sente solitário e raivoso à noite, se tornando diabólico durante a sessão",
-                "Condição, Distorção de mutação, suas mutações possuem chance de evoluir (1d2)",
-                "Condição, Alimentado, se sente satisfeito e não precisa comer durante o dia na sessão",
-                "Condição, Apaixonado, se sente unido e depende de um jogador, ganhando +5 em uma ação em conjunto com ele",
-                "Condição, Amigo dos animais, se sente confortável com dinossauros e tem chance de ser ignorado (1d2) por predadores na cena",
-                "Condição, Bondade, cura 30 pontos de vida", "Condição, Reflexivo, recupera 30 pontos de sanidade"
-            ],
-            item: [
-                "Pedra", "Um Saco de Moedas aleatório 1d10 (Moeda de Prata)", "Um Saco de Moedas aleatório 1d4 (Moeda de Ouro)",
-                "Sílex", "Areia", "Pelo Seco", "Roupa do Ark Básica", "Roupa de Couro com Parte", "Roupa do Inverno",
-                "Roupa de Banho", "Madeira natural", "Madeira refinada", "palha", "Monte grande de Palha", "Fibra",
-                "Fibra do Campos", "Seda", "Seda de Inseto", "Lã", "Lã rara", "Quitina comum", "Quitina grossa",
-                "Quitina rara", "Ossos de um dinossauro", "Fóssil preservado de um Dinossauro",
-                "Parte de dinossauro ou criatura", "Couro comunm", "Couro de Penas", "Couro", "Couro de jacaré",
-                "Couro de Abelissauro", "Couro de Ceratopcideos", "Couro de Acrocantosssaurideos",
-                "Couro de tiranossaurideos", "Couro de raptores", "Couro de Handrossaurideos",
-                "Couro de Saurópodes", "Couro de Espinossaurideos", "Couro de Presas", "Couro de Dragão",
-                "Couro de Criatura da Caveira", "Couro de réptil Marinho", "Couro de Grupo dos Pterossauros",
-                "Couro de Mamiferos", "Couro de Criatura Mágica", "Couro de Apex predador", "Couro de Apex esquecido",
-                "Cimento Natural", "Cimento Industrial", "Resina", "Resina vermelha", "Ambâr comum", "Ambâr do pantâno",
-                "Ambâr com inseto", "pólvora", "pólvora negra", "pólvora do véu", "Argila", "Fertilizante",
-                "Caixa de temperos", "Pétróleo", "óleo", "Petróelo Natural rochosso", "Pétróelo refinado",
-                "Óleo Carmsein", "Polimero Orgânico", "Polimero industrial", "Eletrônico", "Eletrônico tek",
-                "Eletrônico Quebrado", "Criopod vazia", "Criopod com Animal comum", "Criopod com Animal de A-M aleatório",
-                "Criopod com Animal de N-Z aleatório", "Criopod com Animal Médio de Seleção", "Mapa Rasgado de Explorador"
-            ],
-            traumas: [
-                "Estressado", "Medroso", "Ganancioso", "Paranoico", "Egoísta",
-                "Estresse Pós-Traumático", "Insano", "Desesperado", "Letárgico",
-                "Fanático", "Degenerado", "Obsessivo", "Delirante", "Silencioso", "Detentor"
-            ],
-            epicos: [
-                "Você encontra um Lendário Diamante(1d4)",
-                "Você encontra uma Lendária Magnetita(1d4)",
-                "Você encontra um Lendário Netherite(1d4)",
-                "Você encontra um Lendário Elemento(1d4)",
-                "Você encontra uma Lendária Cianita(1d4)",
-                "Você encontra um Lendário Módulo de Minério(1d4)"
-            ],
-            joias: [
-                "Você encontra uma Jóia de Sáfira",
-                "Você encontra uma Jóia de Esmeralda",
-                "Você encontra uma Jóia de Rubi",
-                "Você encontra uma Jóia de Redstone",
-                "Você encontra uma Jóia de Diamante",
-                "Você encontra uma Jóia Hypo",
-                "Você encontra uma Jóia da Noite",
-                "Você encontra uma quantia de Pérolas Sílicas",
-                "Você encontra uma quantia de Pérolas Negras"
-            ],
-            joias_raras: [
-                "Você encontra uma Jóia de Elemento",
-                "Você encontra uma Jóia de Cristal da Caveira",
-                "Você encontra uma Jóia de Cristal do Inferno",
-                "Você encontra uma Jóia do Véu",
-                "Você encontra uma Jóia de Mefisto",
-                "Você encontra um Dente de Lobo Escuro",
-                "Você encontra um Pelo liso branco de Ovelha",
-                "Você encontra uma Esféra de Ion",
-                "Você encontra um Medalão de Ouro Maldito",
-                "Você encontra uma Jóia Solar"
-            ],
-            frutas: [
-                "Amarberry", "Azulberry", "Mejoberry", "Narcoberry", "Stimberry",
-                "Tintoberry", "Planta X", "Semente de Trigo", "Semente de Arroz",
-                "Semente de Soja", "Limão", "Milho", "Cenoura", "Batata", "Maçã",
-                "Banana", "Manga", "Cereja"
-            ]
-        };
+    sobrevivencia: [
+        "A desolação se faz presente em um silêncio perturbador; nada acontece, apenas o peso do tempo.", 
+        "Um estalhar ecoa na vegetação: você ouve um ruído desconhecido que faz seu sangue gelhar.", 
+        "Entre os destroços do bioma, o brilho de algo extremamente útil chama a sua atenção.",
+        "A terra cede sob seus pés num colapso repentino; o chão cai e o perigo se revela.", 
+        "Em meio ao caos, você descobre algo de valor incalculável para a sua sobrevivência.", 
+        "Vagando pelas sombras da região, surge um comerciante itinerante oferecendo mercadorias raras.",
+        "Seus passos cruzam com os de um sobrevivente — uma face conhecida ou um rosto novo marcados pelas cicatrizes da ilha.", 
+        "Você encontra um andarilho com o olhar ardendo em sede de aventura e perigos.",
+        "Um viajante solitário cruza o seu caminho, disposto a oferecer auxílio prático.", 
+        "Você encontra um aliado extraordinário, cujos recursos e conhecimento mudam o rumo do dia.", 
+        "O céu escurece e o ar pesa: a PIOR situação imaginável começa a se desenrolar...",
+        "Um vislumbre de esperança surge no horizonte: a MELHOR situação possível acontece!", 
+        "Uma névoa espessa e melancólica engole a região, sufocando a visão até a chegada da noite.",
+        "Um nevoeiro denso e soturno domina o ambiente, ocultando os perigos até o amanhecer.", 
+        "O ar torna-se escaldante e sufocante; uma onda de calor avassaladora consome a região.",
+        "O sopro gélido da morte atravessa os vales; uma onda de frio extremo domina a terra.", 
+        "O clima manifesta a sua fúria estacional, alterando drasticamente o ecossistema durante este dia.",
+        "Ao retornar, percebe que o silêncio da base foi violado: um item foi saqueado por algo ou alguém durante a sua ausência.",
+        "Uma perda dolorosa: um dos itens mais valiosos da sua base foi pilhado enquanto você explorava a região.",
+        "Em meio aos escombros da terra esquecida, você descobre um item abandonado.", 
+        "Escondido sob a poeira do tempo, um item valioso e preservado é encontrado.", 
+        "Um estalo seco e o desespero: a engrenagem trava e sua arma de fogo falha no momento mais crítico.",
+        "A umidade e o tempo cobram seu preço: uma das armas do grupo enferruja tragicamente durante a jornada.", 
+        "O descaso na base cobra seu valor: uma arma mantida no abrigo enferrujou.",
+        "Um presságio favorável guia seus passos com sorte inesperada no cumprimento da missão.", 
+        "Marcas profundas e recentes no solo denunciam a passagem de um inimigo na região.",
+        "Pegadas cobertas de lama revelam o rastro de uma criatura que ronda as proximidades.", 
+        "O solo tremeu aqui: marcas gigantescas revelam a passagem de uma criatura Apex ou superior.",
+        "Ruínas esquecidas chamam por você: o rastro de um tesouro ou templo antigo surge na vegetação.", 
+        "Um feixe luminoso rasga as nuvens: o rastro de um suprimento 'drop' corta o céu.",
+        "Um aroma de caça no ar: um rastro denso de recursos animais manifesta-se no bioma.", 
+        "Veios expostos na rocha revelam um depósito de minério utilizável na região.",
+        "Um brilho metálico incomum chama a atenção: minérios raros estão expostos na região.", 
+        "O balanço das ondas trouxe fragmentos de joias reluzentes para a areia da praia.",
+        "Trazido pelas marés melancólicas, um item misterioso repousa na praia.", 
+        "O mar devolve o que tomou: um náufrago desacordado é encontrado nas praias próximas.",
+        "No coração sombrio da floresta mais próxima, um objeto esquecido aguarda ser descoberto.", 
+        "A carcaça em decomposição de um animal marinho repousa tragicamente sobre a areia da praia.",
+        "Um vislumbre de tempos gloriosos: um mega tesouro ou uma estrutura colossal abandonada é encontrada no litoral.",
+        "Entre árvores seculares e sombras espessas, uma estrutura colossal abandonada e repleta de riquezas é descoberta.",
+        "Restos mortais e sangue seco: a carcaça de um inimigo tomba na região.", 
+        "A carcaça de um rival abatido Jaz na terra, ainda ostentando seus pertences intactos.",
+        "Lembranças doces de um passado distante aquecem seu peito calejado. Você recupera 20 pontos de Sanidade.", 
+        "A memória de um abraço esquecido traz paz à sua alma inquieta. Você recupera 30 pontos de Sanidade.",
+        "Fantasmas do passado sussurram falhas e perdas na sua mente. Você perde 10 pontos de Sanidade.", 
+        "Uma dor profunda sufoca seu peito ao lembrar de quem você deixou para trás. Você perde 20 pontos de Sanidade.",
+        "O horror e o luto da ilha despedaçam a sua psique. Você perde 30 pontos de Sanidade.", 
+        "Seu corpo fraqueja, tomado por um calafrio doentio; você contrai uma enfermidade.",
+        "A estrutura acima de você cede: detritos do cenário despencam sobre o seu corpo.", 
+        "Seu pé prende-se às raízes e você tropeça dolorosamente contra a terra dura.", 
+        "Ao tropeçar e cair de cara no solo, seus olhos encontram algo misterioso escondido sob a folhagem.",
+        "Uma ossada colossal em decomposição jaz esquecida, exalando a melancolia dos gigantes que já dominaram esta terra.", 
+        "Uma pequena carcaça repousa esquecida na vegetação.", 
+        "Restos em decomposição de um animal de médio porte cobrem o solo.",
+        "A carcaça imponente de um antigo Apex Predador repousa como um monumento à decadência da vida.", 
+        "A sorte lhe deu as costas e o destino cobra seu preço: os Deuses desaprovaram suas ações hoje. Jogue um dado de efeito.",
+        "A fúria dos Deuses Anciões recai sobre seu sangue: sua mutação é temporariamente bloqueada.",
+        "Sua crueldade agradou às entidades sombrias: se você for diabólico, recebe +2 dados de dano contra humanos.",
+        "A providência divina sorri para os seus rituais: se possuir religião, ganha +5 em um bônus por 1 dia.",
+        "O estômago ronca com a ferocidade dos selvagens; a ilha lembra que, no fundo, todos são apenas feras famintas.", 
+        "Sua garganta seca e a sede consome suas forças.",
+        "Ao contemplar as sombras do horizonte, uma revelação cruza a sua mente: você ganha uma pista crucial da narrativa.",
+        "Uma energia primitiva inflama seu espírito: motivado pela sobrevivência, você recebe +1d4 cargas de mutação.",
+        "Entre a foz e a mata, surge um animal nativo do bioma de sua escolha.", 
+        "Nas sombras dos arbustos, uma pequena criatura do bioma observa seus passos.",
+        "Um casal de pequenas criaturas cuida com ternura de seus filhotes em meio ao perigo constante do bioma.", 
+        "Um filhote indefeso e solitário pia fragilmente na vegetação do bioma.",
+        "Um espécime de porte médio atravessa o seu caminho no bioma.", 
+        "Um casal de criaturas de médio porte vigia atentamente seus filhotes no ecossistema.",
+        "Um filhote de médio porte, desprotegido de seus progenitores, vagueia pelo bioma.", 
+        "Olhos famintos e silenciosos brilham na escuridão: predadores de pequeno ou médio porte espreitam seus passos.",
+        "O solo vibra sob o peso de uma fera gigantesca: um animal de grande porte ou um Apex do bioma surge à vista.", 
+        "Uma família de titãs: um casal de feras Apex de grande porte guarda sua ninhada no bioma.",
+        "Um filhote hostil e agressivo de um Apex Predador vagueia solitário, trazendo o instinto violento no sangue.", 
+        "Um filhote vulnerável de uma grande besta Apex chora em busca da mãe no bioma.",
+        "A presença esmagadora de um APEX Predador faz sua mente balançar à beira do colapso.", 
+        "Seus instintos primais assumem o controle enquanto seu corpo reage instantaneamente à emboscada de um APEX Predador.",
+        "Quando o destino parecia selado, o estouro de uma manada de herbívoros atropela os seus problemas e abre uma rota de fuga.",
+        "O terror do Apex Predador é interrompido quando uma manada colossal de herbívoros gigantes surge, gerando um combate caótico que salva a sua vida.",
+        "A pureza da vida renasce: uma manada serena com filhotes dceis estabelece-se ao lado da sua base.", 
+        "O chão estremece, os pássaros calam-se e a esperança morre... Um Chefe ancestral encontrou vocês."
+    ],
+    efeito: [
+        "Vigor revigorado: você acorda estimulado e ganha +5 em um atributo ou perícia hoje.", 
+        "Inspiração arcana: você acorda estimulado e ganha +1 dado em suas rolagens hoje.",
+        "Fúria nas veias: você acorda estimulado e adiciona +1 dado ao seu dano.", 
+        "Conexão primordial: você acorda estimulado e canaliza Mana infinita durante este dia.",
+        "Toque pestilento: você acorda estimulado e causa +2 dados de dano adicional por sangramento ou peste.",
+        "Letargia matinal: você acorda preguiçoso e sofre um penalizador de -5 no seu bônus mais utilizado.", 
+        "Assombrado por sombras: você acorda amedrontado e perde 5 de sanidade sempre que cometer uma falha.",
+        "Corpo enfraquecido: você acorda combalido e sofre a perda de -1 dado em testes de Vigor e Força.", 
+        "Mente nublada: uma enxaqueca lancinante consome seus pensamentos; receba -1 dado em Inteligência e Sabedoria.",
+        "Dores profundas: se for mulher, acorda tomada por um sangramento doloroso, sofrendo 1d12 de dano de sangramento.",
+        "Atenção dispersa: se for homem, acorda distraído e vulnerável, ficando com a condição 'Marcado' durante toda a sessão.",
+        "Favorecido pela sorte: as estrelas alinham-se; receba o dobro de rolagens em dados para encontrar itens, minérios e suprimentos.",
+        "Marcado pela guerra: seu corpo carrega os traumas de um combate brutal; receba -5 em todas as ações pelo resto do dia.",
+        "Delírios de grandeza: tomado por uma autoconfiança cega, você se sente o protagonista e fica 'Marcado' durante toda a sessão.",
+        "Praga no sangue: você acorda debilitado por uma enfermidade e sofre 2d6 de dano por peste no decorrer do dia.",
+        "Corpo ardente: incapaz de regular a temperatura corporal, você não consegue usar armaduras sem superaquecer ou exalar um odor desagradável.",
+        "Sensibilidade ao frio: o gelo penetra nos seus ossos; sem roupas espessas você fica lento, sofrendo -1 de Agilidade.",
+        "Devoção inabalável: com a fé renovada, você pode aplicar sua religião para obter bônus adicionais em testes.",
+        "Dúvida devastadora: sem fé para guiá-los, fica proibido o uso de qualquer bônus em equipe durante esta sessão.",
+        "O Olhar da Morte: o Lobo Sombrio espreita seus passos nas sombras. Você fica completamente exposto pelo resto da sessão.",
+        "Sombra discreta: sua timidez o torna invisível; você inicia qualquer combate desta sessão com o efeito Furtivo.",
+        "Natureza sombria: a solidão e a raiva da noite o consomem, tornando-o Diabólico durante esta sessão.",
+        "Instabilidade genética: a energia da ilha altera seu DNA; suas mutações ganham chance de evoluir (1d2).",
+        "Saciado: seu corpo encontra-se plenamente nutrido; você não precisa consumir alimentos durante a sessão.",
+        "Laço predestinado: um sentimento de devoção o conecta a outro jogador; ganhe +5 em qualquer ação realizada em conjunto com ele.",
+        "Harmonia com a natureza: os predadores reconhecem a sua aura serena; você ganha chance de ser ignorado (1d2) por feras em cena.",
+        "Aura restauradora: uma onda de bondade ilumina seu ser, curando 30 pontos de vida.", 
+        "Clareza de espírito: momentos de reflexão profunda restauram 30 pontos de sua sanidade."
+    ],
+    item: [
+        "Pedra", "Saco de Moedas (1d10 Moedas de Prata)", "Saco de Moedas (1d4 Moedas de Ouro)",
+        "Sílex", "Areia", "Pelo Seco", "Traje Básico do Ark", "Peça de Vestuário de Couro", "Traje de Inverno",
+        "Traje de Banho", "Madeira Bruta", "Madeira Refinada", "Palha", "Fardo Grande de Palha", "Fibra Vegetal",
+        "Fibra dos Campos", "Seda", "Seda de Inseto", "Lã", "Lã Rara", "Quitina Comum", "Quitina Espessa",
+        "Quitina Rara", "Ossos de Dinossauro", "Fóssil Preservado de Dinossauro",
+        "Fragmento Anatômico de Criatura", "Couro Comum", "Couro Emplumado", "Couro Tratado", "Couro de Jacaré",
+        "Couro de Abelissauro", "Couro de Ceratopsídeo", "Couro de Acrocantossaurídeo",
+        "Couro de Tiranossaurídeo", "Couro de Raptor", "Couro de Hadrossaurídeo",
+        "Couro de Saurópode", "Couro de Espinossaurídeo", "Couro de Besta com Presas", "Couro de Dragão",
+        "Couro de Criatura da Caveira", "Couro de Réptil Marinho", "Couro de Pterossauro",
+        "Couro de Mamífero", "Couro de Criatura Mágica", "Couro de Apex Predador", "Couro de Apex Esquecido",
+        "Cimento Natural", "Cimento Industrial", "Resina", "Resina Vermelha", "Âmbar Comum", "Âmbar do Pântano",
+        "Âmbar com Inseto Fossilizado", "Pólvora", "Pólvora Negra", "Pólvora do Véu", "Argila", "Fertilizante",
+        "Caixa de Temperos", "Petróleo Bruto", "Óleo", "Petróleo Rochoso Natural", "Petróleo Refinado",
+        "Óleo Carmesim", "Polímero Orgânico", "Polímero Industrial", "Componente Eletrônico", "Componente Eletrônico TEK",
+        "Componente Eletrônico Danificado", "Criopod Vazia", "Criopod com Criatura Comum", "Criopod com Criatura Aleatória (A-M)",
+        "Criopod com Criatura Aleatória (N-Z)", "Criopod com Criatura Média à Escolha", "Mapa Rasgado de Explorador"
+    ],
+    traumas: [
+        "Estressado", "Medroso", "Ganancioso", "Paranoico", "Egoísta",
+        "Estresse Pós-Traumático", "Insano", "Desesperado", "Letárgico",
+        "Fanático", "Degenerado", "Obsessivo", "Delirante", "Silencioso", "Detentor"
+    ],
+    epicos: [
+        "Você encontra um Diamante Lendário (1d4)",
+        "Você encontra uma Magnetita Lendária (1d4)",
+        "Você encontra uma Netherita Lendária (1d4)",
+        "Você encontra um Elemento Lendário (1d4)",
+        "Você encontra uma Cianita Lendária (1d4)",
+        "Você encontra um Módulo de Minério Lendário (1d4)"
+    ],
+    joias: [
+        "Você encontra uma Gema de Safira",
+        "Você encontra uma Gema de Esmeralda",
+        "Você encontra uma Gema de Rubi",
+        "Você encontra uma Pedra de Redstone",
+        "Você encontra um Diamante Reluzente",
+        "Você encontra uma Gema Hypo",
+        "Você encontra uma Gema da Noite",
+        "Você encontra um lote de Pérolas de Sílica",
+        "Você encontra um lote de Pérolas Negras"
+    ],
+    joias_raras: [
+        "Você encontra uma Jóia de Elemento",
+        "Você encontra um Cristal da Caveira",
+        "Você encontra um Cristal do Inferno",
+        "Você encontra uma Gema do Véu",
+        "Você encontra uma Joia de Mefisto",
+        "Você encontra um Dente de Lobo Sombrio",
+        "Você encontra uma Lã Lisa e Alva de Ovelha",
+        "Você encontra uma Esfera de Íons",
+        "Você encontra um Medalhão de Ouro Amaldiçoado",
+        "Você encontra uma Gema Solar"
+    ],
+    frutas: [
+        "Amarberry", "Azulberry", "Mejoberry", "Narcoberry", "Stimberry",
+        "Tintoberry", "Planta X", "Semente de Trigo", "Semente de Arroz",
+        "Semente de Soja", "Limão", "Milho", "Cenoura", "Batata", "Maçã",
+        "Banana", "Manga", "Cereja"
+    ]
+};
 
         document.querySelectorAll('.event-icon').forEach(icon => {
             const block = icon.closest('.event-block');

@@ -81,6 +81,49 @@
             background: rgba(0,0,0,0.6);
             border-left-color: var(--theme-secondary);
         }
+        /* ================= RESPONSIVO ADICIONAL — SESSÃO/ENTRAR ================= */
+
+@media (max-width: 1080px) {
+    .relative.z-10.max-w-md { max-width: 26rem !important; padding: 1.25rem !important; margin-top: 4rem !important; }
+    .ark-panel.p-8 { padding: 1.75rem !important; }
+    .ark-panel h1 { font-size: 1.75rem !important; letter-spacing: 0.05em !important; }
+}
+
+@media (max-width: 760px) {
+    .relative.z-10.max-w-md { max-width: 100% !important; padding: 1rem !important; margin-top: 3rem !important; }
+    .ark-panel.p-8 { padding: 1.5rem 1.25rem !important; }
+    .ark-panel h1 { font-size: 1.5rem !important; }
+    .ark-panel p.text-sm { font-size: 0.85rem !important; }
+    .ark-panel .w-16.h-16 { width: 3.5rem !important; height: 3.5rem !important; }
+    .ark-panel .w-16.h-16 svg { width: 1.75rem !important; height: 1.75rem !important; }
+    .info-box { padding: 0.85rem !important; font-size: 0.72rem !important; }
+    .ark-input { font-size: 1rem !important; padding: 0.6rem 0.75rem !important; }
+    .btn-neon { padding: 10px 18px !important; font-size: 0.8rem !important; letter-spacing: 0.15em !important; }
+}
+
+@media (max-width: 480px) {
+    .relative.z-10.max-w-md { padding: 0.75rem !important; margin-top: 2rem !important; }
+    .ark-panel.p-8 { padding: 1.25rem 1rem !important; border-radius: 8px; }
+    .ark-panel h1 { font-size: 1.25rem !important; }
+    .ark-panel p.text-sm { font-size: 0.75rem !important; }
+    .ark-panel .w-16.h-16 { width: 3rem !important; height: 3rem !important; }
+    .ark-panel .w-16.h-16 svg { width: 1.5rem !important; height: 1.5rem !important; }
+    .info-box { padding: 0.75rem !important; font-size: 0.65rem !important; }
+    .ark-input { font-size: 0.95rem !important; letter-spacing: 0.2em !important; }
+    .btn-neon { padding: 9px 14px !important; font-size: 0.7rem !important; letter-spacing: 0.1em !important; }
+    .btn-neon svg { width: 16px !important; height: 16px !important; }
+    .ark-panel .text-xs { font-size: 0.65rem !important; }
+}
+
+@media (max-width: 300px) {
+    .relative.z-10.max-w-md { padding: 0.5rem !important; }
+    .ark-panel.p-8 { padding: 1rem 0.75rem !important; }
+    .ark-panel h1 { font-size: 1rem !important; }
+    .ark-panel p.text-sm { font-size: 0.65rem !important; }
+    .info-box { font-size: 0.58rem !important; padding: 0.6rem !important; }
+    .ark-input { font-size: 0.85rem !important; letter-spacing: 0.15em !important; }
+    .btn-neon { padding: 8px 10px !important; font-size: 0.6rem !important; }
+}
     </style>
 
     <div class="relative z-10 max-w-md mx-auto p-6 mt-20">

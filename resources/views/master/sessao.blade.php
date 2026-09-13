@@ -173,6 +173,72 @@
             border-color: rgba(239, 68, 68, 0.5);
             color: #fca5a5;
         }
+        /* ================= RESPONSIVO ADICIONAL — SESSÃO/MESA ATIVA ================= */
+
+@media (max-width: 1080px) {
+    .relative.z-10.max-w-7xl { padding: 1.25rem !important; }
+    .ark-panel.p-6 { padding: 1.25rem !important; }
+    .ark-panel h1 { font-size: 2rem !important; }
+    .code-block { font-size: 1.25rem !important; letter-spacing: 3px !important; padding: 6px 12px !important; }
+    .session-card { padding: 12px; gap: 12px; }
+    .session-avatar, .session-avatar-fallback { width: 48px; height: 48px; font-size: 18px; }
+}
+
+@media (max-width: 760px) {
+    .relative.z-10.max-w-7xl { padding: 1rem !important; }
+    .ark-panel.p-6 { padding: 1rem !important; }
+
+    /* Header da mesa: empilha */
+    .ark-panel .flex.flex-wrap.justify-between.items-start { flex-direction: column !important; }
+    .ark-panel .flex.flex-wrap.justify-between.items-start > .flex.gap-3 { width: 100%; justify-content: stretch; }
+    .ark-panel .flex.flex-wrap.justify-between.items-start > .flex.gap-3 > * { flex: 1; text-align: center; }
+
+    .ark-panel h1 { font-size: 1.6rem !important; letter-spacing: 0.05em !important; }
+
+    /* Bloco de código + botão copiar */
+    .ark-panel .flex.flex-wrap.items-center.gap-3 { justify-content: center; }
+    .code-block { font-size: 1.15rem !important; letter-spacing: 2px !important; padding: 6px 10px !important; }
+    .btn-copy { padding: 5px 12px !important; font-size: 0.7rem !important; }
+
+    /* Header da lista de participantes */
+    .ark-panel .flex.justify-between.items-center.mb-5 { flex-direction: column !important; align-items: stretch !important; gap: 0.75rem; }
+    .ark-panel .flex.justify-between.items-center.mb-5 > .flex.gap-3 { justify-content: center; }
+
+    .session-card { padding: 10px; gap: 10px; flex-wrap: wrap; }
+    .session-avatar, .session-avatar-fallback { width: 42px; height: 42px; font-size: 16px; }
+    .roll-line { font-size: 10px; }
+    .master-badge { font-size: 7px; padding: 1px 6px; }
+
+    .btn-neon, .btn-danger { padding: 7px 14px !important; font-size: 0.7rem !important; letter-spacing: 0.15em !important; }
+}
+
+@media (max-width: 480px) {
+    .relative.z-10.max-w-7xl { padding: 0.75rem !important; }
+    .ark-panel.p-6 { padding: 0.75rem !important; }
+    .ark-panel h1 { font-size: 1.25rem !important; }
+
+    .code-block { font-size: 1rem !important; letter-spacing: 1.5px !important; padding: 5px 8px !important; }
+    .btn-copy { font-size: 0.62rem !important; padding: 4px 10px !important; }
+
+    .session-avatar, .session-avatar-fallback { width: 38px; height: 38px; font-size: 14px; }
+    .session-card strong { font-size: 0.85rem; }
+    .session-card .text-\[10px\] { font-size: 8px !important; }
+    .roll-line { font-size: 9px; }
+
+    .btn-neon, .btn-danger { padding: 6px 10px !important; font-size: 0.6rem !important; letter-spacing: 0.1em !important; }
+
+    #copy-toast { font-size: 10px !important; padding: 6px 14px !important; }
+}
+
+@media (max-width: 300px) {
+    .ark-panel.p-6 { padding: 0.6rem !important; }
+    .ark-panel h1 { font-size: 1rem !important; }
+    .code-block { font-size: 0.85rem !important; letter-spacing: 1px !important; }
+    .btn-copy { font-size: 0.55rem !important; }
+    .session-avatar, .session-avatar-fallback { width: 34px; height: 34px; font-size: 12px; }
+    .roll-line { font-size: 8px; }
+    .btn-neon, .btn-danger { font-size: 0.55rem !important; padding: 5px 8px !important; }
+}
     </style>
 
     <div class="relative z-10 max-w-7xl mx-auto p-6 space-y-6 text-white">

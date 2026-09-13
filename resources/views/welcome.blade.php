@@ -184,6 +184,53 @@
             background: #9df4fa;
             color: #000;
         }
+        /* ================= RESPONSIVO ADICIONAL — WELCOME ================= */
+
+@media (max-width: 1080px) {
+    .ark-panel-glossy { border-radius: 32px; padding: 2rem 1.75rem !important; }
+    .ark-panel-glossy h1 { font-size: 2.5rem !important; letter-spacing: 0.15em !important; }
+    .ark-panel-glossy p.text-3xl, .ark-panel-glossy p.text-4xl { font-size: 1.5rem !important; }
+    .ark-panel-glossy p.text-xl, .ark-panel-glossy p.text-2xl { font-size: 1.05rem !important; }
+    .ark-panel-glossy img[alt="ARK"] { height: 2.5rem !important; }
+    .ark-btn-neon { padding: 12px 28px !important; font-size: 0.9rem !important; letter-spacing: 2px !important; }
+    .nav-btn { padding: 10px !important; }
+}
+
+@media (max-width: 760px) {
+    .ark-panel-glossy { border-radius: 24px; padding: 1.75rem 1.25rem !important; }
+    .ark-panel-glossy h1 { font-size: 2rem !important; letter-spacing: 0.1em !important; }
+    .ark-panel-glossy p.text-3xl, .ark-panel-glossy p.text-4xl { font-size: 1.25rem !important; }
+    .ark-panel-glossy p.text-xl, .ark-panel-glossy p.text-2xl { font-size: 0.95rem !important; }
+    .ark-panel-glossy img[alt="ARK"] { height: 2rem !important; }
+    .ark-panel-glossy .w-32 { width: 5rem !important; margin-bottom: 1.25rem !important; }
+    .ark-btn-neon { padding: 12px 20px !important; font-size: 0.8rem !important; letter-spacing: 1.5px !important; width: 100%; }
+    .rounded-\[2\.5rem\] { border-radius: 1.75rem !important; min-height: 320px; }
+    .nav-btn { padding: 8px !important; }
+    .nav-btn svg { width: 18px !important; height: 18px !important; }
+}
+
+@media (max-width: 480px) {
+    .ark-panel-glossy { border-radius: 18px; padding: 1.5rem 1rem !important; }
+    .ark-panel-glossy h1 { font-size: 1.6rem !important; letter-spacing: 0.08em !important; }
+    .ark-panel-glossy p.text-3xl, .ark-panel-glossy p.text-4xl { font-size: 1.05rem !important; }
+    .ark-panel-glossy p.text-xl, .ark-panel-glossy p.text-2xl { font-size: 0.85rem !important; }
+    .ark-panel-glossy img[alt="ARK"] { height: 1.75rem !important; }
+    .ark-panel-glossy .w-32 { width: 4rem !important; height: 3px !important; }
+    .ark-btn-neon { padding: 10px 16px !important; font-size: 0.72rem !important; letter-spacing: 1px !important; }
+    .rounded-\[2\.5rem\] { border-radius: 1.25rem !important; min-height: 260px; }
+    .nav-btn { padding: 6px !important; }
+    .nav-btn svg { width: 16px !important; height: 16px !important; }
+}
+
+@media (max-width: 300px) {
+    .ark-panel-glossy { border-radius: 14px; padding: 1rem 0.75rem !important; }
+    .ark-panel-glossy h1 { font-size: 1.25rem !important; }
+    .ark-panel-glossy p.text-3xl, .ark-panel-glossy p.text-4xl { font-size: 0.9rem !important; }
+    .ark-panel-glossy p.text-xl, .ark-panel-glossy p.text-2xl { font-size: 0.75rem !important; }
+    .ark-panel-glossy img[alt="ARK"] { height: 1.4rem !important; }
+    .ark-btn-neon { padding: 8px 12px !important; font-size: 0.62rem !important; letter-spacing: 0.5px !important; }
+    .rounded-\[2\.5rem\] { border-radius: 1rem !important; min-height: 200px; }
+}
     </style>
 
     <script>

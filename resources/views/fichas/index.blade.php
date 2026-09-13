@@ -312,6 +312,49 @@
             transform: rotate(15deg);
             transition: transform 0.35s ease;
         }
+        /* ================= RESPONSIVO ADICIONAL — FICHAS/INDEX ================= */
+
+@media (max-width: 1080px) {
+    .relative.py-12.px-6 { padding: 2rem 1.25rem !important; }
+    .ark-card { border-radius: 4px; }
+    .grid.grid-cols-1.md\:grid-cols-3.lg\:grid-cols-4 { gap: 1.25rem !important; }
+}
+
+@media (max-width: 760px) {
+    .relative.py-12.px-6 { padding: 1.5rem 1rem !important; }
+    .ark-card { height: 360px !important; }
+    .ark-card .h-60 { height: 200px !important; }
+    .ark-card h3 { font-size: 1.1rem !important; }
+    .action-btn { width: 30px !important; height: 30px !important; }
+    .action-btn svg { width: 14px !important; height: 14px !important; }
+
+    button[onclick*="resgatar-modal"] { font-size: 9px !important; padding: 0.5rem 0.75rem !important; }
+}
+
+@media (max-width: 480px) {
+    .relative.py-12.px-6 { padding: 1rem 0.75rem !important; }
+    .ark-card { height: 320px !important; }
+    .ark-card .h-60 { height: 160px !important; }
+    .ark-card h3 { font-size: 0.95rem !important; }
+    .ark-card p, .ark-card span { font-size: 0.72rem; }
+    .action-btn { width: 26px !important; height: 26px !important; }
+    .action-btn svg { width: 12px !important; height: 12px !important; }
+
+    .grid.grid-cols-1.md\:grid-cols-3.lg\:grid-cols-4 { gap: 1rem !important; }
+
+    #share-modal .max-w-md, #resgatar-modal .max-w-md { padding: 1.25rem !important; margin: 0.75rem !important; }
+    #share-modal h3, #resgatar-modal h3 { font-size: 1rem !important; }
+    #share-code { font-size: 0.9rem !important; padding: 0.5rem 0.75rem !important; }
+}
+
+@media (max-width: 300px) {
+    .ark-card { height: 280px !important; }
+    .ark-card .h-60 { height: 140px !important; }
+    .ark-card h3 { font-size: 0.85rem !important; }
+    .action-btn { width: 24px !important; height: 24px !important; }
+    #share-modal .max-w-md, #resgatar-modal .max-w-md { padding: 1rem !important; }
+    #share-code { font-size: 0.75rem !important; }
+}
     </style>
 
     <script>

@@ -185,14 +185,64 @@
             color: black;
             transform: scale(1.1);
         }
+/* ============================================================================
+   CORREÇÃO RESPONSIVA DAS BOLHAS DE ATRIBUTOS (CREATE)
+   Usa container queries para escalar bolhas proporcionalmente ao container,
+   mantendo alinhamento exato sobre a árvore de atributos em qualquer tela.
+   ============================================================================ */
 
-        @media (max-width: 768px) {
-            .atributos-container { max-width: 320px; }
-            .atributo-bolha { width: 75px; height: 75px; }
-            .atributo-sigla { font-size: 9px; }
-            .atributo-valor { font-size: 18px; }
-            .atributo-btn { width: 16px; height: 16px; font-size: 10px; }
-        }
+.atributos-container {
+    container-type: inline-size;
+    container-name: atributos-create;
+    min-height: 0 !important;
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.atributos-imagem {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: initial !important;
+}
+
+.atributo-bolha {
+    width: 22.4cqw !important;
+    height: 22.4cqw !important;
+    padding: 1.6cqw !important;
+    border-width: max(1px, 0.4cqw) !important;
+    box-shadow: 0 0 max(4px, 3cqw) var(--theme-glow) !important;
+}
+
+.atributo-sigla {
+    font-size: 3.2cqw !important;
+    letter-spacing: max(0.5px, 0.5cqw) !important;
+    margin-top: 4cqw !important;
+}
+
+.atributo-valor {
+    font-size: 6.3cqw !important;
+    margin: 0.5cqw 0 !important;
+}
+
+.atributo-controles {
+    gap: 2.1cqw !important;
+    margin-top: 0.5cqw !important;
+}
+
+.atributo-btn {
+    width: 6.3cqw !important;
+    height: 6.3cqw !important;
+    font-size: 4.2cqw !important;
+    border-width: max(1px, 0.25cqw) !important;
+}
+
+/* Ajuste fino de largura máxima por breakpoint — a proporção interna é do cqw */
+@media (max-width: 1080px) { .atributos-container { max-width: 340px; } }
+@media (max-width: 760px)  { .atributos-container { max-width: 300px; } }
+@media (max-width: 480px)  { .atributos-container { max-width: 260px; } }
+@media (max-width: 300px)  { .atributos-container { max-width: 220px; } }
     </style>
 
     <form action="{{ route('fichas.store') }}" method="POST" enctype="multipart/form-data" id="create-character-form" class="relative max-w-7xl mx-auto p-6 space-y-10 pb-20 text-gray-100">

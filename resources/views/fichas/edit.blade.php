@@ -114,6 +114,63 @@
             0% { background-position: 0% 0%; }
             100% { background-position: 100% 100%; }
         }
+        /* ================= RESPONSIVO ADICIONAL — FICHAS/EDIT ================= */
+
+@media (max-width: 1080px) {
+    .relative.py-12.px-6 { padding: 1.5rem 1.25rem !important; }
+    .ark-panel { border-radius: 12px; }
+    .ark-panel.\!p-8, .ark-panel.\!p-6, .ark-panel.\!p-4 { padding: 1.25rem !important; }
+    h2.text-5xl { font-size: 2.5rem !important; }
+}
+
+@media (max-width: 760px) {
+    .relative.py-12.px-6 { padding: 1rem !important; }
+    .ark-panel.\!p-8, .ark-panel.\!p-6, .ark-panel.\!p-4 { padding: 1rem !important; }
+    h2.text-5xl { font-size: 2rem !important; }
+    .btn-neon, .btn-cancel { padding: 9px 16px !important; font-size: 0.75rem !important; letter-spacing: 0.15em !important; }
+    .flex.flex-wrap.justify-between { gap: 12px !important; }
+
+    .ark-panel img.h-48 { height: 200px !important; }
+    .ark-panel img.h-32 { height: 120px !important; }
+
+    input[name="name"].ark-input.\!text-2xl,
+    input[name="level"].ark-input.\!text-2xl { font-size: 1.25rem !important; }
+
+    .ark-panel .grid-cols-5 { gap: 6px !important; }
+    .ark-panel .grid-cols-5 input { padding: 6px 4px !important; font-size: 0.9rem !important; }
+    .ark-panel .grid-cols-5 label { font-size: 8px !important; }
+}
+
+@media (max-width: 480px) {
+    .ark-panel.\!p-8, .ark-panel.\!p-6, .ark-panel.\!p-4 { padding: 0.85rem !important; }
+    h2.text-5xl { font-size: 1.5rem !important; }
+
+    .btn-neon, .btn-cancel { padding: 8px 14px !important; font-size: 0.65rem !important; letter-spacing: 0.1em !important; }
+
+    input[name="name"].ark-input.\!text-2xl,
+    input[name="level"].ark-input.\!text-2xl { font-size: 1.1rem !important; padding: 0.5rem 0.6rem !important; }
+
+    .ark-panel img.h-48 { height: 160px !important; }
+    .ark-panel img.h-32 { height: 100px !important; }
+
+    .ark-panel .grid-cols-5 input { font-size: 0.8rem !important; padding: 4px 2px !important; }
+
+    #mutations-container > div,
+    #rituals-container > div,
+    #bonuses-container > div,
+    #powers-container > div { padding: 8px !important; gap: 6px !important; }
+
+    .ark-input { font-size: 0.75rem !important; padding: 0.5rem 0.6rem !important; }
+    textarea.ark-input { font-size: 0.7rem !important; }
+}
+
+@media (max-width: 300px) {
+    h2.text-5xl { font-size: 1.15rem !important; }
+    .btn-neon, .btn-cancel { padding: 6px 10px !important; font-size: 0.55rem !important; letter-spacing: 0.05em !important; }
+    .ark-panel.\!p-8, .ark-panel.\!p-6, .ark-panel.\!p-4 { padding: 0.6rem !important; }
+    .ark-input { font-size: 0.7rem !important; }
+    .ark-panel .grid-cols-5 input { font-size: 0.7rem !important; }
+}
     </style>
 
     <div class="relative py-12 px-6 max-w-7xl mx-auto">

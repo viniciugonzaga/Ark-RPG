@@ -1,5 +1,53 @@
 {{-- resources/views/jogo.blade.php --}}
 <x-app-layout>
+    <style>
+        /* ================= RESPONSIVO ADICIONAL — JOGO ================= */
+
+@media (max-width: 1080px) {
+    .ark-panel.\!p-8 { padding: 1.75rem !important; }
+    #dinoCanvas { border-radius: 10px; }
+    #dinoOverlay span:first-child { font-size: 1.75rem !important; }
+}
+
+@media (max-width: 760px) {
+    .ark-panel.\!p-8 { padding: 1.25rem !important; }
+    .ark-panel .text-4xl, .ark-panel .text-5xl { font-size: 2rem !important; }
+    #dinoTimer, #dinoBest { font-size: 0.85rem !important; }
+    #dinoJump, #dinoDuck { padding: 12px 8px !important; font-size: 0.85rem !important; }
+    #dinoOverlay span:first-child { font-size: 1.5rem !important; }
+    #dinoOverlay span:last-child { font-size: 0.8rem !important; }
+    .ark-panel p.text-\[10px\] { font-size: 9px !important; }
+}
+
+@media (max-width: 480px) {
+    .ark-panel.\!p-8 { padding: 1rem !important; }
+    .ark-panel .text-4xl, .ark-panel .text-5xl { font-size: 1.5rem !important; letter-spacing: 0.05em !important; }
+    .ark-panel p.text-sm { font-size: 0.75rem !important; }
+    .ark-panel .bg-black\/80 { padding: 0.6rem !important; border-radius: 10px !important; }
+    .ark-panel .bg-black\/80 .flex.justify-between { font-size: 0.7rem !important; }
+    #dinoOverlay span:first-child { font-size: 1.15rem !important; }
+    #dinoOverlay span:last-child { font-size: 0.7rem !important; }
+    #dinoJump, #dinoDuck { padding: 10px 6px !important; font-size: 0.7rem !important; }
+    .ark-panel p.text-\[10px\] { font-size: 8px !important; }
+
+    /* Modal de Game Over */
+    #gameOverOverlay .relative.rounded-xl { padding: 1.5rem 1rem !important; }
+    #gameOverOverlay .text-3xl, #gameOverOverlay .text-4xl { font-size: 1.5rem !important; }
+    #gameOverOverlay img#dinoDeadSprite { width: 5rem !important; height: 5rem !important; }
+    #finalTime { font-size: 1.75rem !important; }
+    #dinoRetry { padding: 10px !important; font-size: 0.75rem !important; }
+}
+
+@media (max-width: 300px) {
+    .ark-panel.\!p-8 { padding: 0.75rem !important; }
+    .ark-panel .text-4xl, .ark-panel .text-5xl { font-size: 1.15rem !important; }
+    #dinoOverlay span:first-child { font-size: 0.9rem !important; }
+    #dinoOverlay span:last-child { font-size: 0.6rem !important; }
+    #dinoJump, #dinoDuck { padding: 8px 4px !important; font-size: 0.6rem !important; }
+    #gameOverOverlay .text-3xl, #gameOverOverlay .text-4xl { font-size: 1.1rem !important; }
+    #gameOverOverlay .relative.rounded-xl { padding: 1rem 0.75rem !important; }
+}
+    </style>
     <x-slot name="title">Dino Runner - RPG ARK</x-slot>
 
     <div class="min-h-[80vh] flex flex-col items-center justify-center text-center p-6">
