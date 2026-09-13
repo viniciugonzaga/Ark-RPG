@@ -94,7 +94,7 @@
             transform: scale(1.02);
         }
 
-        /* Session card (mesmo estilo de rolagens) */
+        /* Session card */
         .session-card {
             background: linear-gradient(145deg, rgba(0,20,30,0.7) 0%, rgba(0,0,0,0.65) 100%);
             border: 1px solid var(--theme-border);
@@ -150,6 +150,29 @@
             border-radius: 40px; font-size: 12px; z-index: 9999;
             opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
+
+        /* Indicador de status de conexão */
+        .conn-status {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+            padding: 3px 10px; border-radius: 20px;
+            border: 1px solid transparent;
+        }
+        .conn-status.live {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.5);
+            color: #6ee7b7;
+        }
+        .conn-status.poll {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.5);
+            color: #fcd34d;
+        }
+        .conn-status.off {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
     </style>
 
     <div class="relative z-10 max-w-7xl mx-auto p-6 space-y-6 text-white">
@@ -160,12 +183,13 @@
 
             <div class="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <div class="flex items-center gap-3 mb-2">
+                    <div class="flex items-center gap-3 mb-2 flex-wrap">
                         <span class="relative flex h-3 w-3">
                             <span class="live-dot absolute inline-flex h-full w-full rounded-full bg-emerald-400"></span>
                             <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                         </span>
                         <h1 class="text-3xl font-medieval font-black theme-text-primary tracking-widest">Mesa Ativa</h1>
+                        <span id="conn-status" class="conn-status live">Conectando...</span>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 mt-1">
                         <p class="text-xs text-gray-400 uppercase tracking-widest">Código da sessão:</p>
@@ -199,7 +223,7 @@
 
         {{-- PARTICIPANTES --}}
         <div class="ark-panel p-6 animate-fadeInUp" style="animation-delay: 0.1s">
-            <div class="flex justify-between items-center mb-5 pb-4 border-b" style="border-color: var(--theme-border)">
+            <div class="flex justify-between items-center mb-5 pb-4 border-b flex-wrap gap-3" style="border-color: var(--theme-border)">
                 <h2 class="text-xl font-medieval font-black theme-text-primary tracking-widest">Participantes e Últimas Rolagens</h2>
                 <div class="flex gap-3 items-center">
                     <label class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400 cursor-pointer">
@@ -263,13 +287,29 @@
         window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
         resizeCanvas(); initParticles(); drawParticles();
 
-        // ========== SSE + RENDER ==========
+        // ========== CONFIG ==========
         const SESSION_CODE = "{{ $session->session_code }}";
+        const ENDPOINT_REST = `/mestre/sessao/${SESSION_CODE}/participantes`;
+        const ENDPOINT_SSE  = '/sessao/stream?code=' + encodeURIComponent(SESSION_CODE);
+
         let es = null;
         let pollTimer = null;
+        let sseErrorCount = 0;
+        let lastUpdate = Date.now();
+
         const lastSeenRolls = {};
         const lastSeenEvents = {};
 
+        const connStatus = document.getElementById('conn-status');
+
+        function setConnStatus(mode, text) {
+            if (!connStatus) return;
+            connStatus.classList.remove('live', 'poll', 'off');
+            connStatus.classList.add(mode);
+            connStatus.textContent = text;
+        }
+
+        // ========== HELPERS ==========
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, (c) => ({
                 '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
@@ -285,6 +325,7 @@
             return `<div class="session-avatar-fallback">${initial}</div>`;
         }
 
+        // ========== RENDER ==========
         function renderParticipants(participants) {
             const c = document.getElementById('participantes-list');
             if (!c) return;
@@ -294,7 +335,6 @@
                 return;
             }
 
-            // Ordena: mestre primeiro, depois nome
             participants.sort((a, b) => {
                 if (a.is_master && !b.is_master) return -1;
                 if (!a.is_master && b.is_master) return 1;
@@ -303,7 +343,7 @@
 
             c.innerHTML = participants.map(p => {
                 const uid = p.user_id;
-                const diceChanged  = lastSeenRolls[uid] !== undefined && lastSeenRolls[uid] !== p.last_dice && p.last_dice;
+                const diceChanged  = lastSeenRolls[uid]  !== undefined && lastSeenRolls[uid]  !== p.last_dice  && p.last_dice;
                 const eventChanged = lastSeenEvents[uid] !== undefined && lastSeenEvents[uid] !== p.last_event && p.last_event;
 
                 lastSeenRolls[uid]  = p.last_dice;
@@ -332,26 +372,45 @@
                     </div>
                 `;
             }).join('');
+
+            lastUpdate = Date.now();
         }
 
-        // ---------- SSE (primário) ----------
-        let sseErrorCount = 0;
+        // ========== REST (fallback + estado inicial) ==========
+        function carregarParticipantes() {
+            return fetch(ENDPOINT_REST + '?_=' + Date.now(), {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                cache: 'no-store'
+            })
+            .then(res => res.json())
+            .then(data => renderParticipants(data.participants || []))
+            .catch(() => {});
+        }
 
+        // ========== SSE (primário) ==========
         function startStream() {
             if (es) return;
             if (!window.EventSource) { startPolling(); return; }
 
-            // Carrega estado inicial
+            // Estado inicial
             carregarParticipantes();
 
             try {
-                es = new EventSource('/sessao/stream?code=' + encodeURIComponent(SESSION_CODE) + '&_=' + Date.now());
-            } catch (e) { es = null; startPolling(); return; }
+                es = new EventSource(ENDPOINT_SSE + '&_=' + Date.now());
+            } catch (e) {
+                es = null;
+                startPolling();
+                return;
+            }
 
-            es.onopen = () => { sseErrorCount = 0; };
+            es.onopen = () => {
+                sseErrorCount = 0;
+                setConnStatus('live', 'Tempo real');
+            };
 
             es.addEventListener('update', (ev) => {
                 sseErrorCount = 0;
+                setConnStatus('live', 'Tempo real');
                 try {
                     const data = JSON.parse(ev.data);
                     if (data.in_session) renderParticipants(data.participants || []);
@@ -360,18 +419,20 @@
 
             es.addEventListener('ended', () => {
                 stopStream(); stopPolling();
+                setConnStatus('off', 'Encerrada');
                 const c = document.getElementById('participantes-list');
                 if (c) c.innerHTML = '<p class="text-red-400 text-sm col-span-full">Sessão encerrada.</p>';
             });
 
             es.addEventListener('nosession', () => {
+                // Cai para polling (talvez o master não esteja registrado como participante)
                 stopStream();
                 startPolling();
             });
 
             es.onerror = () => {
                 sseErrorCount++;
-                if (sseErrorCount >= 10) {
+                if (sseErrorCount >= 5) {
                     stopStream();
                     startPolling();
                 }
@@ -382,9 +443,10 @@
             if (es) { try { es.close(); } catch (e) {} es = null; }
         }
 
-        // ---------- Polling (fallback) ----------
+        // ========== POLLING (fallback — 1s) ==========
         function startPolling() {
             if (pollTimer) return;
+            setConnStatus('poll', 'Polling 1s');
             carregarParticipantes();
             pollTimer = setInterval(carregarParticipantes, 1000);
         }
@@ -392,33 +454,53 @@
             if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
         }
 
-        function carregarParticipantes() {
-            return fetch(`/mestre/sessao/${SESSION_CODE}/participantes?_=` + Date.now(), {
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                cache: 'no-store'
-            })
-            .then(res => res.json())
-            .then(data => renderParticipants(data.participants || []))
-            .catch(() => {});
-        }
-
-        // ---------- Controles ----------
+        // ========== CONTROLES ==========
         document.getElementById('reload-btn')?.addEventListener('click', carregarParticipantes);
-        document.getElementById('auto-reload')?.addEventListener('change', (e) => {
-            if (e.target.checked) { startStream(); if (!window.EventSource) startPolling(); }
-            else { stopStream(); stopPolling(); }
-        });
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                carregarParticipantes();
-                if (document.getElementById('auto-reload')?.checked && !es) startStream();
+        document.getElementById('auto-reload')?.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                startStream();
+                if (!window.EventSource) startPolling();
+            } else {
+                stopStream();
+                stopPolling();
+                setConnStatus('off', 'Pausado');
             }
         });
 
+        // Reconectar quando volta à aba
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                carregarParticipantes();
+                if (document.getElementById('auto-reload')?.checked && !es && !pollTimer) {
+                    startStream();
+                }
+            }
+        });
+
+        // Fechar ao sair
         window.addEventListener('beforeunload', () => { stopStream(); stopPolling(); });
 
-        // Inicialização
+        // ========== ROLAGENS DO MESTRE (refresh imediato) ==========
+        // Quando o mestre rola na própria página, força atualização da lista.
+        // O partial de rolagens dispara saveToDB() — escutamos via MutationObserver
+        // simples nos campos de histórico, ou via evento custom.
+        (function interceptSaveFetch() {
+            const originalFetch = window.fetch;
+            window.fetch = function(url, options) {
+                const isSave = typeof url === 'string' && url.indexOf('/rolagens/save') !== -1;
+                const promise = originalFetch.apply(this, arguments);
+                if (isSave) {
+                    promise.then(() => {
+                        // Pequeno delay para o BD propagar
+                        setTimeout(carregarParticipantes, 200);
+                    }).catch(() => {});
+                }
+                return promise;
+            };
+        })();
+
+        // ========== INICIALIZAÇÃO ==========
         carregarParticipantes();
         startStream();
 
