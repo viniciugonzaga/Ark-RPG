@@ -56,8 +56,12 @@
                 <div class="ark-card group h-[400px] p-0 flex flex-col animate-fadeInUp relative overflow-hidden backdrop-blur-md bg-black/40 border {{ $char->is_resgatada ? 'border-white' : ($isPinned ? 'is-pinned border-amber-400/60' : 'border-cyan-500/20') }} hover:border-cyan-400/60 transition-all duration-500 shadow-lg hover:shadow-[0_0_30px_rgba(0,242,255,0.2)]"
                      style="animation-delay: {{ $loop->index * 0.1 }}s">
 
-                    @if($char->is_resgatada)
-                        <div class="absolute top-0 left-0 z-20 bg-white text-black text-[8px] font-black px-2 py-0.5 rounded-br-lg uppercase tracking-wider">RESGATADA</div>
+                   @if($char->is_resgatada)
+                      <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+                          <span class="inline-block bg-gradient-to-r from-white to-gray-200 text-black text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-[2px] shadow-[0_0_20px_rgba(255,255,255,0.55)] border border-white/40">
+                            RESGATADA
+                          </span>
+                        </div>
                     @endif
 
                     @if($isPinned)

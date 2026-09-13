@@ -11,7 +11,7 @@ class RollController extends Controller
     public function index()
     {
         $characters = Character::where('user_id', auth()->id())->get();
-        return view('rolagens.index', compact('characters')); // CORRIGIDO
+        return view('rolagens.index', compact('characters'));
     }
 
     public function loadCharacter($id)
@@ -20,8 +20,9 @@ class RollController extends Controller
             ->where('user_id', auth()->id())
             ->findOrFail($id);
 
-        $rollLog = RollLog::where('character_id', $id)
-            ->where('user_id', auth()->id())
+        // AGORA: pega o ÚLTIMO log do USUÁRIO (independe da ficha)
+        $rollLog = RollLog::where('user_id', auth()->id())
+            ->latest('id')
             ->first();
 
         return response()->json([
@@ -29,7 +30,7 @@ class RollController extends Controller
                 'arsenal' => $this->normalizeArsenal($char->arsenal),
             ]),
             'lastRoll' => $rollLog ? [
-                'dice_result' => $rollLog->dice_result,
+                'dice_result'  => $rollLog->dice_result,
                 'event_result' => $rollLog->event_result,
             ] : null,
         ]);
@@ -38,15 +39,21 @@ class RollController extends Controller
     public function saveRoll(Request $request)
     {
         $request->validate([
-            'character_id' => 'required',
-            'dice_result' => 'nullable',
+            'character_id' => 'required|exists:fichas,id',
+            'dice_result'  => 'nullable',
             'event_result' => 'nullable',
         ]);
 
-        $rollLog = RollLog::firstOrNew([
-            'character_id' => $request->character_id,
-            'user_id' => auth()->id(),
-        ]);
+        $userId = auth()->id();
+
+        // AGORA: uma linha por usuário. Sempre atualiza a mesma.
+        $rollLog = RollLog::where('user_id', $userId)->latest('id')->first();
+        if (!$rollLog) {
+            $rollLog = new RollLog(['user_id' => $userId]);
+        }
+
+        // Referência de qual ficha estava em uso no último roll
+        $rollLog->character_id = (int) $request->character_id;
 
         if ($request->has('dice_result') && !is_null($request->dice_result)) {
             $rollLog->dice_result = $request->dice_result;
@@ -55,8 +62,6 @@ class RollController extends Controller
             $rollLog->event_result = $request->event_result;
         }
 
-        // Força atualização do updated_at mesmo se o valor for igual
-        // (importante para o SSE detectar mudanças)
         $rollLog->updated_at = now();
         $rollLog->save();
 
@@ -67,32 +72,27 @@ class RollController extends Controller
     {
         $request->validate([
             'character_id' => ['required', 'exists:fichas,id'],
-            'weapon.name' => ['required', 'string', 'max:120'],
-            'weapon.hit' => ['nullable', 'string', 'max:30'],
-            'weapon.damage' => ['nullable', 'string', 'max:30'],
+            'weapon.name'  => ['required', 'string', 'max:120'],
+            'weapon.hit'   => ['nullable', 'string', 'max:30'],
+            'weapon.damage'=> ['nullable', 'string', 'max:30'],
         ]);
 
         $character = Character::where('user_id', auth()->id())
             ->findOrFail($request->character_id);
 
         $weapons = $this->normalizeArsenal($character->arsenal);
-        $name = trim((string) $request->input('weapon.name'));
-        $hit = trim((string) $request->input('weapon.hit'));
-        $damage = trim((string) $request->input('weapon.damage'));
+        $name    = trim((string) $request->input('weapon.name'));
+        $hit     = trim((string) $request->input('weapon.hit'));
+        $damage  = trim((string) $request->input('weapon.damage'));
 
         if ($name === '') {
             return response()->json(['message' => 'O nome da arma é obrigatório.'], 422);
         }
-
         if ($hit === '' && $damage === '') {
             return response()->json(['message' => 'Informe ao menos um campo de acerto ou dano.'], 422);
         }
 
-        $normalizedWeapon = [
-            'name' => $name,
-            'hit' => $hit,
-            'damage' => $damage,
-        ];
+        $normalizedWeapon = ['name' => $name, 'hit' => $hit, 'damage' => $damage];
 
         $existingIndex = null;
         foreach ($weapons as $index => $weapon) {
@@ -111,10 +111,7 @@ class RollController extends Controller
         $character->arsenal = $weapons;
         $character->save();
 
-        return response()->json([
-            'status' => 'ok',
-            'arsenal' => $weapons,
-        ]);
+        return response()->json(['status' => 'ok', 'arsenal' => $weapons]);
     }
 
     private function normalizeArsenal($arsenal): array
@@ -122,10 +119,7 @@ class RollController extends Controller
         if (is_array($arsenal)) {
             return array_values(array_filter($arsenal, fn ($weapon) => is_array($weapon) || is_object($weapon)));
         }
-
-        if (empty($arsenal)) {
-            return [];
-        }
+        if (empty($arsenal)) return [];
 
         $decoded = json_decode((string) $arsenal, true);
         return is_array($decoded) ? array_values($decoded) : [];

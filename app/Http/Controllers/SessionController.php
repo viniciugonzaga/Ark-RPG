@@ -50,7 +50,7 @@ class SessionController extends Controller
         return response()->json($this->buildSessionPayload($session));
     }
 
-    public function stream()
+    public function stream(Request $request)
     {
         @ini_set('zlib.output_compression', '0');
         @ini_set('output_buffering', '0');
@@ -58,15 +58,25 @@ class SessionController extends Controller
         @set_time_limit(0);
         @apache_setenv('no-gzip', '1');
 
-        while (ob_get_level() > 0) {
-            @ob_end_clean();
-        }
+        while (ob_get_level() > 0) { @ob_end_clean(); }
 
         $user = Auth::user();
+        $code = $request->query('code');
 
-        $session = Session::where('status', 'active')
-            ->whereHas('participants', fn($q) => $q->where('user_id', $user->id))
-            ->first();
+        if ($code) {
+            // Mestre ou participante de uma sessão específica
+            $session = Session::where('session_code', $code)
+                ->where('status', 'active')
+                ->where(function ($q) use ($user) {
+                    $q->where('master_user_id', $user->id)
+                      ->orWhereHas('participants', fn($p) => $p->where('user_id', $user->id));
+                })
+                ->first();
+        } else {
+            $session = Session::where('status', 'active')
+                ->whereHas('participants', fn($q) => $q->where('user_id', $user->id))
+                ->first();
+        }
 
         $sessionId    = $session?->id;
         $sessionCode  = $session?->session_code;
@@ -88,29 +98,20 @@ class SessionController extends Controller
 
             $lastHash         = null;
             $start            = microtime(true);
-            $maxDuration      = 5;    // 5 segundos por conexão (libera worker rapidamente)
+            $maxDuration      = 5;
             $lastSessionCheck = 0;
 
-            // Sugere ao cliente reconectar em 500ms
             echo "retry: 500\n\n";
-            // Padding para forçar flush do buffer do nginx/apache
             echo ":" . str_repeat(' ', 2048) . "\n\n";
             @ob_flush(); flush();
 
             while ((microtime(true) - $start) < $maxDuration) {
-
-                if (connection_aborted()) {
-                    break;
-                }
+                if (connection_aborted()) break;
 
                 $now = time();
-
                 if (($now - $lastSessionCheck) >= 3) {
                     $lastSessionCheck = $now;
-                    $alive = Session::where('id', $sessionId)
-                        ->where('status', 'active')
-                        ->exists();
-
+                    $alive = Session::where('id', $sessionId)->where('status', 'active')->exists();
                     if (!$alive) {
                         echo "event: ended\n";
                         echo "data: {\"reason\":\"session_closed\"}\n\n";
@@ -125,6 +126,7 @@ class SessionController extends Controller
 
                 $userIds = $participants->pluck('user_id')->unique()->all();
 
+                // Última rolagem POR USUÁRIO (independe da ficha)
                 $rolls = RollLog::whereIn('user_id', $userIds)
                     ->orderBy('id', 'desc')
                     ->get()
@@ -151,12 +153,10 @@ class SessionController extends Controller
 
                 usort($data, fn($a, $b) => $a['user_id'] <=> $b['user_id']);
 
-                // Força casting seguro para UTF-8
                 $hash = md5(json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE));
 
                 if ($hash !== $lastHash) {
                     $lastHash = $hash;
-
                     $payload = json_encode([
                         'in_session'   => true,
                         'session_code' => $sessionCode,
@@ -172,8 +172,7 @@ class SessionController extends Controller
                 }
 
                 @ob_flush(); flush();
-
-                usleep(300000); // 300ms entre checagens
+                usleep(300000);
             }
         }, 200, [
             'Content-Type'      => 'text/event-stream; charset=utf-8',

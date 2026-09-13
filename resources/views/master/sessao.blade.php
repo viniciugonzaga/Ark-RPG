@@ -2,7 +2,7 @@
     <x-slot name="title">Sessão: {{ $session->session_code }}</x-slot>
 
     <div class="fixed inset-0 -z-10">
-        <img src="{{ asset('images/fundo_sessao.png') }}" class="w-full h-full object-cover opacity-40">
+        <img src="{{ asset('images/fundo_sessao.png') }}" class="w-full h-full object-cover opacity-40" alt="">
         <div class="absolute inset-0 bg-black/60"></div>
     </div>
     <canvas id="particles-canvas" class="fixed inset-0 z-0 pointer-events-none"></canvas>
@@ -13,43 +13,34 @@
 
         :root {
             --theme-primary: #00f2ff;
-            --theme-secondary: #4deaff;
             --theme-glow: rgba(0, 242, 255, 0.5);
             --theme-border: rgba(0, 242, 255, 0.3);
-            --theme-panel-bg: rgba(0, 242, 255, 0.05);
         }
-
         .theme-text-primary { color: var(--theme-primary); }
-        .theme-border-primary { border-color: var(--theme-primary); }
-        .theme-bg-panel { background-color: var(--theme-panel-bg); }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scan-line {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scan-line { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        @keyframes live-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.35); opacity: 0.5; } }
+        @keyframes rollFlash {
+            0%   { background-color: rgba(0, 242, 255, 0.25); }
+            100% { background-color: transparent; }
         }
         .animate-fadeInUp { animation: fadeInUp 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards; opacity: 0; }
         .animate-scan-line { animation: scan-line 3s linear infinite; }
+        .live-dot { animation: live-pulse 1.4s infinite; }
+        .roll-updated { animation: rollFlash 1.2s ease-out; border-radius: 6px; padding: 2px 4px; margin: -2px -4px; }
 
         .ark-panel {
-            @apply bg-black/40 backdrop-blur-md shadow-xl;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--theme-border);
             clip-path: polygon(0 0, 98% 0, 100% 4%, 100% 100%, 2% 100%, 0 96%);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
-
-        .ark-input {
-            @apply bg-black/60 border border-cyan-500/30 text-white rounded-sm px-4 py-2.5 transition-all duration-300 font-mono text-sm;
-        }
-        .ark-input:focus {
-            @apply border-cyan-400 shadow-[0_0_15px_rgba(0,242,255,0.3)] outline-none bg-black/80;
-        }
-
         .btn-neon {
-            @apply relative px-4 py-2 text-sm font-black uppercase tracking-[0.2em] transition-all duration-300 overflow-hidden;
+            position: relative; padding: 8px 20px;
+            font-size: 12px; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 0.25em; transition: all 0.3s ease;
             background: rgba(0,0,0,0.7);
             border: 1px solid var(--theme-primary);
             color: var(--theme-primary);
@@ -62,20 +53,17 @@
             box-shadow: 0 0 25px var(--theme-glow);
             transform: translateY(-2px);
         }
-
         .btn-danger {
-            @apply relative px-4 py-2 text-sm font-black uppercase tracking-[0.2em] transition-all duration-300;
+            padding: 8px 20px; font-size: 12px; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 0.2em;
             background: rgba(0,0,0,0.7);
             border: 1px solid rgba(239, 68, 68, 0.5);
             color: #f87171;
-            box-shadow: 0 0 8px rgba(239,68,68,0.3);
             border-radius: 40px;
-            padding: 6px 16px;
+            transition: all 0.3s ease;
         }
         .btn-danger:hover {
-            background: #dc2626;
-            color: white;
-            border-color: #ef4444;
+            background: #dc2626; color: white;
             box-shadow: 0 0 20px #ef4444;
             transform: translateY(-2px);
         }
@@ -85,10 +73,9 @@
             border: 1px solid var(--theme-border);
             border-radius: 12px;
             padding: 8px 16px;
-            font-family: monospace;
+            font-family: ui-monospace, monospace;
             font-size: 1.5rem;
             letter-spacing: 4px;
-            text-align: center;
             color: var(--theme-primary);
             text-shadow: 0 0 5px currentColor;
         }
@@ -99,234 +86,352 @@
             padding: 6px 16px;
             font-size: 0.75rem;
             transition: all 0.2s;
+            color: #e5e7eb;
         }
         .btn-copy:hover {
             background: var(--theme-primary);
-            color: black;
-            border-color: var(--theme-primary);
+            color: #000;
             transform: scale(1.02);
         }
-        .toast-copy {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a1a1a;
-            border: 1px solid var(--theme-primary);
-            color: var(--theme-primary);
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-size: 12px;
-            z-index: 9999;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
 
-        .participant-card {
-            background: rgba(0,0,0,0.4);
+        /* Session card (mesmo estilo de rolagens) */
+        .session-card {
+            background: linear-gradient(145deg, rgba(0,20,30,0.7) 0%, rgba(0,0,0,0.65) 100%);
             border: 1px solid var(--theme-border);
-            border-radius: 16px;
-            transition: all 0.2s;
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
-        .participant-card:hover {
+        .session-card:hover {
+            transform: translateY(-2px);
             border-color: var(--theme-primary);
-            background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 22px var(--theme-glow);
         }
+        .session-avatar {
+            width: 56px; height: 56px; border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--theme-primary);
+            box-shadow: 0 0 12px var(--theme-glow);
+            flex-shrink: 0;
+        }
+        .session-avatar-fallback {
+            width: 56px; height: 56px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,242,255,0.1);
+            border: 2px solid var(--theme-primary);
+            color: var(--theme-primary);
+            font-family: 'Cinzel', serif; font-weight: 900; font-size: 22px;
+            box-shadow: 0 0 12px var(--theme-glow);
+            flex-shrink: 0;
+        }
+        .master-badge {
+            font-size: 8px; font-weight: 900; letter-spacing: 1.5px;
+            text-transform: uppercase;
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            color: #e9d5ff;
+            padding: 2px 8px; border-radius: 20px;
+        }
+        .roll-line { font-size: 11px; display: flex; gap: 6px; align-items: flex-start; line-height: 1.35; }
+        .roll-line .label { font-weight: 900; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; }
+        .roll-line.dice .label { color: #67e8f9; }
+        .roll-line.event .label { color: #d8b4fe; }
+        .roll-line .value { font-family: ui-monospace, monospace; color: #e5e7eb; word-break: break-word; }
 
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: var(--theme-primary);
-            animation: spin 1s ease-in-out infinite;
+        .toast-copy {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #1a1a1a; border: 1px solid var(--theme-primary);
+            color: var(--theme-primary); padding: 8px 20px;
+            border-radius: 40px; font-size: 12px; z-index: 9999;
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 
     <div class="relative z-10 max-w-7xl mx-auto p-6 space-y-6 text-white">
-        <div class="ark-panel p-6 flex justify-between items-center flex-wrap gap-4 relative overflow-hidden animate-fadeInUp">
+
+        {{-- HEADER --}}
+        <div class="ark-panel p-6 relative overflow-hidden animate-fadeInUp">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-scan-line"></div>
-            <div>
-                <h1 class="text-3xl font-medieval font-black theme-text-primary">Mesa de Sessão</h1>
-                <div class="flex items-center gap-3 mt-2">
-                    <p class="text-sm text-gray-300">Código:</p>
-                    <div class="code-block" id="session-code">{{ $session->session_code }}</div>
-                    <button id="copy-code-btn" class="btn-copy flex items-center gap-2">
+
+            <div class="flex flex-wrap justify-between items-start gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="relative flex h-3 w-3">
+                            <span class="live-dot absolute inline-flex h-full w-full rounded-full bg-emerald-400"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                        <h1 class="text-3xl font-medieval font-black theme-text-primary tracking-widest">Mesa Ativa</h1>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 mt-1">
+                        <p class="text-xs text-gray-400 uppercase tracking-widest">Código da sessão:</p>
+                        <div class="code-block" id="session-code">{{ $session->session_code }}</div>
+                        <button id="copy-code-btn" class="btn-copy flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            Copiar
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">
+                        Compartilhe este código com os jogadores. As rolagens aparecem aqui em tempo real.
+                    </p>
+                </div>
+
+                <div class="flex gap-3">
+                    <a href="{{ route('master.mesa') }}" class="btn-neon flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
-                        Copiar
+                        Voltar
+                    </a>
+                    <form action="{{ route('master.encerrar.mesa', $session->session_code) }}" method="POST" onsubmit="return confirm('Encerrar a mesa removerá todos os participantes. Continuar?')">
+                        @csrf
+                        <button type="submit" class="btn-danger">Encerrar Mesa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- PARTICIPANTES --}}
+        <div class="ark-panel p-6 animate-fadeInUp" style="animation-delay: 0.1s">
+            <div class="flex justify-between items-center mb-5 pb-4 border-b" style="border-color: var(--theme-border)">
+                <h2 class="text-xl font-medieval font-black theme-text-primary tracking-widest">Participantes e Últimas Rolagens</h2>
+                <div class="flex gap-3 items-center">
+                    <label class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400 cursor-pointer">
+                        <input type="checkbox" id="auto-reload" checked class="accent-cyan-500">
+                        Tempo real
+                    </label>
+                    <button id="reload-btn" class="bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-500/30 px-3 py-1.5 rounded text-xs uppercase tracking-widest text-cyan-200 transition">
+                        Atualizar
                     </button>
                 </div>
-                <p class="text-xs text-gray-400 mt-1">Compartilhe este código com os jogadores.</p>
             </div>
-            <div class="flex gap-4">
-                <form action="{{ route('master.encerrar.mesa', $session->session_code) }}" method="POST" onsubmit="return confirm('Encerrar a mesa removerá todos os participantes. Continuar?')">
-                    @csrf
-                    <button type="submit" class="btn-danger">Encerrar Mesa</button>
-                </form>
-                <a href="{{ route('master.mesa') }}" class="btn-neon flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Voltar
-                </a>
+            <div id="participantes-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <p class="text-gray-400 text-sm">Carregando participantes...</p>
             </div>
         </div>
 
-        {{-- Participantes --}}
-        <div class="ark-panel p-6 animate-fadeInUp" style="animation-delay: 0.1s">
-            <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
-                <h2 class="text-xl font-medieval font-bold theme-text-primary">Participantes e Últimas Rolagens</h2>
-                <div class="flex gap-4 items-center">
-                    <button id="reload-participantes" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded text-sm transition-all">⟳ Recarregar</button>
-                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="auto-reload-mesa"> Auto (5s)</label>
-                </div>
-            </div>
-            <div id="participantes-list" class="space-y-3">
-                <p class="text-gray-400">Carregando participantes...</p>
-            </div>
-        </div>
-
-        {{-- Rolagens do mestre --}}
+        {{-- ROLAGENS DO MESTRE --}}
         <div class="ark-panel p-6 animate-fadeInUp" style="animation-delay: 0.2s">
-            <h2 class="text-2xl font-medieval font-black theme-text-primary mb-4">Rolagens do Mestre</h2>
-            <p class="text-sm text-gray-300 mb-6">Role dados e eventos como se fosse um jogador. Suas rolagens serão salvas e visíveis para os participantes da sua mesa.</p>
+            <h2 class="text-2xl font-medieval font-black theme-text-primary mb-4 tracking-widest">Rolagens do Mestre</h2>
+            <p class="text-sm text-gray-300 mb-6">
+                Role dados e eventos como se fosse um jogador. Suas rolagens serão salvas e visíveis para os participantes da sua mesa.
+            </p>
             @include('partials.rolagens-sistema', ['characters' => Auth::user()->characters])
         </div>
     </div>
 
-    <div id="copy-toast" class="toast-copy">📋 Código copiado!</div>
+    <div id="copy-toast" class="toast-copy">Código copiado!</div>
 
     <script>
-        // Partículas
+        // ========== PARTÍCULAS ==========
         const canvas = document.getElementById('particles-canvas');
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
+        let width, height, particles = [];
 
-        function resizeCanvas() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-        }
-
+        function resizeCanvas() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; }
         function initParticles() {
             particles = [];
             for (let i = 0; i < 180; i++) {
                 particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
+                    x: Math.random() * width, y: Math.random() * height,
                     radius: Math.random() * 2 + 1,
                     speedY: Math.random() * 1.2 + 0.4,
                     alpha: Math.random() * 0.6 + 0.2,
                 });
             }
         }
-
         function drawParticles() {
             if (!ctx) return;
             ctx.clearRect(0, 0, width, height);
             for (let p of particles) {
                 p.y -= p.speedY;
-                if (p.y < 0) {
-                    p.y = height;
-                    p.x = Math.random() * width;
-                }
+                if (p.y < 0) { p.y = height; p.x = Math.random() * width; }
                 const progress = 1 - (p.y / height);
-                const r = 255;
-                const g = 255 - progress * 80;
-                const b = 255 - progress * 40;
-                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.alpha})`;
+                ctx.fillStyle = `rgba(255, ${255 - progress * 80}, ${255 - progress * 40}, ${p.alpha})`;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                 ctx.fill();
             }
             requestAnimationFrame(drawParticles);
         }
+        window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+        resizeCanvas(); initParticles(); drawParticles();
 
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            initParticles();
-        });
-        resizeCanvas();
-        initParticles();
-        drawParticles();
+        // ========== SSE + RENDER ==========
+        const SESSION_CODE = "{{ $session->session_code }}";
+        let es = null;
+        let pollTimer = null;
+        const lastSeenRolls = {};
+        const lastSeenEvents = {};
 
-        // Participantes da mesa (auto-reload)
-        let autoInterval = null;
-        const sessionCode = "{{ $session->session_code }}";
-
-        function carregarParticipantes() {
-            const container = document.getElementById('participantes-list');
-            container.innerHTML = '<p class="text-gray-400">Atualizando...</p>';
-
-            fetch(`/mestre/sessao/${sessionCode}/participantes`)
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.participants.length) {
-                        container.innerHTML = '<p class="text-gray-400">Nenhum participante ainda. Compartilhe o código!</p>';
-                        return;
-                    }
-                    container.innerHTML = data.participants.map(p => `
-                        <div class="participant-card p-4 flex items-center gap-4">
-                            <div class="flex-shrink-0">
-                                <img src="${p.foto || '{{ asset('images/default-avatar.png') }}'}"  
-                                     alt="${p.name}" 
-                                     class="w-12 h-12 rounded-full border-2 border-cyan-500/30 object-cover">
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <strong class="text-cyan-300">${p.name}</strong>
-                                    <span class="text-xs text-gray-400">${p.crystal_id}</span>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2 mt-1">
-                                    <div class="text-sm">🎲 Dado: <span class="font-mono text-cyan-200">${p.last_dice}</span></div>
-                                    <div class="text-sm">📜 Evento: <span class="font-mono text-purple-200">${p.last_event}</span></div>
-                                </div>
-                                <div class="text-xs text-gray-500 mt-1">${p.last_time || ''}</div>
-                            </div>
-                        </div>
-                    `).join('');
-                })
-                .catch(() => {
-                    container.innerHTML = '<p class="text-red-400">Erro ao carregar participantes.</p>';
-                });
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            }[c]));
         }
 
-        document.getElementById('reload-participantes').addEventListener('click', carregarParticipantes);
+        function buildAvatar(p) {
+            const initial = (p.name || '?').charAt(0).toUpperCase();
+            if (p.foto) {
+                return `<img src="${p.foto}" alt="${escapeHtml(p.name)}" class="session-avatar"
+                    onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'session-avatar-fallback',textContent:'${initial}'}))">`;
+            }
+            return `<div class="session-avatar-fallback">${initial}</div>`;
+        }
 
-        const autoCheck = document.getElementById('auto-reload-mesa');
-        autoCheck.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                if (autoInterval) clearInterval(autoInterval);
-                autoInterval = setInterval(carregarParticipantes, 5000);
-            } else {
-                if (autoInterval) clearInterval(autoInterval);
+        function renderParticipants(participants) {
+            const c = document.getElementById('participantes-list');
+            if (!c) return;
+
+            if (!participants || !participants.length) {
+                c.innerHTML = '<p class="text-gray-400 text-sm col-span-full">Nenhum participante ainda. Compartilhe o código da mesa.</p>';
+                return;
+            }
+
+            // Ordena: mestre primeiro, depois nome
+            participants.sort((a, b) => {
+                if (a.is_master && !b.is_master) return -1;
+                if (!a.is_master && b.is_master) return 1;
+                return (a.name || '').localeCompare(b.name || '');
+            });
+
+            c.innerHTML = participants.map(p => {
+                const uid = p.user_id;
+                const diceChanged  = lastSeenRolls[uid] !== undefined && lastSeenRolls[uid] !== p.last_dice && p.last_dice;
+                const eventChanged = lastSeenEvents[uid] !== undefined && lastSeenEvents[uid] !== p.last_event && p.last_event;
+
+                lastSeenRolls[uid]  = p.last_dice;
+                lastSeenEvents[uid] = p.last_event;
+
+                return `
+                    <div class="session-card">
+                        ${buildAvatar(p)}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <strong class="text-cyan-200 truncate">${escapeHtml(p.name)}</strong>
+                                ${p.is_master ? '<span class="master-badge">Mestre</span>' : ''}
+                            </div>
+                            <div class="text-[10px] text-gray-500 font-mono mt-0.5">${escapeHtml(p.crystal_id || '')}</div>
+                            <div class="mt-2 space-y-1">
+                                <div class="roll-line dice">
+                                    <span class="label">Dado:</span>
+                                    <span class="value ${diceChanged ? 'roll-updated' : ''}">${escapeHtml(p.last_dice || '--')}</span>
+                                </div>
+                                <div class="roll-line event">
+                                    <span class="label">Evento:</span>
+                                    <span class="value ${eventChanged ? 'roll-updated' : ''}">${escapeHtml(p.last_event || '--')}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ---------- SSE (primário) ----------
+        let sseErrorCount = 0;
+
+        function startStream() {
+            if (es) return;
+            if (!window.EventSource) { startPolling(); return; }
+
+            // Carrega estado inicial
+            carregarParticipantes();
+
+            try {
+                es = new EventSource('/sessao/stream?code=' + encodeURIComponent(SESSION_CODE) + '&_=' + Date.now());
+            } catch (e) { es = null; startPolling(); return; }
+
+            es.onopen = () => { sseErrorCount = 0; };
+
+            es.addEventListener('update', (ev) => {
+                sseErrorCount = 0;
+                try {
+                    const data = JSON.parse(ev.data);
+                    if (data.in_session) renderParticipants(data.participants || []);
+                } catch (err) { console.error('SSE parse', err); }
+            });
+
+            es.addEventListener('ended', () => {
+                stopStream(); stopPolling();
+                const c = document.getElementById('participantes-list');
+                if (c) c.innerHTML = '<p class="text-red-400 text-sm col-span-full">Sessão encerrada.</p>';
+            });
+
+            es.addEventListener('nosession', () => {
+                stopStream();
+                startPolling();
+            });
+
+            es.onerror = () => {
+                sseErrorCount++;
+                if (sseErrorCount >= 10) {
+                    stopStream();
+                    startPolling();
+                }
+            };
+        }
+
+        function stopStream() {
+            if (es) { try { es.close(); } catch (e) {} es = null; }
+        }
+
+        // ---------- Polling (fallback) ----------
+        function startPolling() {
+            if (pollTimer) return;
+            carregarParticipantes();
+            pollTimer = setInterval(carregarParticipantes, 1000);
+        }
+        function stopPolling() {
+            if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        }
+
+        function carregarParticipantes() {
+            return fetch(`/mestre/sessao/${SESSION_CODE}/participantes?_=` + Date.now(), {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                cache: 'no-store'
+            })
+            .then(res => res.json())
+            .then(data => renderParticipants(data.participants || []))
+            .catch(() => {});
+        }
+
+        // ---------- Controles ----------
+        document.getElementById('reload-btn')?.addEventListener('click', carregarParticipantes);
+        document.getElementById('auto-reload')?.addEventListener('change', (e) => {
+            if (e.target.checked) { startStream(); if (!window.EventSource) startPolling(); }
+            else { stopStream(); stopPolling(); }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                carregarParticipantes();
+                if (document.getElementById('auto-reload')?.checked && !es) startStream();
             }
         });
 
-        carregarParticipantes();
+        window.addEventListener('beforeunload', () => { stopStream(); stopPolling(); });
 
-        // Copiar código da mesa
+        // Inicialização
+        carregarParticipantes();
+        startStream();
+
+        // Copiar código
         const copyBtn = document.getElementById('copy-code-btn');
         const toast = document.getElementById('copy-toast');
         if (copyBtn) {
             copyBtn.addEventListener('click', () => {
-                const codeElement = document.getElementById('session-code');
-                if (codeElement) {
-                    const code = codeElement.innerText;
-                    navigator.clipboard.writeText(code).then(() => {
-                        toast.style.opacity = '1';
-                        setTimeout(() => { toast.style.opacity = '0'; }, 2000);
-                    }).catch(err => {
-                        console.error('Falha ao copiar: ', err);
-                    });
-                }
+                const code = document.getElementById('session-code')?.innerText || '';
+                navigator.clipboard.writeText(code).then(() => {
+                    toast.style.opacity = '1';
+                    setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+                });
             });
         }
     </script>
