@@ -36,9 +36,6 @@ class SessionController extends Controller
         return redirect()->route('rolagens.index')->with('session_code', $session->session_code);
     }
 
-    /**
-     * Endpoint REST simples — usado como fallback e para o primeiro carregamento.
-     */
     public function getMinhaSessao()
     {
         $user = Auth::user();
@@ -53,19 +50,14 @@ class SessionController extends Controller
         return response()->json($this->buildSessionPayload($session));
     }
 
-    /**
-     * SSE — Server-Sent Events. Mantém conexão aberta e envia atualizações
-     * de dados/eventos em tempo real (verifica mudanças a cada 400ms).
-     */
     public function stream()
     {
-        // Prepara o PHP para streaming
         @ini_set('zlib.output_compression', '0');
         @ini_set('output_buffering', '0');
         @ini_set('implicit_flush', '1');
         @set_time_limit(0);
+        @apache_setenv('no-gzip', '1');
 
-        // Limpa qualquer buffer ativo
         while (ob_get_level() > 0) {
             @ob_end_clean();
         }
@@ -80,34 +72,32 @@ class SessionController extends Controller
         $sessionCode  = $session?->session_code;
         $masterUserId = $session?->master_user_id;
 
-        // Libera o lock da sessão para não bloquear outros requests do mesmo usuário
         if (function_exists('session_write_close')) {
             session_write_close();
         }
 
         return response()->stream(function () use ($sessionId, $sessionCode, $masterUserId) {
 
-            // Sem sessão ativa: informa e encerra (cliente cai para polling)
             if (!$sessionId) {
-                echo "retry: 3000\n\n";
+                echo "retry: 2000\n\n";
                 echo "event: nosession\n";
                 echo "data: {}\n\n";
-                @ob_flush();
-                flush();
+                @ob_flush(); flush();
                 return;
             }
 
             $lastHash         = null;
-            $start            = time();
-            $maxDuration      = 30;   // segundos por conexão (cliente reconecta)
+            $start            = microtime(true);
+            $maxDuration      = 5;    // 5 segundos por conexão (libera worker rapidamente)
             $lastSessionCheck = 0;
 
-            // Sugere ao cliente reconectar em 1s se a conexão cair
-            echo "retry: 1000\n\n";
-            @ob_flush();
-            flush();
+            // Sugere ao cliente reconectar em 500ms
+            echo "retry: 500\n\n";
+            // Padding para forçar flush do buffer do nginx/apache
+            echo ":" . str_repeat(' ', 2048) . "\n\n";
+            @ob_flush(); flush();
 
-            while ((time() - $start) < $maxDuration) {
+            while ((microtime(true) - $start) < $maxDuration) {
 
                 if (connection_aborted()) {
                     break;
@@ -115,8 +105,7 @@ class SessionController extends Controller
 
                 $now = time();
 
-                // Verifica se a sessão continua ativa a cada 5s
-                if (($now - $lastSessionCheck) >= 5) {
+                if (($now - $lastSessionCheck) >= 3) {
                     $lastSessionCheck = $now;
                     $alive = Session::where('id', $sessionId)
                         ->where('status', 'active')
@@ -125,13 +114,11 @@ class SessionController extends Controller
                     if (!$alive) {
                         echo "event: ended\n";
                         echo "data: {\"reason\":\"session_closed\"}\n\n";
-                        @ob_flush();
-                        flush();
+                        @ob_flush(); flush();
                         break;
                     }
                 }
 
-                // Carrega participantes + última rolagem de cada um (query única)
                 $participants = SessionParticipant::where('game_session_id', $sessionId)
                     ->with(['user:id,name,crystal_id,foto'])
                     ->get();
@@ -152,19 +139,20 @@ class SessionController extends Controller
 
                     $data[] = [
                         'user_id'    => $u->id,
-                        'name'       => $u->name,
-                        'crystal_id' => $u->crystal_id,
+                        'name'       => (string) $u->name,
+                        'crystal_id' => (string) $u->crystal_id,
                         'foto'       => $u->foto ? route('media.show', $u->foto) : null,
                         'is_master'  => $u->id === $masterUserId,
-                        'last_dice'  => $r->dice_result  ?? null,
-                        'last_event' => $r->event_result ?? null,
-                        'updated_at' => $r ? ($r->updated_at?->getTimestamp() ?? 0) : 0,
+                        'last_dice'  => $r ? (string) $r->dice_result  : null,
+                        'last_event' => $r ? (string) $r->event_result : null,
+                        'updated_at' => $r ? (int) ($r->updated_at?->getTimestamp() ?? 0) : 0,
                     ];
                 }
 
-                // Ordena para gerar hash estável
                 usort($data, fn($a, $b) => $a['user_id'] <=> $b['user_id']);
-                $hash = md5(json_encode($data));
+
+                // Força casting seguro para UTF-8
+                $hash = md5(json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE));
 
                 if ($hash !== $lastHash) {
                     $lastHash = $hash;
@@ -173,25 +161,25 @@ class SessionController extends Controller
                         'in_session'   => true,
                         'session_code' => $sessionCode,
                         'participants' => $data,
-                    ]);
+                    ], JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE);
 
-                    echo "event: update\n";
-                    echo "data: {$payload}\n\n";
+                    if ($payload !== false) {
+                        echo "event: update\n";
+                        echo "data: {$payload}\n\n";
+                    }
                 } else {
-                    // Heartbeat (mantém proxies/firewalls satisfeitos)
                     echo ": hb {$now}\n\n";
                 }
 
-                @ob_flush();
-                flush();
+                @ob_flush(); flush();
 
-                usleep(400000); // 400ms entre checagens
+                usleep(300000); // 300ms entre checagens
             }
         }, 200, [
             'Content-Type'      => 'text/event-stream; charset=utf-8',
             'Cache-Control'     => 'no-cache, no-store, must-revalidate',
             'Pragma'            => 'no-cache',
-            'X-Accel-Buffering' => 'no',   // nginx: desabilita buffering
+            'X-Accel-Buffering' => 'no',
             'Connection'        => 'keep-alive',
         ]);
     }
@@ -210,9 +198,6 @@ class SessionController extends Controller
         return redirect()->route('rolagens.index')->with('success', 'Você saiu da sessão.');
     }
 
-    /**
-     * Monta o payload completo da sessão (usado pelo REST e como base do SSE).
-     */
     private function buildSessionPayload(Session $session): array
     {
         $participants = $session->participants()

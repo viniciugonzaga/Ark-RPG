@@ -1207,13 +1207,12 @@
         }
 
         // ============================================================
-        // SESSAO EM TEMPO REAL — SSE primário, polling como fallback
+        // SESSÃO EM TEMPO REAL — SSE com reconexão, polling como fallback
         // ============================================================
         let sessionEventSource = null;
         let sessionPollingTimer = null;
-        const SESSION_POLL_INTERVAL = 1500; // usado apenas se SSE falhar
+        const SESSION_POLL_INTERVAL = 1000; // 1 segundo (fallback rápido)
 
-        // Guarda a última rolagem vista por usuário para destacar mudanças
         const lastSeenRolls = {};
         const lastSeenEvents = {};
 
@@ -1244,7 +1243,6 @@
 
             const participants = data.participants || [];
 
-            // Ordena: mestre primeiro, depois por nome
             participants.sort((a, b) => {
                 if (a.is_master && !b.is_master) return -1;
                 if (!a.is_master && b.is_master) return 1;
@@ -1284,7 +1282,7 @@
             }).join('');
         }
 
-        // ---------- Fallback: polling rápido ----------
+        // ---------- Polling (fallback rápido) ----------
         function startSessionPolling() {
             if (sessionPollingTimer) return;
             carregarSessaoAtiva();
@@ -1298,15 +1296,18 @@
         }
 
         function carregarSessaoAtiva() {
-            return fetch('/sessao/minha-sessao', {
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            return fetch('/sessao/minha-sessao?_=' + Date.now(), {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                cache: 'no-store'
             })
             .then(res => res.json())
             .then(data => renderSession(data))
             .catch(() => {});
         }
 
-        // ---------- Primário: SSE ----------
+        // ---------- SSE (primário) ----------
+        let sseErrorCount = 0;
+
         function startSessionStream() {
             if (sessionEventSource) return;
             if (!window.EventSource) {
@@ -1314,18 +1315,23 @@
                 return;
             }
 
-            // Carrega estado inicial imediatamente
             carregarSessaoAtiva();
 
             try {
-                sessionEventSource = new EventSource('/sessao/stream');
+                sessionEventSource = new EventSource('/sessao/stream?_=' + Date.now());
             } catch (e) {
                 sessionEventSource = null;
                 startSessionPolling();
                 return;
             }
 
+            // RESET do contador ao abrir (corrige o bug dos 90s)
+            sessionEventSource.onopen = () => {
+                sseErrorCount = 0;
+            };
+
             sessionEventSource.addEventListener('update', (e) => {
+                sseErrorCount = 0; // Zera também a cada mensagem recebida
                 try {
                     const data = JSON.parse(e.data);
                     renderSession(data);
@@ -1347,18 +1353,17 @@
                 if (area) area.classList.add('hidden');
             });
 
-            // Reconexão: o browser faz automaticamente. Se falhar 3x, cai para polling.
-            let errorCount = 0;
+            // Só cai para polling se falhar MUITAS vezes seguidas.
+            // O browser reconecta automaticamente, então erros esporádicos
+            // (ex: fechamento normal a cada 5s) não contam.
             sessionEventSource.onerror = () => {
-                errorCount++;
-                if (errorCount >= 3) {
+                sseErrorCount++;
+                if (sseErrorCount >= 10) {
+                    console.warn('SSE falhou 10x seguidas, alternando para polling.');
                     stopSessionStream();
                     startSessionPolling();
                 }
             };
-
-            // Reset do contador quando recebe algo
-            sessionEventSource.addEventListener('update', () => { errorCount = 0; });
         }
 
         function stopSessionStream() {
@@ -1387,7 +1392,6 @@
             }
         });
 
-        // Reconectar quando a aba volta a ficar visível
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 carregarSessaoAtiva();
@@ -1398,7 +1402,6 @@
             }
         });
 
-        // Fechar stream ao sair da página
         window.addEventListener('beforeunload', () => {
             stopSessionStream();
             stopSessionPolling();

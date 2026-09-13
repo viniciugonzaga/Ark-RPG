@@ -11,7 +11,7 @@ class RollController extends Controller
     public function index()
     {
         $characters = Character::where('user_id', auth()->id())->get();
-        return view('roll.index', compact('characters'));
+        return view('rolagens.index', compact('characters')); // CORRIGIDO
     }
 
     public function loadCharacter($id)
@@ -54,6 +54,10 @@ class RollController extends Controller
         if ($request->has('event_result') && !is_null($request->event_result)) {
             $rollLog->event_result = $request->event_result;
         }
+
+        // Força atualização do updated_at mesmo se o valor for igual
+        // (importante para o SSE detectar mudanças)
+        $rollLog->updated_at = now();
         $rollLog->save();
 
         return response()->json(['status' => 'ok']);
