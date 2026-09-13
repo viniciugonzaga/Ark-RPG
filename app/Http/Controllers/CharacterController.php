@@ -13,9 +13,31 @@ use Illuminate\Validation\Rule;
 
 class CharacterController extends Controller
 {
+    /**
+     * Formatos de imagem aceitos para o Tema de Fundo.
+     */
+    private const BACKGROUND_MIMES = 'jpg,jpeg,png,webp,gif,bmp';
+    private const BACKGROUND_MIMETYPES = 'image/jpeg,image/png,image/webp,image/gif,image/bmp';
+    private const BACKGROUND_MIN_KB = 10;      // 10 KB
+    private const BACKGROUND_MAX_KB = 8192;    // 8 MB
+
     private function getStorageDisk()
     {
         return config('filesystems.image_disk', 'public');
+    }
+
+    private function backgroundValidationMessages(): array
+    {
+        return [
+            'background_image.file'      => 'Falha no upload do tema de fundo. Verifique o arquivo e tente novamente.',
+            'background_image.mimes'     => 'O tema de fundo deve ser um arquivo do tipo: JPG, JPEG, PNG, WEBP, GIF ou BMP.',
+            'background_image.mimetypes' => 'O tipo real do arquivo não é uma imagem suportada. Use JPG, PNG, WEBP, GIF ou BMP.',
+            'background_image.min'       => 'O tema de fundo deve ter no mínimo 10 KB.',
+            'background_image.max'       => 'O tema de fundo não pode exceder 8 MB.',
+            'background_image.uploaded'  => 'Falha no upload. A imagem pode ter excedido o limite do servidor (upload_max_filesize).',
+            'image.mimes'                => 'A pele (IMG) deve ser do tipo: JPG, JPEG, PNG ou WEBP.',
+            'image.max'                  => 'A pele (IMG) não pode exceder 2 MB.',
+        ];
     }
 
     public function index()
@@ -41,8 +63,17 @@ class CharacterController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'background_image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+
+            'background_image' => [
+                'nullable',
+                'file',
+                'mimes:' . self::BACKGROUND_MIMES,
+                'mimetypes:' . self::BACKGROUND_MIMETYPES,
+                'min:' . self::BACKGROUND_MIN_KB,
+                'max:' . self::BACKGROUND_MAX_KB,
+            ],
+
             'level' => 'required|integer|min:1',
             'age' => 'nullable|integer',
             'class_main' => 'required|string',
@@ -59,7 +90,7 @@ class CharacterController extends Controller
             'determinacao' => 'nullable|integer',
             'folego' => 'nullable|integer',
             'resistencia' => 'nullable|integer',
-        ]);
+        ], $this->backgroundValidationMessages());
 
         if ($request->hasFile('image')) {
             $data['image'] = $this->storeCharacterImage($request->file('image'));
@@ -89,30 +120,30 @@ class CharacterController extends Controller
     }
 
     public function show($id)
-{
-    $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
-        ->findOrFail($id);
+    {
+        $ficha = Character::with(['mutations', 'bonuses', 'survivorPowers', 'rituals', 'user', 'originalUser'])
+            ->findOrFail($id);
 
-    if ($ficha->user_id !== Auth::id()) {
-        abort(403, 'Acesso negado a Ficha.');
+        if ($ficha->user_id !== Auth::id()) {
+            abort(403, 'Acesso negado a Ficha.');
+        }
+
+        $ficha->loadMissing(['mutations', 'bonuses', 'survivorPowers', 'rituals']);
+
+        Log::debug('SHOW - Relações carregadas', [
+            'id' => $ficha->id,
+            'mutations_loaded' => $ficha->relationLoaded('mutations'),
+            'bonuses_loaded'   => $ficha->relationLoaded('bonuses'),
+            'powers_loaded'    => $ficha->relationLoaded('survivorPowers'),
+            'rituals_loaded'   => $ficha->relationLoaded('rituals'),
+            'mutations_count'  => $ficha->mutations ? $ficha->mutations->count() : 0,
+            'bonuses_count'    => $ficha->bonuses ? $ficha->bonuses->count() : 0,
+            'powers_count'     => $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0,
+            'rituals_count'    => $ficha->rituals ? $ficha->rituals->count() : 0,
+        ]);
+
+        return view('fichas.show', compact('ficha'));
     }
-
-    $ficha->loadMissing(['mutations', 'bonuses', 'survivorPowers', 'rituals']);
-
-    Log::debug('SHOW - Relações carregadas', [
-        'id' => $ficha->id,
-        'mutations_loaded' => $ficha->relationLoaded('mutations'),
-        'bonuses_loaded'   => $ficha->relationLoaded('bonuses'),
-        'powers_loaded'    => $ficha->relationLoaded('survivorPowers'),
-        'rituals_loaded'   => $ficha->relationLoaded('rituals'),
-        'mutations_count'  => $ficha->mutations ? $ficha->mutations->count() : 0,
-        'bonuses_count'    => $ficha->bonuses ? $ficha->bonuses->count() : 0,
-        'powers_count'     => $ficha->survivorPowers ? $ficha->survivorPowers->count() : 0,
-        'rituals_count'    => $ficha->rituals ? $ficha->rituals->count() : 0,
-    ]);
-
-    return view('fichas.show', compact('ficha'));
-}
 
     public function edit($id)
     {
@@ -135,10 +166,19 @@ class CharacterController extends Controller
         }
 
         $request->validate([
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'background_image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+
+            'background_image' => [
+                'nullable',
+                'file',
+                'mimes:' . self::BACKGROUND_MIMES,
+                'mimetypes:' . self::BACKGROUND_MIMETYPES,
+                'min:' . self::BACKGROUND_MIN_KB,
+                'max:' . self::BACKGROUND_MAX_KB,
+            ],
+
             'remove_background_image' => 'nullable|boolean',
-        ]);
+        ], $this->backgroundValidationMessages());
 
         $data = $request->except([
             'mutations', 'bonuses', 'powers', 'rituals',
@@ -354,7 +394,6 @@ class CharacterController extends Controller
                         'updated_at'   => $now,
                     ];
                 }
-
             }
             if (!empty($mutationsData)) {
                 $character->mutations()->insert($mutationsData);

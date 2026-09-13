@@ -5,7 +5,6 @@
     </div>
 
     <style>
-        /* (CSS completo igual ao que você já tem) */
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
         .font-medieval { font-family: 'Cinzel', serif; }
 
@@ -198,7 +197,9 @@
 
     <form action="{{ route('fichas.store') }}" method="POST" enctype="multipart/form-data" id="create-character-form" class="relative max-w-7xl mx-auto p-6 space-y-10 pb-20 text-gray-100">
         @csrf
-        <input type="file" name="background_image" id="background-image-input" hidden accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+        {{-- FORMATOS ACEITOS: JPG, JPEG, PNG, WEBP, GIF, BMP --}}
+        <input type="file" name="background_image" id="background-image-input" hidden
+               accept=".png,.jpg,.jpeg,.webp,.gif,.bmp,image/png,image/jpeg,image/webp,image/gif,image/bmp">
 
         @if ($errors->any())
             <div class="bg-red-500/20 border border-red-500 p-4 rounded mb-6">
@@ -278,6 +279,7 @@
                     </div>
                 </div>
 
+                {{-- ============ TEMA DE FUNDO ============ --}}
                 <div class="mt-4 rounded-lg border border-cyan-500/30 bg-black/40 p-4">
                     <div class="flex items-center justify-between gap-3">
                         <button type="button" onclick="document.getElementById('background-image-input').click()" class="btn-abort !px-6 !py-2 !text-[10px]">
@@ -287,6 +289,16 @@
                             Remover Tema
                         </button>
                     </div>
+
+                    {{-- AVISO: formatos e tamanhos aceitos --}}
+                    <div class="mt-3 text-[10px] text-gray-400 leading-relaxed border-l-2 border-cyan-500/40 pl-3">
+                        <p><span class="font-bold text-cyan-300 uppercase tracking-widest">Formatos aceitos:</span> JPG · JPEG · PNG · WEBP · GIF · BMP</p>
+                        <p class="mt-1"><span class="font-bold text-cyan-300 uppercase tracking-widest">Tamanho:</span> entre <span class="text-white">10 KB</span> e <span class="text-white">8 MB</span></p>
+                    </div>
+
+                    {{-- Erro de validação client-side --}}
+                    <p id="background-error" class="hidden mt-3 text-[10px] text-red-300 uppercase tracking-widest bg-red-500/10 border border-red-500/40 rounded px-3 py-2"></p>
+
                     <p id="background-theme-status" class="text-[10px] text-gray-400 mt-3 uppercase tracking-widest">
                         Tema padrão automático por origem/peculiaridade.
                     </p>
@@ -459,7 +471,6 @@
             'Hipnos': { primary: '#dc2626', secondary: '#93c5fd' }
         };
 
-        // Watermarks por PECULIARIDADE (usado no create também)
         const watermarkByPeculiaridade = {
             'Padrão': 'watermark_pegada.png',
             'Caribidis': 'watermark_pegada_caribidis.png',
@@ -472,7 +483,6 @@
             'Hipnos': 'watermark_pegada_hipnos.png'
         };
 
-        // Watermarks por ORIGEM (não usado para a watermark do upload, apenas referência)
         const watermarkByOrigin = {
             'Humano': 'watermark_pegada.png',
             'Morto-Vivo': 'watermark_pegada.png',
@@ -499,7 +509,6 @@
             'Hipnos': 'icon_atributos_hipnos.png'
         };
 
-        // Posições das bolinhas por peculiaridade (mesmas do show)
         const posicoes = {
             'Padrão': {
                 for:  { top: '12%', left: '39%' },
@@ -647,11 +656,9 @@
             const peculiaridadeSelect = document.getElementById('class_sub');
             const peculiaridade = peculiaridadeSelect.value;
 
-            // WATERMARK agora usa a PECULIARIDADE
             const wm = watermarkByPeculiaridade[peculiaridade] || 'watermark_pegada.png';
             setWatermark(wm);
 
-            // Fundo: prioriza origem, senão peculiaridade
             let bgImage = backgroundByOrigin[origin];
             if (!bgImage) {
                 bgImage = backgroundByPeculiaridade[peculiaridade] || 'fundo_create_padrao.png';
@@ -670,14 +677,63 @@
         const customBackgroundInput = document.getElementById('background-image-input');
         const customBackgroundStatus = document.getElementById('background-theme-status');
         const clearCustomBackgroundBtn = document.getElementById('clear-background-theme-btn');
+        const backgroundErrorEl = document.getElementById('background-error');
+
+        // ========== VALIDAÇÃO CLIENT-SIDE DO TEMA DE FUNDO ==========
+        const BG_MIN_BYTES = 10 * 1024;         // 10 KB
+        const BG_MAX_BYTES = 8 * 1024 * 1024;   // 8 MB
+        const BG_ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
+        const BG_ALLOWED_EXTS  = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'];
+
+        function formatBytes(bytes) {
+            if (bytes >= 1024 * 1024) return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+            return (bytes / 1024).toFixed(1) + ' KB';
+        }
+
+        function validateBackgroundFile(file) {
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            const typeOk = BG_ALLOWED_MIMES.includes(file.type) || BG_ALLOWED_EXTS.includes(ext);
+            if (!typeOk) {
+                return `Formato não suportado. Aceitos: JPG, JPEG, PNG, WEBP, GIF, BMP.`;
+            }
+            if (file.size < BG_MIN_BYTES) {
+                return `Imagem muito pequena (${formatBytes(file.size)}). Mínimo: 10 KB.`;
+            }
+            if (file.size > BG_MAX_BYTES) {
+                return `Imagem muito grande (${formatBytes(file.size)}). Máximo: 8 MB.`;
+            }
+            return null;
+        }
+
+        function showBackgroundError(msg) {
+            backgroundErrorEl.textContent = '⚠ ' + msg;
+            backgroundErrorEl.classList.remove('hidden');
+        }
+
+        function clearBackgroundError() {
+            backgroundErrorEl.textContent = '';
+            backgroundErrorEl.classList.add('hidden');
+        }
 
         customBackgroundInput.addEventListener('change', (e) => {
             const [file] = e.target.files;
             if (!file) return;
 
+            const error = validateBackgroundFile(file);
+            if (error) {
+                showBackgroundError(error);
+                customBackgroundInput.value = '';
+                customBackgroundUrl = null;
+                clearCustomBackgroundBtn.classList.add('hidden');
+                customBackgroundStatus.textContent = 'Tema padrão automático por origem/peculiaridade.';
+                updateBackgroundAndWatermark();
+                return;
+            }
+
+            clearBackgroundError();
             customBackgroundUrl = URL.createObjectURL(file);
             setBackgroundFromUrl(customBackgroundUrl);
-            customBackgroundStatus.textContent = `Tema personalizado selecionado: ${file.name}`;
+            customBackgroundStatus.textContent = `Tema personalizado selecionado: ${file.name} (${formatBytes(file.size)})`;
             clearCustomBackgroundBtn.classList.remove('hidden');
         });
 
@@ -686,8 +742,10 @@
             customBackgroundUrl = null;
             clearCustomBackgroundBtn.classList.add('hidden');
             customBackgroundStatus.textContent = 'Tema padrão automático por origem/peculiaridade.';
+            clearBackgroundError();
             updateBackgroundAndWatermark();
         }
+
         const hiddenInputs = {
             for: document.getElementById('hidden-for'),
             agi: document.getElementById('hidden-agi'),

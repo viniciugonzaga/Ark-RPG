@@ -131,6 +131,16 @@
                 </div>
             </div>
 
+            @if ($errors->any())
+                <div class="bg-red-500/20 border border-red-500 p-4 rounded mb-6 animate-fadeInUp">
+                    <ul class="list-disc list-inside text-red-300 text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 <div class="space-y-6 animate-fadeInUp" style="animation-delay: 0.1s">
@@ -144,15 +154,28 @@
                         <input type="file" name="image" class="w-full text-xs text-gray-400 ark-input">
                     </div>
 
+                    {{-- ============ TEMA DE FUNDO ============ --}}
                     <div class="ark-panel !p-4">
                        <label class="text-[10px] font-medieval font-black theme-text-primary block mb-3 uppercase tracking-widest">Tema de Fundo</label>
                        @if($ficha->background_image)
                            <img src="{{ route('media.show', $ficha->background_image) }}" class="w-full h-32 object-cover rounded-lg mb-3 border" style="border-color: var(--theme-border)">
                        @endif
-                       <input type="file" name="background_image" id="background-image-edit-input" hidden accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+                       {{-- FORMATOS ACEITOS: JPG, JPEG, PNG, WEBP, GIF, BMP --}}
+                       <input type="file" name="background_image" id="background-image-edit-input" hidden
+                              accept=".png,.jpg,.jpeg,.webp,.gif,.bmp,image/png,image/jpeg,image/webp,image/gif,image/bmp">
                        <button type="button" onclick="document.getElementById('background-image-edit-input').click()" class="btn-neon !text-[10px] !px-4 !py-2 w-full">
                            Definir Tema de Fundo
                        </button>
+
+                       {{-- AVISO: formatos e tamanhos aceitos --}}
+                       <div class="mt-3 text-[10px] text-gray-400 leading-relaxed border-l-2 border-cyan-500/40 pl-3">
+                           <p><span class="font-bold text-cyan-300 uppercase tracking-widest">Formatos aceitos:</span> JPG · JPEG · PNG · WEBP · GIF · BMP</p>
+                           <p class="mt-1"><span class="font-bold text-cyan-300 uppercase tracking-widest">Tamanho:</span> entre <span class="text-white">10 KB</span> e <span class="text-white">8 MB</span></p>
+                       </div>
+
+                       {{-- Erro de validação client-side --}}
+                       <p id="background-error" class="hidden mt-3 text-[10px] text-red-300 uppercase tracking-widest bg-red-500/10 border border-red-500/40 rounded px-3 py-2"></p>
+
                        <p id="background-theme-edit-status" class="text-[10px] text-gray-400 mt-3 uppercase tracking-widest">
                            {{ $ficha->background_image ? 'Tema personalizado ativo.' : 'Tema padrão automático por origem/peculiaridade.' }}
                        </p>
@@ -332,7 +355,6 @@
     </div>
 
     <script>
-        // MAPEAMENTOS (iguais ao create) - mantenha igual ao que você já tem
         const backgroundByPeculiaridade = {
             'Padrão': 'Fundo_create_padrao.png',
             'Caribidis': 'Fundo_create_caribidis.png',
@@ -440,16 +462,62 @@
         const backgroundImageEditInput = document.getElementById('background-image-edit-input');
         const backgroundThemeEditStatus = document.getElementById('background-theme-edit-status');
         const removeBackgroundCheckbox = document.getElementById('remove-background-image');
+        const backgroundErrorEl = document.getElementById('background-error');
         let customBackgroundActive = {{ $ficha->background_image ? 'true' : 'false' }};
+
+        // ========== VALIDAÇÃO CLIENT-SIDE DO TEMA DE FUNDO ==========
+        const BG_MIN_BYTES = 10 * 1024;         // 10 KB
+        const BG_MAX_BYTES = 8 * 1024 * 1024;   // 8 MB
+        const BG_ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
+        const BG_ALLOWED_EXTS  = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'];
+
+        function formatBytes(bytes) {
+            if (bytes >= 1024 * 1024) return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+            return (bytes / 1024).toFixed(1) + ' KB';
+        }
+
+        function validateBackgroundFile(file) {
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            const typeOk = BG_ALLOWED_MIMES.includes(file.type) || BG_ALLOWED_EXTS.includes(ext);
+            if (!typeOk) {
+                return `Formato não suportado. Aceitos: JPG, JPEG, PNG, WEBP, GIF, BMP.`;
+            }
+            if (file.size < BG_MIN_BYTES) {
+                return `Imagem muito pequena (${formatBytes(file.size)}). Mínimo: 10 KB.`;
+            }
+            if (file.size > BG_MAX_BYTES) {
+                return `Imagem muito grande (${formatBytes(file.size)}). Máximo: 8 MB.`;
+            }
+            return null;
+        }
+
+        function showBackgroundError(msg) {
+            backgroundErrorEl.textContent = '⚠ ' + msg;
+            backgroundErrorEl.classList.remove('hidden');
+        }
+
+        function clearBackgroundError() {
+            backgroundErrorEl.textContent = '';
+            backgroundErrorEl.classList.add('hidden');
+        }
 
         backgroundImageEditInput.addEventListener('change', (e) => {
             const [file] = e.target.files;
             if (!file) return;
 
+            const error = validateBackgroundFile(file);
+            if (error) {
+                showBackgroundError(error);
+                backgroundImageEditInput.value = '';
+                customBackgroundActive = {{ $ficha->background_image ? 'true' : 'false' }};
+                return;
+            }
+
+            clearBackgroundError();
             customBackgroundActive = true;
             removeBackgroundCheckbox.checked = false;
             setBackgroundEditFromUrl(URL.createObjectURL(file));
-            backgroundThemeEditStatus.textContent = `Novo tema personalizado selecionado: ${file.name}`;
+            backgroundThemeEditStatus.textContent = `Novo tema personalizado selecionado: ${file.name} (${formatBytes(file.size)})`;
         });
 
         removeBackgroundCheckbox.addEventListener('change', () => {
@@ -457,6 +525,7 @@
                 customBackgroundActive = false;
                 backgroundImageEditInput.value = '';
                 backgroundThemeEditStatus.textContent = 'Tema personalizado será removido ao salvar.';
+                clearBackgroundError();
                 updateAll();
                 return;
             }
