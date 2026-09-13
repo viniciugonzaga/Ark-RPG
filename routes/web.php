@@ -11,7 +11,6 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\DinoController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AmorController;
 
 // =====================================================
 // ROTAS PÚBLICAS (sem autenticação e SEM SESSÃO)
@@ -54,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [RollController::class, 'index'])->name('index');
         Route::get('/char/{id}', [RollController::class, 'loadCharacter'])->name('load');
         Route::post('/save', [RollController::class, 'saveRoll'])->name('save');
+        Route::post('/arma/salvar', [RollController::class, 'saveWeapon'])->name('saveWeapon');
     });
 
     Route::prefix('profile')->name('profile.')->group(function () {
@@ -107,7 +107,6 @@ Route::get('/limpar-cache', function () {
 Route::get('/test-419', function () {
     throw new \Illuminate\Session\TokenMismatchException();
 });
-Route::get('/amor', [AmorController::class, 'index'])->name('amor');
 
 Route::get('/ping', function () {
     return response()->json(['status' => 'ok']);

@@ -12,6 +12,10 @@ class Character extends Model
 
     protected $table = 'fichas';
 
+    protected $casts = [
+        'arsenal' => 'array',
+    ];
+
     protected $fillable = [
         'user_id',
         'share_code',

@@ -323,6 +323,17 @@
                         <div class="text-center text-xs theme-text-primary/50 py-6 italic">Aguardando sincronização com Ficha...</div>
                     </div>
                 </div>
+
+                <div id="weapon-panel" class="ark-panel p-6 hidden animate-fadeInUp" style="animation-delay: 0.25s">
+                    <h3 class="text-base font-medieval font-black theme-text-primary mb-5 uppercase tracking-wider">Armas Salvas</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                        <input id="weapon-name" type="text" placeholder="Nome da arma" class="ark-input text-sm">
+                        <input id="weapon-hit" type="text" placeholder="Acerto: 3d20+15" class="ark-input text-sm">
+                        <input id="weapon-damage" type="text" placeholder="Dano: 6d12+15" class="ark-input text-sm">
+                    </div>
+                    <button id="save-weapon-btn" class="btn-neon w-full">Definir arma</button>
+                    <div id="weapon-list" class="mt-4 space-y-3"></div>
+                </div>
             </div>
 
             {{-- COLUNA DIREITA: DADOS LIVRES E EVENTOS --}}
@@ -475,7 +486,7 @@
             </div>
             <div class="flex justify-between items-center mb-3">
                 <div class="flex gap-3">
-                    <button id="reload-session" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded text-sm">⟳ Recarregar</button>
+                    <button id="reload-session" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded text-sm">Recarregar</button>
                     <label class="flex items-center gap-2 text-sm">
                         <input type="checkbox" id="auto-reload-session"> Auto (5s)
                     </label>
@@ -654,7 +665,7 @@
             positions.forEach(pos => {
                 const face = document.createElement('div');
                 face.className = `dice-face face-${pos}`;
-                face.textContent = pos === 'front' ? faceValue : ['⚀','⚁','⚂','⚃','⚄','⚅'][Math.floor(Math.random()*6)];
+                face.textContent = pos === 'front' ? faceValue : ['1', '2', '3', '4', '5', '6'][Math.floor(Math.random()*6)];
                 dice.appendChild(face);
             });
             container3d.appendChild(dice);
@@ -700,6 +711,7 @@
                 document.getElementById('history-event').innerText = data.lastRoll.event_result || '--';
             }
             generateAttrBlocks();
+            renderArmas();
         });
 
         function generateAttrBlocks() {
@@ -727,6 +739,174 @@
                 container.appendChild(div);
             }
         }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[char]));
+        }
+
+        function normalizeArsenal(raw) {
+            if (!raw) return [];
+            try {
+                const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function parseDiceExpression(expr) {
+            const value = String(expr ?? '').trim();
+            if (!value) return null;
+            const match = value.match(/^([0-9]+)d([0-9]+)([+-][0-9]+)?$/i);
+            if (!match) return null;
+            const diceQty = parseInt(match[1], 10);
+            const diceSides = parseInt(match[2], 10);
+            const modifier = match[3] ? parseInt(match[3], 10) : 0;
+            if (!diceQty || !diceSides) return null;
+            return { diceQty, diceSides, modifier };
+        }
+
+        function rollDiceExpression(expr, mode = 'damage') {
+            const parsed = parseDiceExpression(expr);
+            if (!parsed) {
+                throw new Error('Fórmula de dado inválida. Use algo como 3d20+15 ou 6d12+15.');
+            }
+
+            const rolls = [];
+            for (let i = 0; i < parsed.diceQty; i++) {
+                rolls.push(Math.floor(Math.random() * parsed.diceSides) + 1);
+            }
+
+            let total = 0;
+            if (mode === 'attack') {
+                total = Math.max(...rolls) + parsed.modifier;
+            } else {
+                total = rolls.reduce((sum, current) => sum + current, 0) + parsed.modifier;
+            }
+
+            return {
+                total,
+                rolls,
+                modifier: parsed.modifier,
+                mode,
+                label: mode === 'attack' ? 'ATAQUE' : 'DANO'
+            };
+        }
+
+        function renderArmas() {
+            const panel = document.getElementById('weapon-panel');
+            const list = document.getElementById('weapon-list');
+            if (!panel || !list) return;
+
+            const arsenal = normalizeArsenal(selectedCharData?.arsenal || []);
+            if (!selectedCharId || !arsenal.length) {
+                panel.classList.add('hidden');
+                list.innerHTML = '';
+                return;
+            }
+
+            panel.classList.remove('hidden');
+            list.innerHTML = arsenal.map((weapon, index) => {
+                const name = escapeHtml(weapon?.name || 'Arma');
+                const hit = escapeHtml(weapon?.hit || '--');
+                const damage = escapeHtml(weapon?.damage || '--');
+                return `
+                    <div class="bg-black/35 border border-cyan-400/20 rounded-xl p-3">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                            <div>
+                                <div class="text-cyan-300 font-bold uppercase text-sm">${name}</div>
+                                <div class="text-xs text-gray-300">Acerto: ${hit} · Dano: ${damage}</div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button data-weapon-index="${index}" data-weapon-action="attack" class="weapon-roll bg-cyan-600/80 hover:bg-cyan-500 text-black px-3 py-1.5 rounded text-xs font-bold uppercase">Acerto</button>
+                                <button data-weapon-index="${index}" data-weapon-action="damage" class="weapon-roll bg-purple-600/80 hover:bg-purple-500 text-white px-3 py-1.5 rounded text-xs font-bold uppercase">Dano</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.weapon-roll').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const weaponIndex = Number(button.dataset.weaponIndex);
+                    const action = button.dataset.weaponAction;
+                    const weapon = arsenal[weaponIndex];
+                    if (!weapon) return;
+                    const expression = action === 'attack' ? weapon.hit : weapon.damage;
+                    if (!expression) {
+                        alert('Esta arma ainda não tem a fórmula de ' + (action === 'attack' ? 'acerto' : 'dano') + '.');
+                        return;
+                    }
+
+                    try {
+                        const result = rollDiceExpression(expression, action === 'attack' ? 'attack' : 'damage');
+                        const label = action === 'attack' ? 'ACERTO' : 'DANO';
+                        const finalText = `${label} ${weapon.name.toUpperCase()}: ${result.total} (${result.rolls.join(', ')}${result.modifier !== 0 ? ` ${result.modifier >= 0 ? '+' : ''}${result.modifier}` : ''})`;
+                        animateDice3D(result.total);
+                        saveToDB(finalText, null);
+                        document.getElementById('history-dice').innerText = finalText;
+                    } catch (error) {
+                        alert(error.message);
+                    }
+                });
+            });
+        }
+
+        async function saveWeapon() {
+            if (!selectedCharId) {
+                alert('Selecione uma ficha antes de salvar a arma.');
+                return;
+            }
+
+            const name = document.getElementById('weapon-name').value.trim();
+            const hit = document.getElementById('weapon-hit').value.trim();
+            const damage = document.getElementById('weapon-damage').value.trim();
+
+            if (!name) {
+                alert('Digite o nome da arma.');
+                return;
+            }
+
+            if (!hit && !damage) {
+                alert('Informe ao menos o acerto ou o dano da arma.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/rolagens/arma/salvar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({
+                        character_id: selectedCharId,
+                        weapon: { name, hit, damage }
+                    })
+                });
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.message || 'Não foi possível salvar a arma.');
+                }
+
+                selectedCharData.arsenal = payload.arsenal || [];
+                document.getElementById('weapon-name').value = '';
+                document.getElementById('weapon-hit').value = '';
+                document.getElementById('weapon-damage').value = '';
+                renderArmas();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        document.getElementById('save-weapon-btn')?.addEventListener('click', saveWeapon);
 
         // ========== ROLAGEM POR ATRIBUTO (com detecção de 20 natural) ==========
         function rollAttribute(i){
