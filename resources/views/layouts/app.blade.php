@@ -8,6 +8,20 @@
     <title>@yield('title', config('app.name', 'ARK RPG'))</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=2">
 
+    {{-- ============================================================ --}}
+    {{-- PWA — Meta tags, Manifest e Ícones                            --}}
+    {{-- ============================================================ --}}
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#00f2ff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ARK RPG">
+    <link rel="apple-touch-icon" href="/icons/apple-icon-180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/manifest-icon-192.maskable.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/manifest-icon-512.maskable.png">
+    {{-- ============================================================ --}}
+
     {{-- Tenta carregar via Vite se o manifest existir --}}
     @if(file_exists(public_path('build/manifest.json')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -368,6 +382,138 @@
             .then(response => response.json())
             .catch(err => console.warn('Keep-alive falhou', err));
         }, 300000);
+    </script>
+
+    {{-- ============================================================ --}}
+    {{-- PWA — Registro do Service Worker                              --}}
+    {{-- ============================================================ --}}
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker
+                    .register('/sw.js', { scope: '/' })
+                    .then((reg) => {
+                        console.log('[PWA] Service Worker registrado:', reg.scope);
+
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker?.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    if (confirm('Nova versão do ARK disponível. Recarregar?')) {
+                                        newWorker.postMessage('SKIP_WAITING');
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((err) => console.warn('[PWA] Falha ao registrar SW:', err));
+            });
+        }
+    </script>
+
+    {{-- ============================================================ --}}
+    {{-- PWA — Botão "Instalar ARK" (Android/Desktop)                  --}}
+    {{-- ============================================================ --}}
+    <div id="pwa-install-container"
+         class="hidden"
+         style="display:none; position:fixed; bottom:24px; left:24px; z-index:9999;">
+        <button
+            id="pwa-install-btn"
+            type="button"
+            style="
+                display:flex; align-items:center; gap:8px;
+                padding:12px 20px; border-radius:9999px;
+                background: rgba(0,0,0,0.9);
+                border: 2px solid #00f2ff;
+                color: #00f2ff;
+                font-weight: 900; text-transform: uppercase;
+                letter-spacing: 2px; font-size: 11px;
+                box-shadow: 0 0 20px rgba(0,242,255,0.5);
+                cursor: pointer;
+                transition: all 0.25s ease;
+            "
+            onmouseover="this.style.background='#00f2ff'; this.style.color='#000';"
+            onmouseout="this.style.background='rgba(0,0,0,0.9)'; this.style.color='#00f2ff';"
+        >
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Instalar ARK
+        </button>
+    </div>
+
+    <script>
+        (function() {
+            let deferredPrompt = null;
+            const container = document.getElementById('pwa-install-container');
+            const btn = document.getElementById('pwa-install-btn');
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                              || window.navigator.standalone === true;
+
+            if (isStandalone || !container || !btn) return;
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                container.style.display = 'block';
+                container.classList.remove('hidden');
+            });
+
+            btn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    container.style.display = 'none';
+                }
+                deferredPrompt = null;
+            });
+
+            window.addEventListener('appinstalled', () => {
+                container.style.display = 'none';
+                deferredPrompt = null;
+            });
+        })();
+    </script>
+
+    {{-- ============================================================ --}}
+    {{-- PWA — Aviso para usuários iOS (Safari não tem install prompt) --}}
+    {{-- ============================================================ --}}
+    <div id="ios-pwa-tip"
+         style="display:none; position:fixed; bottom:80px; left:16px; right:16px;
+                z-index:9999; background: rgba(0,0,0,0.95);
+                border: 2px solid #00f2ff; border-radius: 16px;
+                padding: 16px; text-align:center;">
+        <p style="color:#00f2ff; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:2px; margin:0 0 4px;">
+            Instalar ARK RPG
+        </p>
+        <p style="color:#d1d5db; font-size:11px; margin:0;">
+            Toque em <strong>Compartilhar</strong> (⎙) → <strong>Adicionar à Tela de Início</strong>
+        </p>
+        <button
+            type="button"
+            onclick="localStorage.setItem('ios-pwa-dismissed','1'); this.parentElement.style.display='none';"
+            style="margin-top:8px; font-size:10px; color:#00f2ff; text-decoration:underline; background:none; border:none; cursor:pointer;">
+            Fechar
+        </button>
+    </div>
+
+    <script>
+        (function() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            const isStandalone = window.navigator.standalone === true;
+            const dismissed = localStorage.getItem('ios-pwa-dismissed');
+            const tip = document.getElementById('ios-pwa-tip');
+
+            if (isIOS && isSafari && !isStandalone && !dismissed && tip) {
+                setTimeout(() => {
+                    tip.style.display = 'block';
+                }, 3000);
+            }
+        })();
     </script>
 
     <style>

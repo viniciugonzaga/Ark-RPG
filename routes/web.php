@@ -31,7 +31,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/regras', [RegraController::class, 'index'])->name('regras');
 Route::get('/regras/download', [RegraController::class, 'download'])->name('regras.download');
-
+Route::get('/offline', fn() => view('offline'))->name('offline');
 Route::get('/jogo', function () {
     return view('jogo');
 })->name('jogo');

@@ -143,137 +143,7 @@
     </div>
 
     <style>
-        .atributos-container {
-    /* Torna o container "queryable" — cqw passa a existir */
-    container-type: inline-size;
-    container-name: atributos;
-    /* Remove o min-height fixo que causava drift */
-    min-height: 0 !important;
-    position: relative;
-    width: 100%;
-    margin: 0 auto;
-}
-
-.atributos-imagem {
-    display: block;
-    width: 100%;
-    height: auto;
-    /* Remove object-fit: contain — elimina letterbox */
-    object-fit: initial !important;
-}
-
-/* -------- Bolhas proporcionais ao container -------- */
-.atributo-bolha {
-    width: 22.4cqw !important;
-    height: 22.4cqw !important;
-    padding: 1.6cqw !important;
-    border-width: max(1px, 0.4cqw) !important;
-    box-shadow: 0 0 max(4px, 3cqw) var(--theme-glow) !important;
-}
-
-.atributo-sigla {
-    font-size: 3.2cqw !important;
-    letter-spacing: max(0.5px, 0.5cqw) !important;
-    margin-top: 4cqw !important;
-}
-
-.atributo-valor {
-    font-size: 6.3cqw !important;
-    margin: 0.5cqw 0 !important;
-}
-
-.atributo-controles {
-    gap: 2.1cqw !important;
-    margin-top: 0.5cqw !important;
-}
-
-.atributo-btn {
-    width: 6.3cqw !important;
-    height: 6.3cqw !important;
-    font-size: 4.2cqw !important;
-    border-width: max(1px, 0.25cqw) !important;
-}
-        /* -------- Responsivo adicional da página SHOW -------- */
-
-@media (max-width: 1080px) {
-    #capture-area { padding: 1.75rem 1.25rem !important; }
-    .ark-panel { border-radius: 12px; }
-    .ark-panel.\!p-8, .ark-panel.\!p-6 { padding: 1.25rem !important; }
-    .ark-panel h1.text-6xl { font-size: 3rem !important; }
-    .ark-panel .text-7xl { font-size: 3.5rem !important; }
-    .btn-neon { padding: 9px 16px !important; font-size: 0.75rem !important; letter-spacing: 0.15em !important; }
-    /* Container das bolhas ligeiramente menor */
-    .atributos-container { max-width: 340px; }
-}
-
-@media (max-width: 760px) {
-    #capture-area { padding: 1.25rem 1rem !important; }
-    .ark-panel.\!p-8, .ark-panel.\!p-6, .ark-panel.\!p-1 { padding: 1rem !important; }
-    .ark-panel h1.text-6xl { font-size: 2.25rem !important; letter-spacing: -1px !important; }
-    .ark-panel .text-7xl { font-size: 2.75rem !important; }
-
-    /* Header da ficha (nome + nível) — empilha em coluna */
-    .ark-panel .flex.flex-col.md\:flex-row { gap: 1rem !important; }
-    .ark-panel .flex.flex-col.md\:flex-row > div:last-child {
-        text-align: left !important;
-        border-left: 0 !important;
-        padding-left: 0 !important;
-        border-top: 1px solid var(--theme-border);
-        padding-top: 0.75rem;
-        min-width: 0 !important;
-    }
-
-    /* Barra de botões (Voltar/Editar/Compartilhar/PDF) */
-    #capture-area > .flex.justify-between.items-center {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 1rem !important;
-    }
-    #capture-area > .flex.justify-between.items-center > .flex.gap-4 {
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        gap: 0.5rem !important;
-    }
-    .btn-neon { padding: 8px 14px !important; font-size: 0.7rem !important; letter-spacing: 0.1em !important; }
-
-    /* Cards de mutações/bônus/poderes/rituais mais compactos */
-    .ark-panel .bg-black\/40.p-4 { padding: 0.75rem !important; }
-    .ark-panel .text-lg.font-medieval { font-size: 1rem !important; }
-
-    /* Container das bolhas */
-    .atributos-container { max-width: 300px; }
-}
-
-@media (max-width: 480px) {
-    #capture-area { padding: 0.85rem 0.65rem !important; }
-    .ark-panel.\!p-8, .ark-panel.\!p-6, .ark-panel.\!p-1 { padding: 0.75rem !important; }
-    .ark-panel h1.text-6xl { font-size: 1.75rem !important; letter-spacing: -0.5px !important; }
-    .ark-panel .text-7xl { font-size: 2rem !important; }
-    .ark-panel .text-3xl { font-size: 1.25rem !important; }
-
-    /* Status vitais na coluna 1 ficam mais enxutos */
-    .ark-panel .flex.justify-between.items-end span:last-child { font-size: 1.25rem !important; }
-
-    .btn-neon { padding: 7px 12px !important; font-size: 0.62rem !important; letter-spacing: 0.05em !important; }
-
-    /* Container das bolhas */
-    .atributos-container { max-width: 260px; }
-
-    /* Mutações/poderes textos menores */
-    .ark-panel .text-xs, .ark-panel .text-sm { font-size: 0.7rem !important; }
-
-    /* Botão flutuante de topo menor */
-    .fixed.bottom-6.right-6 button { padding: 0.65rem !important; }
-    .fixed.bottom-6.right-6 svg { width: 1rem !important; height: 1rem !important; }
-}
-
-@media (max-width: 300px) {
-    #capture-area { padding: 0.65rem 0.5rem !important; }
-    .ark-panel h1.text-6xl { font-size: 1.25rem !important; }
-    .ark-panel .text-7xl { font-size: 1.5rem !important; }
-    .atributos-container { max-width: 220px; }
-    .btn-neon { font-size: 0.55rem !important; padding: 6px 10px !important; }
-}
+        
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
         .font-medieval { font-family: 'Cinzel', serif; }
 
@@ -368,6 +238,69 @@
             .collapse-container { max-height:none !important;overflow:visible !important; }
             .collapse-container::after { display:none !important; }
         }
+
+@media (max-width: 1080px) {
+    #capture-area { padding: 1.75rem 1.25rem !important; }
+    .ark-panel { border-radius: 12px; }
+    .ark-panel.\!p-8, .ark-panel.\!p-6 { padding: 1.25rem !important; }
+    .ark-panel h1.text-6xl { font-size: 3rem !important; }
+    .ark-panel .text-7xl { font-size: 3.5rem !important; }
+    .btn-neon { padding: 9px 16px !important; font-size: 0.75rem !important; letter-spacing: 0.15em !important; }
+}
+
+@media (max-width: 760px) {
+    #capture-area { padding: 1.25rem 1rem !important; }
+    .ark-panel.\!p-8, .ark-panel.\!p-6, .ark-panel.\!p-1 { padding: 1rem !important; }
+    .ark-panel h1.text-6xl { font-size: 2.25rem !important; letter-spacing: -1px !important; }
+    .ark-panel .text-7xl { font-size: 2.75rem !important; }
+
+    .ark-panel .flex.flex-col.md\:flex-row { gap: 1rem !important; }
+    .ark-panel .flex.flex-col.md\:flex-row > div:last-child {
+        text-align: left !important;
+        border-left: 0 !important;
+        padding-left: 0 !important;
+        border-top: 1px solid var(--theme-border);
+        padding-top: 0.75rem;
+        min-width: 0 !important;
+    }
+
+    #capture-area > .flex.justify-between.items-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+    }
+    #capture-area > .flex.justify-between.items-center > .flex.gap-4 {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+    .btn-neon { padding: 8px 14px !important; font-size: 0.7rem !important; letter-spacing: 0.1em !important; }
+
+    .ark-panel .bg-black\/40.p-4 { padding: 0.75rem !important; }
+    .ark-panel .text-lg.font-medieval { font-size: 1rem !important; }
+}
+
+@media (max-width: 480px) {
+    #capture-area { padding: 0.85rem 0.65rem !important; }
+    .ark-panel.\!p-8, .ark-panel.\!p-6, .ark-panel.\!p-1 { padding: 0.75rem !important; }
+    .ark-panel h1.text-6xl { font-size: 1.75rem !important; letter-spacing: -0.5px !important; }
+    .ark-panel .text-7xl { font-size: 2rem !important; }
+    .ark-panel .text-3xl { font-size: 1.25rem !important; }
+
+    .ark-panel .flex.justify-between.items-end span:last-child { font-size: 1.25rem !important; }
+    .btn-neon { padding: 7px 12px !important; font-size: 0.62rem !important; letter-spacing: 0.05em !important; }
+    .ark-panel .text-xs, .ark-panel .text-sm { font-size: 0.7rem !important; }
+
+    .fixed.bottom-6.right-6 button { padding: 0.65rem !important; }
+    .fixed.bottom-6.right-6 svg { width: 1rem !important; height: 1rem !important; }
+}
+
+@media (max-width: 300px) {
+    #capture-area { padding: 0.65rem 0.5rem !important; }
+    .ark-panel h1.text-6xl { font-size: 1.25rem !important; }
+    .ark-panel .text-7xl { font-size: 1.5rem !important; }
+    .btn-neon { font-size: 0.55rem !important; padding: 6px 10px !important; }
+}
     </style>
 
     <div id="capture-area" class="relative py-12 px-6 max-w-7xl mx-auto mb-20 min-h-screen">
