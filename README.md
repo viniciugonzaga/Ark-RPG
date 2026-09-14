@@ -1,470 +1,536 @@
+<div class="container">
+
+<p align="center">
+  <img src="public/favicon.png" width="400">
+</p>
+
+<h1 align="center">Ark RPG</h1>
 # Ark RPG
 
-Plataforma web para gerenciamento de campanhas, personagens e sessões de um RPG inspirado no universo de sobrevivência, evolução e exploração de **ARK: Survival Evolved**.
+Plataforma web completa para gerenciamento de campanhas, personagens e sessões de um RPG inspirado no universo de sobrevivência, evolução e exploração de **ARK: Survival Evolved**.
 
-> Projeto independente criado por fã. ARK: Survival Evolved e seus elementos relacionados pertencem aos respectivos criadores e detentores de direitos.
+> **Aviso de direitos:** Projeto independente criado por fã. ARK: Survival Evolved e todos os seus elementos relacionados pertencem aos respectivos criadores e detentores de direitos. Este projeto não possui vínculo oficial com a desenvolvedora ou publicadora do jogo original.
 
 **Aplicação publicada:** [rpgark.com.br](https://rpgark.com.br)
 
-![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-7.x-646CFF?logo=vite&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.x-06B6D4?logo=tailwindcss&logoColor=white)
+---
 
-## Sumário
+## Índice
 
-- [Visão geral](#visão-geral)
-- [Funcionalidades](#funcionalidades)
-- [Stack](#stack)
+- [Visão Geral](#visão-geral)
+- [Destaques do Projeto](#destaques-do-projeto)
+- [Stack Tecnológica](#stack-tecnológica)
 - [Arquitetura](#arquitetura)
-- [Instalação local](#instalação-local)
-- [Configuração](#configuração)
-- [Módulos](#módulos)
+- [Funcionalidades](#funcionalidades)
 - [Rotas](#rotas)
-- [Modelo de dados](#modelo-de-dados)
-- [Segurança e autorização](#segurança-e-autorização)
-- [Frontend e assets](#frontend-e-assets)
-- [Deploy](#deploy)
-- [Testes](#testes)
-- [Limitações conhecidas](#limitações-conhecidas)
-- [Status](#status)
+- [Modelo de Dados](#modelo-de-dados)
+- [Segurança e Autorização](#segurança-e-autorização)
+- [Frontend e Assets](#frontend-e-assets)
+- [Ambientes](#ambientes)
+---
 
-## Visão geral
+## Visão Geral
 
-O Ark RPG centraliza fichas, rolagens, eventos, jogadores e sessões de mesa em uma aplicação Laravel. A interface foi criada com identidade visual própria, inspirada na estética tecnológica e selvagem de ARK.
+O **Ark RPG** é uma aplicação web desenvolvida em **Laravel 12** que centraliza toda a experiência de um sistema de RPG de mesa inspirado em ARK: Survival Evolved. O projeto foi criado para eliminar fichas físicas desorganizadas e oferecer uma plataforma profissional, intuitiva e imersiva para jogadores e mestres.
 
-A organização segue MVC:
+Toda a identidade visual é original, com estética tecnológica, selvagem e futurista, incluindo:
 
-- **Models** representam usuários, fichas, componentes de ficha, rolagens e sessões.
-- **Controllers** concentram os fluxos HTTP e regras de negócio.
-- **Views Blade** renderizam páginas e componentes.
-- **Routes** separam áreas públicas, autenticadas e de mestre.
-- **Migrations** versionam o banco.
-- **Middleware** protegem autenticação, verificação de e-mail e CSRF.
+- Interface com temas dinâmicos por origem e peculiaridade de personagem.
+- Sistema de atributos com árvore visual interativa.
+- Elementos de DNA, scanlines e efeitos neón personalizados.
+- Ícones, sprites e imagens temáticas próprias.
 
-## Funcionalidades
+---
 
-### Contas
+## Destaques do Projeto
 
-- Cadastro, login e logout.
-- Verificação e reenvio de verificação de e-mail.
-- Recuperação, redefinição e alteração de senha.
-- Confirmação de senha e exclusão da conta.
-- Perfil com foto/avatar.
-- `crystal_id` público gerado para cada usuário.
+O Ark RPG possui diferenciais técnicos e funcionais que o destacam como uma aplicação completa e robusta:
 
-O fluxo usa Laravel Breeze e está em `routes/auth.php` e `app/Http/Controllers/Auth`.
+### Sistema de Fichas Totalmente Personalizável
 
-### Fichas de personagem
+- Fichas de personagem com **identidade visual dinâmica** baseada em origem e peculiaridade.
+- **Tema de fundo configurável** por ficha, com upload de imagem personalizada.
+- Sistema de **mutações, bônus, poderes e rituais** dinâmicos e ilimitados.
+- Árvore de atributos **interativa** com posicionamento de pontos.
+- **Exportação em PDF** com modelo próprio, incluindo capa temática, atributos, história, inventário e todos os componentes.
+- **Compartilhamento por código** único com sistema de **resgate** que cria cópias completas.
 
-- CRUD completo de fichas.
-- Nome, nível, idade, origem, peculiaridade e lore.
-- Imagem do personagem e imagem de fundo.
-- Atributos e status de personagem.
-- Mutações, bônus, poderes de sobrevivente e rituais.
-- Arsenal armazenado como estrutura JSON/array.
-- Fixar e desafixar fichas.
-- Compartilhamento por código.
-- Resgate/cópia de ficha compartilhada.
-- Referência à ficha e ao personagem de origem.
+### Mesa Online com Visibilidade em Tempo Real
 
-O fluxo principal está em `CharacterController`; as views ficam em `resources/views/fichas`.
+- Criação de sessões com **código único** por mestre.
+- **Atualizações em tempo real** via Server-Sent Events (SSE).
+- Visualização instantânea das rolagens de todos os participantes.
+- Sistema de **reconexão automática** com fallback para polling.
+- Busca de jogadores por **Crystal ID** com consulta de últimas rolagens.
 
-### Rolagens e eventos
+### Livro de Regras Próprio
 
-- Rolagem de dados no frontend.
-- Uso de ficha, atributos e bônus.
-- Resultado de evento aleatório.
-- Carregamento de personagem em JSON.
-- Salvamento do último resultado.
-- Cadastro e atualização de armas no arsenal.
-- Eventos configurados em `config/eventos.php`, incluindo categorias de sobrevivência, efeitos, minérios, raridades, drops, traumas, joias, circuitos e crimes.
+- Manual completo do sistema RPG-Ark desenvolvido para o projeto.
+- Baseado em mecânicas consolidadas de sistemas famosos, adaptado para o universo ARK.
+- Página pública com download em PDF.
+- Sistema de **eventos aleatórios** com múltiplas categorias (sobrevivência, efeitos, itens, minérios, raridades, drops, traumas, joias, frutas).
 
-O comportamento atual salva o último registro de rolagem por usuário; não representa um histórico completo e imutável de todas as jogadas.
+### Progressive Web App (PWA)
 
-### Mesa do mestre
+- Aplicação **instalável** em Android, iOS, Windows e macOS.
+- **Service Worker** com estratégias diferenciadas de cache.
+- **Funciona offline** para páginas já visitadas.
+- **Atalhos rápidos** (Fichas, Rolagens, Criar Ficha).
+- Sistema de **verificação e aplicação de atualização** com controle manual.
+- Botão flutuante de instalação para visitantes.
+- Instruções específicas para iPhone.
 
-Usuários com `users.cargo = mestre` podem abrir a mesa, buscar jogadores por `crystal_id`, criar sessões, consultar participantes, acompanhar resultados e encerrar sessões.
+### Minijogo Criativo — Dino Runner
 
-### Sessões em tempo real
+- Inspirado no jogo offline do Chrome, mas com **engine própria**.
+- Sprites, sons e efeitos visuais originais.
+- Sistema de **recorde persistido** no servidor com fallback offline.
+- Dificuldade progressiva com spawn dinâmico de obstáculos.
+- Controles touch para mobile e suporte completo a teclado.
 
-Jogadores entram com um código, consultam sua sessão ativa e podem sair dela. A mesa recebe atualizações por **Server-Sent Events (SSE)** em `/sessao/stream`, com polling interno e heartbeat. A tabela intermediária impede o mesmo usuário de entrar duas vezes na mesma sessão.
+---
 
-### Manual de regras
-
-- Página pública: `/regras`.
-- Download: `/regras/download`.
-- Nome enviado ao navegador: `Manual-Ark-RPG.pdf`.
-- O controller espera o arquivo `public/pdfs/manual-ark.pdf`.
-
-No workspace atual existem `public/pdfs/Manual-Ark-RPG.pdf` e `public/pdfs/manual.pdf`, mas não `manual-ark.pdf`. Portanto, o download precisa ter o arquivo alinhado ao nome esperado antes de ser considerado funcional.
-
-### Minijogo e PWA
-
-- `/jogo` contém o minijogo.
-- `/dino-record` salva e consulta o recorde do usuário autenticado.
-- `public/manifest.webmanifest`, `public/sw.js` e `public/icons` fornecem a base PWA.
-- `/offline` fornece a view de contingência.
-
-## Stack
+## Stack Tecnológica
 
 ### Backend
 
-- PHP `^8.2`.
-- Laravel Framework `^12.0`.
-- Laravel Breeze `^2.4`.
-- Laravel Tinker `^2.10.1`.
-- Eloquent ORM e migrations.
-- Pest `^3.8` e PHPUnit.
-- `resend/resend-php` `^1.3`, disponível para integração de e-mail.
+| Tecnologia | Versão | Uso |
+| --- | --- | --- |
+| PHP | ^8.2 | Linguagem base |
+| Laravel Framework | ^12.0 | Framework principal |
+| Laravel Breeze | ^2.4 | Autenticação scaffold |
+| Laravel Tinker | ^2.10.1 | REPL para debug |
+| Eloquent ORM | — | Mapeamento objeto-relacional |
+| Pest | ^3.8 | Framework de testes |
+| PHPUnit | — | Suíte de testes subjacente |
+| Resend PHP | ^1.3 | Integração de e-mail em produção |
 
 ### Frontend
 
-- Blade.
-- JavaScript modular.
-- Alpine.js.
-- Tailwind CSS `^3.1`.
-- Vite `^7.0.7`.
-- Laravel Vite Plugin.
-- Axios, PostCSS e Autoprefixer.
+| Tecnologia | Versão | Uso |
+| --- | --- | --- |
+| Blade | — | Sistema de templates |
+| Alpine.js | — | Interatividade client-side |
+| Tailwind CSS | ^3.1 | Framework CSS utility-first |
+| Vite | ^7.0.7 | Build tool e dev server |
+| Laravel Vite Plugin | — | Integração Vite-Laravel |
+| Axios | — | Requisições HTTP |
+| PostCSS | — | Processamento CSS |
+| Autoprefixer | — | Prefixos CSS automáticos |
 
-### Infraestrutura publicada
+### Infraestrutura
 
-A configuração registrada para produção utiliza Hostinger, domínio no Registro.br, SSL, MySQL externo e deploy manual com arquivos públicos direcionados para `public_html`. Credenciais e detalhes do painel não fazem parte do repositório.
+| Componente | Detalhe |
+| --- | --- |
+| Hospedagem | Hostinger (plano compartilhado) |
+| Domínio | Registro.br (rpgark.com.br) |
+| SSL | Ativo (obrigatório para PWA) |
+| Banco de dados | MySQL |
+| Deploy | Manual via Git + configuração de public_html |
+
+---
 
 ## Arquitetura
 
-```text
+O projeto segue rigorosamente o padrão **MVC** do Laravel:
 Ark-RPG/
 ├── app/
-│   ├── Http/Controllers/       # Controllers web e autenticação
-│   ├── Http/Requests/          # Validações reutilizáveis
-│   ├── Http/ViewComposers/     # Dados compartilhados com views
-│   ├── Models/                 # Entidades Eloquent
-│   └── View/Components/        # Componentes Blade
-├── bootstrap/cache/            # Cache gerado pelo Laravel
-├── config/eventos.php          # Eventos aleatórios
+│ ├── Http/Controllers/ Controllers web e autenticação
+│ ├── Http/Requests/ Validações reutilizáveis
+│ ├── Http/ViewComposers/ Dados compartilhados com views
+│ ├── Models/ Entidades Eloquent
+│ └── View/Components/ Componentes Blade
+├── bootstrap/cache/ Cache gerado pelo Laravel
+├── config/
+│ └── eventos.php Configuração de eventos aleatórios
 ├── database/
-│   ├── factories/
-│   ├── migrations/
-│   └── seeders/
+│ ├── factories/
+│ ├── migrations/
+│ └── seeders/
 ├── public/
-│   ├── build/                  # Saída do Vite
-│   ├── images/                 # Imagens, sprites e fundos
-│   ├── icons/                  # Ícones PWA
-│   ├── pdfs/                   # Manuais
-│   ├── manifest.webmanifest
-│   └── sw.js
+│ ├── build/ Saída compilada do Vite
+│ ├── images/ Imagens, sprites e fundos temáticos
+│ ├── icons/ Ícones PWA
+│ ├── pdfs/ Manuais em PDF
+│ ├── manifest.webmanifest Manifest PWA
+│ └── sw.js Service Worker
 ├── resources/
-│   ├── css/
-│   ├── js/
-│   └── views/
-├── routes/web.php
-├── routes/auth.php
+│ ├── css/
+│ ├── js/
+│ └── views/
+├── routes/
+│ ├── web.php
+│ └── auth.php
 ├── storage/
 ├── tests/
 ├── composer.json
 ├── package.json
 └── vite.config.js
-```
 
-## Requisitos
+### Padrões Arquiteturais
 
-- PHP 8.2+.
-- Composer.
-- Node.js e npm compatíveis com Vite 7.
-- SQLite ou MySQL.
-- Extensões PHP exigidas pelo Laravel e dependências.
-- Permissão de escrita em `storage`, `bootstrap/cache` e diretórios de upload.
+- **Models** representam usuários, fichas, componentes de ficha, rolagens e sessões.
+- **Controllers** concentram fluxos HTTP e regras de negócio.
+- **Views Blade** renderizam páginas e componentes com identidade visual própria.
+- **Routes** separam áreas públicas, autenticadas e de mestre.
+- **Migrations** versionam o banco de dados.
+- **Middleware** protegem autenticação, verificação de e-mail e CSRF.
 
-No Windows, OneDrive ou outro sincronizador pode reaplicar o atributo somente leitura. Se `package:discover` falhar, confirme `is_writable('bootstrap/cache')` e remova o atributo com `attrib -R bootstrap\cache /S /D`.
+---
 
-## Instalação local
+## Funcionalidades
 
-```powershell
-composer install
-Copy-Item .env.example .env
-php artisan key:generate
-npm install
-npm run build
-php artisan storage:link
-php artisan serve
-```
+### Sistema de Conta
 
-No Prompt de Comando, use `copy .env.example .env` no lugar de `Copy-Item`.
+- Cadastro, login e logout completos.
+- Verificação e reenvio de verificação de e-mail.
+- Recuperação, redefinição e alteração de senha.
+- Confirmação de senha e exclusão da conta.
+- Perfil com foto/avatar e personalização visual.
+- Crystal ID público gerado automaticamente para cada usuário (formato `CRY-XXXXXXXX`).
+- Cargo de usuário (`jogador` ou `mestre`) que define permissões de acesso à mesa.
 
-### Banco SQLite
+Fluxo implementado com Laravel Breeze em `routes/auth.php` e `app/Http/Controllers/Auth`.
 
-O `.env.example` usa SQLite:
+### Fichas de Personagem
 
-```env
-DB_CONNECTION=sqlite
-```
+O sistema de fichas é o núcleo do projeto, com personalização completa:
 
-Crie o arquivo e execute as migrations:
-
-```powershell
-New-Item database\database.sqlite -ItemType File -Force
-php artisan migrate
-```
-
-### Banco MySQL
-
-Configure no `.env`:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=nome_do_banco
-DB_USERNAME=usuario
-DB_PASSWORD=senha
-```
-
-Depois:
-
-```powershell
-php artisan migrate
-```
-
-### Desenvolvimento completo
-
-```powershell
-composer run dev
-```
-
-O script inicia `php artisan serve`, o listener de fila, Laravel Pail e `npm run dev` simultaneamente. Para executar somente o Vite com hot reload, use `npm run dev` em outro terminal.
-
-## Configuração
-
-As variáveis disponíveis estão em `.env.example`.
-
-| Grupo | Variáveis principais |
+| Recurso | Descrição |
 | --- | --- |
-| Aplicação | `APP_NAME`, `APP_ENV`, `APP_KEY`, `APP_DEBUG`, `APP_URL`, `APP_LOCALE` |
-| Banco | `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` |
-| Sessão | `SESSION_DRIVER`, `SESSION_LIFETIME`, `SESSION_DOMAIN` |
-| Cache/fila | `CACHE_STORE`, `QUEUE_CONNECTION` |
-| Arquivos | `FILESYSTEM_DISK` |
-| E-mail | `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` |
-| Frontend | `VITE_APP_NAME` |
+| Identificação | Nome, nível, idade, origem (classe principal) e peculiaridade (subclasse) |
+| Aparência | Upload de imagem com processamento e preview |
+| Tema de Fundo | Imagem personalizada com suporte a múltiplos formatos (JPG, PNG, WEBP, GIF, BMP) |
+| Validação de Upload | Tamanho entre 10 KB e 8 MB com feedback visual em caso de erro |
+| Atributos | Força (FOR), Agilidade (AGI), Inteligência (INT), Vigor (VIG) e Sorte (SET) |
+| Status Vitais | Vida, Armadura, Determinação, Fôlego e Resistência |
+| Lore | Campo de texto rico para história do personagem |
+| Arsenal | Estrutura JSON/array para armas e equipamentos |
+| Componentes | Mutações, bônus, poderes de sobrevivente e rituais ilimitados |
+| Fixação | Até 3 fichas fixadas por usuário para acesso rápido |
+| Compartilhamento | Código único para outro jogador resgatar uma cópia |
+| Resgate | Criação de cópia completa com referência à ficha original |
+| Exportação | Geração de PDF com design próprio e completo |
 
-O exemplo usa `MAIL_MAILER=log`, apropriado para desenvolvimento. Verificação de e-mail e recuperação de senha exigem um mailer real em produção. O pacote Resend está instalado, mas sua ativação depende da configuração do ambiente.
+Fluxo principal em `CharacterController`. Views em `resources/views/fichas`.
 
-## Comandos úteis
+### Sistema de Rolagens
 
-```powershell
-composer run setup                 # Instalação completa definida no composer.json
-composer run dev                   # Servidor, fila, logs e Vite
-composer run test                  # Limpa config e executa testes
-php artisan serve                  # Servidor HTTP local
-php artisan route:list              # Rotas registradas
-php artisan migrate:status         # Estado das migrations
-php artisan migrate                 # Executa migrations
-php artisan migrate:fresh --seed   # Recria o banco local; destrutivo
-php artisan optimize:clear         # Limpa caches Laravel
-php artisan storage:link            # Link de armazenamento público
-composer dump-autoload             # Recria autoload e dispara scripts Composer
-npm run dev                        # Vite com hot reload
-npm run build                      # Build de produção
-php artisan test                   # Testes
-```
-
-## Módulos e arquivos principais
-
-| Arquivo/módulo | Responsabilidade |
+| Recurso | Descrição |
 | --- | --- |
-| `HomeController` | Página inicial |
-| `CharacterController` | Fichas, uploads, compartilhamento, resgate e fixação |
-| `RollController` | Fichas para rolagem, resultados e arsenal |
-| `MasterController` | Mesa, busca, participantes e encerramento |
-| `SessionController` | Entrada, saída, consulta e SSE |
-| `RegraController` | Página e download do manual |
-| `MediaController` | Entrega de mídias |
-| `ProfileController` | Perfil Breeze, avatar, senha e conta |
-| `PerfilController` | Perfil simplificado |
-| `DinoController` | Recorde do minijogo |
-| `resources/views/fichas` | Views do CRUD de fichas |
-| `resources/views/rolagens` | Interface de rolagens |
-| `resources/views/master` | Mesa e sessão do mestre |
-| `resources/views/session` | Entrada e sessão do jogador |
-| `resources/views/auth` | Telas de autenticação |
-| `resources/views/regras` | Manual |
+| Dados | D4, D6, D8, D10, D12, D20, D100 com animação 3D |
+| Uso de Ficha | Atributos e bônus carregados diretamente da ficha selecionada |
+| Modos | Somar Tudo ou Maior Valor |
+| Bônus Manual | Atalhos rápidos (+5, +10, +15, +20, +25, +30) |
+| Eventos | Sistema completo de eventos aleatórios do mundo ARK |
+| Crítico | Popup animado para 20 Natural |
+| Histórico | Persistência do último resultado por usuário |
+| Armas | Cadastro de fórmulas de acerto e dano com rolagem automatizada |
+
+Eventos configurados em `config/eventos.php`, cobrindo:
+
+- Sobrevivência
+- Efeitos
+- Itens
+- Minérios
+- Raridades
+- Drops
+- Traumas
+- Joias
+- Frutas
+
+### Mesa Online em Tempo Real
+
+| Recurso | Descrição |
+| --- | --- |
+| Criação | Mestre gera código único de sessão |
+| Entrada | Jogadores entram usando o código |
+| Tempo Real | Rolagens visíveis instantaneamente para todos |
+| Protocolo | Server-Sent Events (SSE) com heartbeat e polling de fallback |
+| Busca | Consulta de jogadores por Crystal ID |
+| Encerramento | Mestre pode encerrar a mesa |
+| Controle | Impede entrada duplicada na mesma sessão |
+
+A comunicação SSE é implementada em `/sessao/stream` com estratégia de reconexão automática. O componente `<x-rolagens-sistema>` é reutilizado tanto na página do mestre quanto na do jogador.
+
+### Manual de Regras
+
+- Página pública em `/regras` com design temático e efeito de scanner animado.
+- Download do PDF do manual oficial.
+- Seção dedicada ao Ark Mobile (PWA) com botão de instalação e verificação de atualização.
+- Meta tags de prévia social (Open Graph e Twitter Cards) para compartilhamento.
+- Sistema de eventos aleatórios integrado.
+
+### Minijogo Dino Runner
+
+| Recurso | Descrição |
+| --- | --- |
+| Engine | Física customizada de pulo, gravidade, agachamento e colisão |
+| Sprites | Dino correndo, pulando, agachando e morte |
+| Obstáculos | Cactos variados e pássaros (desbloqueados após 16 segundos) |
+| Recorde | Persistido no servidor com fallback em localStorage |
+| Efeitos | Estrelas, nuvens animadas, ondas de terreno e grade neon |
+| Áudio | Efeitos sonoros gerados via Web Audio API |
+| Dificuldade | Progressiva com spawn dinâmico de obstáculos |
+| Responsividade | Controles touch para mobile e suporte a teclado |
+
+### PWA — Ark Mobile
+
+| Recurso | Descrição |
+| --- | --- |
+| Manifest | Nome, ícones, cores e atalhos rápidos |
+| Service Worker | Estratégias de cache diferenciadas |
+| Instalação | Botão flutuante e fluxo guiado |
+| Offline | Cache de páginas visitadas com view de contingência |
+| Atualização | Verificação manual e aplicação com reinício |
+| iPhone | Instruções específicas para instalação no Safari |
+| Standalone | Detecção de execução como app e ocultação de botões |
+
+Estratégias de cache do Service Worker:
+
+| Recurso | Estratégia |
+| --- | --- |
+| Assets estáticos (CSS, JS, imagens, fontes) | Cache-first |
+| Páginas HTML | Network-first com fallback offline |
+| Imagens de usuário (/media/) | Cache-first |
+| Rotas sensíveis | Sem cache |
+
+Rotas excluídas do cache:
+
+- `/sessao/stream`
+- `/dino-record`
+- `/rolagens/save`
+- `/rolagens/arma`
+- `/mestre/*`
+- `/sessao/*`
+- `/profile/*`
+
+---
 
 ## Rotas
 
 Use `php artisan route:list` para conferir a assinatura exata do ambiente atual.
 
-### Públicas
+### Rotas Públicas
 
 | Método | URI | Identificação |
 | --- | --- | --- |
-| `GET` | `/` | Página inicial, nome `home` |
-| `GET` | `/regras` | Página de regras, nome `regras` |
-| `GET` | `/regras/download` | Download, nome `regras.download` |
-| `GET` | `/offline` | View offline |
-| `GET` | `/jogo` | Minijogo |
-| `GET` | `/media/{path}` | Entrega de mídia |
+| GET | / | Página inicial (home) |
+| GET | /regras | Página de regras |
+| GET | /regras/download | Download do PDF do manual |
+| GET | /offline | View de contingência offline |
+| GET | /jogo | Minijogo Dino Runner |
+| GET | /media/{path} | Entrega de mídia |
 
-O projeto também possui rotas de manutenção/diagnóstico como `/criar-link-storage`, `/limpar-cache` e `/test-419`. Elas devem ser protegidas ou removidas em produção.
+### Rotas Autenticadas
 
-### Fichas
+Exigem `auth` e `verified`.
 
-Todas exigem `auth` e `verified`:
-
-| Método | URI | Operação |
-| --- | --- | --- |
-| `GET` | `/fichas` | Listar |
-| `GET` | `/fichas/create` | Formulário |
-| `POST` | `/fichas` | Criar |
-| `GET` | `/fichas/{ficha}` | Visualizar |
-| `GET` | `/fichas/{ficha}/edit` | Editar |
-| `PUT/PATCH` | `/fichas/{ficha}` | Atualizar |
-| `DELETE` | `/fichas/{ficha}` | Excluir |
-| `POST` | `/fichas/{ficha}/share` | Compartilhar |
-| `POST` | `/fichas/resgatar` | Resgatar |
-| `POST` | `/fichas/{ficha}/pin` | Fixar/desafixar |
-
-### Rolagens
-
-Também exigem `auth` e `verified`:
+#### Fichas
 
 | Método | URI | Operação |
 | --- | --- | --- |
-| `GET` | `/rolagens` | Interface |
-| `GET` | `/rolagens/char/{id}` | Ficha em JSON |
-| `POST` | `/rolagens/save` | Último resultado |
-| `POST` | `/rolagens/arma/salvar` | Arsenal |
+| GET | /fichas | Listar fichas |
+| GET | /fichas/create | Formulário de criação |
+| POST | /fichas | Criar ficha |
+| GET | /fichas/{ficha} | Visualizar ficha |
+| GET | /fichas/{ficha}/edit | Editar ficha |
+| PUT/PATCH | /fichas/{ficha} | Atualizar ficha |
+| DELETE | /fichas/{ficha} | Excluir ficha |
+| POST | /fichas/{ficha}/share | Gerar código de compartilhamento |
+| POST | /fichas/resgatar | Resgatar ficha por código |
+| POST | /fichas/{ficha}/pin | Fixar/desafixar ficha |
 
-### Perfil, jogo e recorde
-
-| Método | URI | Operação |
-| --- | --- | --- |
-| `GET` | `/perfil` | Perfil da aplicação |
-| `GET` | `/profile` | Perfil Breeze |
-| `PATCH` | `/profile` | Atualizar perfil |
-| `DELETE` | `/profile` | Excluir conta |
-| `GET` | `/dino-record` | Consultar recorde |
-| `POST` | `/dino-record` | Salvar recorde |
-
-### Mestre
-
-Exigem autenticação; o controller verifica `cargo = mestre`:
+#### Rolagens
 
 | Método | URI | Operação |
 | --- | --- | --- |
-| `GET` | `/mestre/mesa` | Abrir mesa |
-| `GET` | `/mestre/buscar/{crystalId}` | Buscar jogador |
-| `POST` | `/mestre/criar-mesa` | Criar sessão |
-| `GET` | `/mestre/sessao/{code}` | Abrir sessão |
-| `GET` | `/mestre/sessao/{code}/participantes` | Listar participantes |
-| `POST` | `/mestre/sessao/{code}/encerrar` | Encerrar sessão |
+| GET | /rolagens | Interface de rolagens |
+| GET | /rolagens/char/{id} | Carregar ficha em JSON |
+| POST | /rolagens/save | Salvar último resultado |
+| POST | /rolagens/arma/salvar | Salvar arma no arsenal |
 
-### Sessão de jogador
+#### Perfil, Jogo e Recorde
 
 | Método | URI | Operação |
 | --- | --- | --- |
-| `GET` | `/sessao/entrar` | Formulário |
-| `POST` | `/sessao/entrar` | Entrar por código |
-| `GET` | `/sessao/minha-sessao` | Consultar sessão |
-| `GET` | `/sessao/stream` | Stream SSE |
-| `POST` | `/sessao/sair` | Sair |
+| GET | /perfil | Perfil da aplicação |
+| GET | /profile | Perfil Breeze |
+| PATCH | /profile | Atualizar perfil |
+| DELETE | /profile | Excluir conta |
+| GET | /dino-record | Consultar recorde |
+| POST | /dino-record | Salvar recorde |
 
-As rotas de autenticação Breeze incluem registro, login, logout, verificação de e-mail, recuperação de senha, confirmação e atualização de senha em `routes/auth.php`.
+### Rotas do Mestre
 
-## Modelo de dados
+Exigem autenticação. O controller verifica `cargo = mestre`.
 
-### `User` / `users`
+| Método | URI | Operação |
+| --- | --- | --- |
+| GET | /mestre/mesa | Abrir painel da mesa |
+| GET | /mestre/buscar/{crystalId} | Buscar jogador |
+| POST | /mestre/criar-mesa | Criar sessão |
+| GET | /mestre/sessao/{code} | Abrir sessão |
+| GET | /mestre/sessao/{code}/participantes | Listar participantes |
+| POST | /mestre/sessao/{code}/encerrar | Encerrar sessão |
 
-Conta autenticada, com nome, e-mail, senha, `email_verified_at`, `crystal_id`, `cargo`, foto e recorde do minijogo. Possui muitas fichas e gera o `crystal_id` no evento `creating`.
+### Rotas de Sessão de Jogador
 
-### `Character` / `fichas`
+| Método | URI | Operação |
+| --- | --- | --- |
+| GET | /sessao/entrar | Formulário de entrada |
+| POST | /sessao/entrar | Entrar por código |
+| GET | /sessao/minha-sessao | Consultar sessão ativa |
+| GET | /sessao/stream | Stream SSE em tempo real |
+| POST | /sessao/sair | Sair da sessão |
 
-Ficha pertencente a um usuário. Contém identificação, imagens, nível, idade, origem, peculiaridade, lore, arsenal, atributos, status, compartilhamento, pin e referências de origem. Relaciona-se com `User`, `Mutation`, `Bonus`, `SurvivorPower` e `Ritual`.
+### Rotas de Autenticação
 
-### Componentes de ficha
+Implementadas pelo Laravel Breeze em `routes/auth.php`:
 
-- `Mutation` / `mutations`.
-- `Bonus` / `bonuses`.
-- `SurvivorPower` / `survivor_powers`.
-- `Ritual` / `rituals`.
+- Registro
+- Login e logout
+- Verificação de e-mail
+- Recuperação de senha
+- Confirmação de senha
+- Atualização de senha
 
-### Rolagens e sessões
+---
 
-- `RollLog` / `roll_logs`: usuário, ficha, resultado dos dados e evento.
-- `Rolagem`: modelo separado com `ficha_id`, `dados` e `evento`.
-- `Session` / `game_sessions`: sessão e usuário mestre.
-- `SessionParticipant` / `game_session_participants`: participantes.
+## Modelo de Dados
+
+### User (users)
+
+| Campo | Descrição |
+| --- | --- |
+| id | Identificador único |
+| name | Nome do usuário |
+| email | E-mail |
+| password | Senha criptografada |
+| crystal_id | Identificador público único |
+| cargo | jogador ou mestre |
+| foto | Caminho do avatar |
+| dino_record | Recorde do minijogo |
+
+Relacionamento: possui muitas fichas. Gera `crystal_id` no evento `creating`.
+
+### Character (fichas)
+
+| Campo | Descrição |
+| --- | --- |
+| id | Identificador único |
+| user_id | Proprietário |
+| name | Nome do personagem |
+| image | Imagem do personagem |
+| background_image | Imagem de fundo personalizada |
+| level | Nível |
+| age | Idade |
+| class_main | Origem |
+| class_sub | Peculiaridade |
+| lore | História do personagem |
+| arsenal | Armas e equipamentos (JSON) |
+| for, agi, int, set, vig | Atributos |
+| vida, armadura, determinacao, folego, resistencia | Status vitais |
+| share_code | Código de compartilhamento |
+| is_resgatada | Indica se foi resgatada |
+| is_pinned | Indica se está fixada |
+| original_user_id | Usuário criador original |
+| original_character_id | Ficha original |
+
+Relacionamentos: User, Mutation, Bonus, SurvivorPower, Ritual.
+
+### Componentes de Ficha
+
+| Modelo | Tabela | Descrição |
+| --- | --- | --- |
+| Mutation | mutations | Mutações genéticas |
+| Bonus | bonuses | Bônus incrementais |
+| SurvivorPower | survivor_powers | Poderes de sobrevivente |
+| Ritual | rituals | Rituais e pactos |
+
+### Rolagens e Sessões
+
+| Modelo | Tabela | Descrição |
+| --- | --- | --- |
+| RollLog | roll_logs | Último resultado de rolagem |
+| Session | game_sessions | Sessão de mesa |
+| SessionParticipant | game_session_participants | Participantes de sessão |
 
 ### Infraestrutura Laravel
 
-O schema também inclui `sessions`, `password_reset_tokens`, `cache` e `cache_locks`, conforme migrations e configuração do ambiente.
+- sessions
+- password_reset_tokens
+- cache
+- cache_locks
 
-## Segurança e autorização
+---
 
-- Guard padrão `web`.
-- CSRF nos formulários protegidos.
-- Fichas, rolagens, perfil e recorde usam `auth` e `verified`.
-- Mesa e sessões usam autenticação.
-- Mestre é identificado pelo campo `users.cargo`, sem guard separado.
-- Propriedade de ficha é verificada comparando `user_id` com o usuário autenticado.
-- Não foram encontrados Policies ou Gates específicos; as regras estão nos controllers.
+## Segurança e Autorização
 
-Ao evoluir o projeto, regras sensíveis devem ser centralizadas em Policies/Gates e as rotas de manutenção devem ser protegidas ou removidas do ambiente público.
+### Mecanismos Implementados
 
-## Frontend e assets
+- Guard padrão `web` para autenticação de sessão.
+- CSRF em todos os formulários protegidos.
+- Middleware `auth` e `verified` em rotas de fichas, rolagens, perfil e recorde.
+- Middleware `auth` em rotas de mestre e sessões.
+- Verificação de propriedade de ficha por comparação de `user_id`.
+- Cargo de mestre identificado pelo campo `users.cargo`.
+- Upload seguro com validação de MIME type, extensão e tamanho.
+- Códigos de compartilhamento gerados com `Str::random(8)` e verificados quanto a unicidade.
 
-`vite.config.js` compila `resources/css/app.css` e `resources/js/app.js` usando `laravel-vite-plugin`. O frontend combina Blade, Tailwind, Alpine.js, Axios e JavaScript próprio.
+### Recomendações Futuras
 
-- `public/images`: fundos, cartas, sprites e imagens temáticas.
-- `public/img`: logo e imagens auxiliares.
-- `public/pdfs`: manuais.
-- `public/icons`: ícones PWA.
-- `public/build`: saída compilada.
-- `public/storage`: armazenamento público/link simbólico.
+- Centralizar regras sensíveis em Policies/Gates.
+- Proteger ou remover rotas de manutenção (`/limpar-cache`, `/criar-link-storage`, `/test-419`).
+- Implementar rate limiting em rotas de autenticação e APIs.
+- Adicionar logging de auditoria para ações críticas.
 
-## Deploy
+---
 
-1. Configure `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` e uma `APP_KEY` segura.
-2. Configure MySQL, sessão, cache, fila, filesystem e mailer.
-3. Execute `composer install --no-dev --optimize-autoloader`.
-4. Gere ou publique os assets com `npm run build`.
-5. Execute `php artisan migrate --force` depois de validar backup.
-6. Garanta escrita em `storage` e `bootstrap/cache`.
-7. Execute `php artisan storage:link` quando suportado.
-8. Aponte o document root para `public` ou publique corretamente o conteúdo público em `public_html`.
-9. Confirme HTTPS, assets, uploads, e-mail e download do manual.
-10. Restrinja endpoints de manutenção e diagnóstico.
+## Frontend e Assets
 
-A infraestrutura registrada do projeto usa Hostinger e domínio no Registro.br. Segredos, credenciais e dados do painel nunca devem ser commitados.
+O frontend combina Blade, Tailwind CSS, Alpine.js, Axios e JavaScript próprio.
 
-## Testes
+### Estrutura
 
-Os testes ficam em `tests/Feature` e `tests/Unit`, usando Pest, PHPUnit e a configuração de `phpunit.xml`. O ambiente de teste utiliza SQLite em memória.
+| Diretório | Conteúdo |
+| --- | --- |
+| public/images | Fundos temáticos, sprites, ícones de eventos e watermarks |
+| public/img | Logos e imagens auxiliares |
+| public/pdfs | Manuais em PDF |
+| public/icons | Ícones PWA (192, 512, maskable, apple-touch) |
+| public/build | Saída compilada do Vite |
+| public/storage | Armazenamento público (link simbólico) |
 
-```powershell
-php artisan test
-composer run test
-```
+### Views
 
-Integrações que dependem de MySQL, mailer real, serviços externos ou arquivos da hospedagem precisam de validação específica além da suíte local.
+| Diretório | Responsabilidade |
+| --- | --- |
+| views/fichas | CRUD de fichas (index, create, edit, show) |
+| views/rolagens | Interface de rolagens e mesa |
+| views/master | Mesa e sessão do mestre |
+| views/session | Entrada e sessão do jogador |
+| views/auth | Telas de autenticação |
+| views/regras | Manual do sobrevivente |
+| views/components | Componentes Blade reutilizáveis |
+| views/layouts | Layouts mestre e navegação |
 
-## Limitações conhecidas
+---
 
-- **Download do manual:** o controller espera `public/pdfs/manual-ark.pdf`, mas o workspace possui `Manual-Ark-RPG.pdf` e `manual.pdf`; alinhar o nome é necessário.
-- **PDF de ficha:** há parciais Blade com aparência de PDF, mas não há biblioteca, rota ou chamada backend confirmada para exportar uma ficha.
-- **Histórico:** o fluxo atual salva o último `RollLog`, não um histórico completo.
-- **Perfis:** `/perfil` e `/profile` são áreas parcialmente sobrepostas.
-- **Autorização:** não há Policies/Gates específicos.
-- **Rotas de manutenção:** limpeza de cache, criação de link e diagnóstico precisam de revisão para produção.
-- **Migrations:** há migrations defensivas/duplicadas para alguns campos e uma migration em caminho incomum dentro de `database/migrations/database`; revisar antes de reconstruir o banco.
-- **SSE:** o stream tem duração limitada e polling interno; não é um sistema de broadcasting persistente.
-- **E-mail:** o exemplo usa `MAIL_MAILER=log`; produção exige um mailer real.
+## Ambientes
 
-## Status
+### Ambiente Local (Desenvolvimento)
 
-O projeto possui uma base funcional para autenticação, fichas, componentes de personagem, rolagens, eventos, sessões de mesa, perfil, minijogo, manual e PWA. Continua em expansão, com próximos pontos naturais de consolidação em autorização, PDF de ficha, histórico de rolagens, migrations, perfis e alinhamento do arquivo do manual.
+- Repositório completo versionado em Git.
+- Configuração via `.env` local com SQLite ou MySQL.
+- Execução via `php artisan serve` combinado com `npm run dev`.
+- PWA funciona em `localhost` (considerado contexto seguro).
 
-## Créditos
+### Ambiente de Produção (Hostinger)
 
-Ark RPG é um projeto independente criado por fã para adaptação e uso em RPG. Os direitos sobre ARK: Survival Evolved permanecem com seus respectivos detentores.
+- Hospedagem compartilhada Hostinger.
+- Domínio registrado no Registro.br.
+- Banco de dados MySQL.
+- SSL ativo.
+- Deploy manual via Git com arquivos públicos direcionados para `public_html`.
+- Detalhes de credenciais e configuração do painel não fazem parte do repositório.
