@@ -237,6 +237,276 @@
             .carousel-control { width: 32px; height: 32px; }
         }
     </style>
+
+    {{-- ============================================================ --}}
+    {{-- PWA — Estilos do botão, dot e modal                           --}}
+    {{-- ============================================================ --}}
+    <style>
+        /* ─── Container raiz (fixado no canto) ─── */
+        #pwa-install-root {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 9998;
+            display: none;
+        }
+        #pwa-install-root.pwa-visible { display: block; }
+
+        /* Wrapper do botão — mantém o X ancorado no canto */
+        .pwa-btn-wrapper {
+            position: relative;
+            display: inline-block;
+            animation: pwa-fade-in 0.5s ease;
+        }
+        @keyframes pwa-fade-in {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── Botão principal (dot / pill) ─── */
+        .pwa-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 9999px;
+            background: rgba(0, 0, 0, 0.92);
+            border: 2px solid #00f2ff;
+            color: #00f2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            box-shadow: 0 0 22px rgba(0, 242, 255, 0.55),
+                        0 0 40px rgba(0, 242, 255, 0.25);
+            transition: transform 0.3s cubic-bezier(.2,.9,.3,1.4),
+                        box-shadow 0.3s ease,
+                        background 0.25s ease,
+                        width 0.35s cubic-bezier(.2,.9,.3,1.2),
+                        padding 0.35s cubic-bezier(.2,.9,.3,1.2);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .pwa-btn:hover {
+            transform: scale(1.06);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.8),
+                        0 0 60px rgba(0, 242, 255, 0.35);
+        }
+        .pwa-btn:active { transform: scale(0.96); }
+
+        /* Ponto central pulsante */
+        .pwa-btn-core {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00f2ff;
+            box-shadow: 0 0 10px #00f2ff,
+                        0 0 20px rgba(0, 242, 255, 0.6);
+            animation: pwa-pulse 2.4s ease-in-out infinite;
+            flex-shrink: 0;
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+        @keyframes pwa-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.55; transform: scale(0.8); }
+        }
+
+        /* Texto (oculto até expandir) */
+        .pwa-label {
+            display: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 11px;
+            color: #00f2ff;
+            padding-left: 10px;
+        }
+
+        /* Estado expandido (pill) */
+        .pwa-btn.pwa-expanded {
+            width: auto;
+            padding: 0 22px 0 18px;
+            border-radius: 9999px;
+        }
+        .pwa-btn.pwa-expanded .pwa-btn-core {
+            animation: none;
+            width: 10px;
+            height: 10px;
+        }
+        .pwa-btn.pwa-expanded .pwa-label { display: inline-block; }
+
+        /* Estado "baixando" — spinner no lugar do dot */
+        .pwa-btn-core.pwa-loading {
+            width: 16px;
+            height: 16px;
+            background: transparent;
+            border: 2px solid rgba(0, 242, 255, 0.25);
+            border-top-color: #00f2ff;
+            border-radius: 50%;
+            box-shadow: none;
+            animation: pwa-spin 0.8s linear infinite !important;
+        }
+        @keyframes pwa-spin { to { transform: rotate(360deg); } }
+
+        /* Spinner grande dentro do modal */
+        .pwa-spinner-large {
+            width: 38px;
+            height: 38px;
+            border: 3px solid rgba(0, 242, 255, 0.22);
+            border-top-color: #00f2ff;
+            border-radius: 50%;
+            animation: pwa-spin 0.8s linear infinite;
+        }
+
+        /* ─── X de fechar (canto superior direito do botão) ─── */
+        .pwa-dismiss-btn {
+            position: absolute;
+            top: -7px;
+            right: -7px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0a0a0a;
+            border: 1.5px solid rgba(255, 90, 90, 0.85);
+            color: #ff5a5a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.2s ease;
+            z-index: 3;
+            box-shadow: 0 0 8px rgba(255, 90, 90, 0.4);
+        }
+        .pwa-dismiss-btn:hover {
+            background: #ff5a5a;
+            color: #fff;
+            transform: scale(1.2);
+            box-shadow: 0 0 14px rgba(255, 90, 90, 0.8);
+        }
+        .pwa-dismiss-btn svg {
+            width: 10px;
+            height: 10px;
+            stroke-width: 3;
+        }
+
+        /* ─── Modal ─── */
+        .pwa-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .pwa-modal[hidden] { display: none; }
+        .pwa-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(6px);
+            cursor: pointer;
+        }
+        .pwa-modal-card {
+            position: relative;
+            max-width: 420px;
+            width: 100%;
+            background: linear-gradient(145deg, #0d1a1f 0%, #060a0d 100%);
+            border: 1px solid rgba(0, 242, 255, 0.5);
+            border-radius: 20px;
+            padding: 28px 24px;
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.25);
+            animation: pwa-modal-in 0.3s cubic-bezier(.2,.9,.3,1.2);
+        }
+        @keyframes pwa-modal-in {
+            from { opacity: 0; transform: scale(0.94) translateY(8px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .pwa-modal-card h3 {
+            color: #00f2ff;
+            font-size: 15px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0 0 16px;
+            text-align: center;
+        }
+        .pwa-modal-body {
+            color: #d1d5db;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .pwa-modal-body p { margin: 0 0 10px; color: #d1d5db; }
+        .pwa-modal-body p:last-child { margin-bottom: 0; }
+        .pwa-modal-body ol {
+            padding-left: 22px;
+            margin: 10px 0 12px;
+            color: #d1d5db;
+        }
+        .pwa-modal-body ol li { margin-bottom: 8px; }
+        .pwa-modal-body strong { color: #00f2ff; }
+
+        .pwa-modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 22px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .pwa-modal-actions:empty { display: none; }
+        .pwa-modal-actions button {
+            padding: 10px 20px;
+            border-radius: 9999px;
+            font-weight: 900;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 2px solid transparent;
+        }
+        .pwa-modal-actions button[data-action="cancel"],
+        .pwa-modal-actions button[data-action="cancel-dismiss"] {
+            background: transparent;
+            color: #94a3b8;
+            border-color: rgba(148, 163, 184, 0.4);
+        }
+        .pwa-modal-actions button[data-action="cancel"]:hover,
+        .pwa-modal-actions button[data-action="cancel-dismiss"]:hover {
+            color: #e5e7eb;
+            border-color: #94a3b8;
+        }
+        .pwa-modal-actions button[data-action="install"] {
+            background: #00f2ff;
+            color: #000;
+            border-color: #00f2ff;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+        }
+        .pwa-modal-actions button[data-action="install"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 242, 255, 0.85);
+        }
+        .pwa-modal-actions button[data-action="confirm-dismiss"] {
+            background: #ff3b3b;
+            color: #fff;
+            border-color: #ff3b3b;
+            box-shadow: 0 0 15px rgba(255, 59, 59, 0.5);
+        }
+        .pwa-modal-actions button[data-action="confirm-dismiss"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(255, 59, 59, 0.85);
+        }
+
+        @media (max-width: 480px) {
+            #pwa-install-root { bottom: 16px; left: 16px; }
+            .pwa-btn { width: 46px; height: 46px; }
+            .pwa-btn.pwa-expanded { padding: 0 18px 0 14px; }
+            .pwa-label { font-size: 10px; letter-spacing: 1.5px; }
+            .pwa-dismiss-btn { width: 18px; height: 18px; top: -6px; right: -6px; }
+            .pwa-dismiss-btn svg { width: 9px; height: 9px; }
+            .pwa-modal-card { padding: 22px 18px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -261,7 +531,7 @@
             </div>
         </main>
 
-        {{-- NOVO FOOTER COM EFEITO VÍRUS --}}
+        {{-- FOOTER COM EFEITO VÍRUS --}}
         <footer>
             <div class="footer-virus-effect">
                 <div class="virus-glow" id="virusGlow"></div>
@@ -413,107 +683,276 @@
     </script>
 
     {{-- ============================================================ --}}
-    {{-- PWA — Botão "Instalar ARK" (Android/Desktop)                  --}}
+    {{-- PWA — Botão "Baixar Ark Mobile" (dot → pill → modal) + X     --}}
     {{-- ============================================================ --}}
-    <div id="pwa-install-container"
-         class="hidden"
-         style="display:none; position:fixed; bottom:24px; left:24px; z-index:9999;">
-        <button
-            id="pwa-install-btn"
-            type="button"
-            style="
-                display:flex; align-items:center; gap:8px;
-                padding:12px 20px; border-radius:9999px;
-                background: rgba(0,0,0,0.9);
-                border: 2px solid #00f2ff;
-                color: #00f2ff;
-                font-weight: 900; text-transform: uppercase;
-                letter-spacing: 2px; font-size: 11px;
-                box-shadow: 0 0 20px rgba(0,242,255,0.5);
-                cursor: pointer;
-                transition: all 0.25s ease;
-            "
-            onmouseover="this.style.background='#00f2ff'; this.style.color='#000';"
-            onmouseout="this.style.background='rgba(0,0,0,0.9)'; this.style.color='#00f2ff';"
-        >
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-            </svg>
-            Instalar ARK
-        </button>
+    <div id="pwa-install-root" aria-live="polite">
+        <div class="pwa-btn-wrapper">
+            <button id="pwa-install-btn" class="pwa-btn" type="button" aria-label="Baixar Ark Mobile">
+                <span class="pwa-btn-core"></span>
+                <span class="pwa-label">Baixar Ark Mobile</span>
+            </button>
+            <button id="pwa-dismiss-btn" class="pwa-dismiss-btn" type="button" aria-label="Não mostrar novamente">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="pwa-modal" class="pwa-modal" hidden>
+        <div class="pwa-modal-backdrop" data-pwa-close></div>
+        <div class="pwa-modal-card" role="dialog" aria-modal="true">
+            <h3 id="pwa-modal-title">Instalar ARK RPG</h3>
+            <div class="pwa-modal-body" id="pwa-modal-body"></div>
+            <div class="pwa-modal-actions" id="pwa-modal-actions"></div>
+        </div>
     </div>
 
     <script>
-        (function() {
-            let deferredPrompt = null;
-            const container = document.getElementById('pwa-install-container');
-            const btn = document.getElementById('pwa-install-btn');
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-                              || window.navigator.standalone === true;
+    (function() {
+        const LS_KEY = 'pwa-install-dismissed';
 
-            if (isStandalone || !container || !btn) return;
+        const root   = document.getElementById('pwa-install-root');
+        const btn    = document.getElementById('pwa-install-btn');
+        const core   = btn.querySelector('.pwa-btn-core');
+        const label  = btn.querySelector('.pwa-label');
+        const xBtn   = document.getElementById('pwa-dismiss-btn');
+        const modal  = document.getElementById('pwa-modal');
+        const mTitle = document.getElementById('pwa-modal-title');
+        const mBody  = document.getElementById('pwa-modal-body');
+        const mActs  = document.getElementById('pwa-modal-actions');
 
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                container.style.display = 'block';
-                container.classList.remove('hidden');
-            });
+        let deferredPrompt = null;
+        let isExpanded = false;
+        let isWorking = false;
 
-            btn.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    container.style.display = 'none';
-                }
-                deferredPrompt = null;
-            });
+        const ua = navigator.userAgent || '';
+        const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+        const isAndroid = /Android/i.test(ua);
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                          || window.navigator.standalone === true;
 
-            window.addEventListener('appinstalled', () => {
-                container.style.display = 'none';
-                deferredPrompt = null;
-            });
-        })();
-    </script>
+        // ─── Já instalado OU usuário já removeu → não mostra ───
+        if (isStandalone) return;
+        if (localStorage.getItem(LS_KEY) === '1') return;
 
-    {{-- ============================================================ --}}
-    {{-- PWA — Aviso para usuários iOS (Safari não tem install prompt) --}}
-    {{-- ============================================================ --}}
-    <div id="ios-pwa-tip"
-         style="display:none; position:fixed; bottom:80px; left:16px; right:16px;
-                z-index:9999; background: rgba(0,0,0,0.95);
-                border: 2px solid #00f2ff; border-radius: 16px;
-                padding: 16px; text-align:center;">
-        <p style="color:#00f2ff; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:2px; margin:0 0 4px;">
-            Instalar ARK RPG
-        </p>
-        <p style="color:#d1d5db; font-size:11px; margin:0;">
-            Toque em <strong>Compartilhar</strong> (⎙) → <strong>Adicionar à Tela de Início</strong>
-        </p>
-        <button
-            type="button"
-            onclick="localStorage.setItem('ios-pwa-dismissed','1'); this.parentElement.style.display='none';"
-            style="margin-top:8px; font-size:10px; color:#00f2ff; text-decoration:underline; background:none; border:none; cursor:pointer;">
-            Fechar
-        </button>
-    </div>
+        // ─── Exibir botão ───
+        function showRoot() {
+            root.classList.add('pwa-visible');
+        }
 
-    <script>
-        (function() {
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-            const isStandalone = window.navigator.standalone === true;
-            const dismissed = localStorage.getItem('ios-pwa-dismissed');
-            const tip = document.getElementById('ios-pwa-tip');
+        // Android/Desktop — só quando o navegador permitir instalar
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showRoot();
+        });
 
-            if (isIOS && isSafari && !isStandalone && !dismissed && tip) {
-                setTimeout(() => {
-                    tip.style.display = 'block';
-                }, 3000);
+        // iOS — aparece sempre (Safari não dispara prompt)
+        if (isIOS) setTimeout(showRoot, 2000);
+
+        // Desktop sem prompt automático — mostra mesmo assim
+        if (!isIOS && !isAndroid && 'serviceWorker' in navigator) {
+            setTimeout(() => {
+                if (!deferredPrompt) showRoot();
+            }, 4000);
+        }
+
+        // ─── Expandir / abrir modal ───
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isWorking) return;
+
+            if (!isExpanded) {
+                isExpanded = true;
+                btn.classList.add('pwa-expanded');
+                return;
             }
-        })();
+            // Já expandido → abre o modal principal
+            handlePrimaryClick();
+        });
+
+        // Clicar fora colapsa (se modal fechado)
+        document.addEventListener('click', (e) => {
+            if (!isExpanded) return;
+            if (root.contains(e.target)) return;
+            if (modal && !modal.hidden) return;
+            isExpanded = false;
+            btn.classList.remove('pwa-expanded');
+        });
+
+        // ─── X → abre modal de confirmação de remoção ───
+        xBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openDismissConfirmModal();
+        });
+
+        // ─── Fluxo principal do botão ───
+        function handlePrimaryClick() {
+            if (isIOS) return openIOSModal();
+            if (!deferredPrompt) return openUnavailableModal();
+            return openConfirmModal();
+        }
+
+        // ─── Estados visuais ───
+        function setWorking(state) {
+            isWorking = state;
+            core.classList.toggle('pwa-loading', state);
+            label.textContent = state ? 'Baixando...' : 'Baixar Ark Mobile';
+            btn.style.cursor = state ? 'wait' : 'pointer';
+        }
+
+        // ─── Modais ───
+        function openIOSModal() {
+            mTitle.textContent = 'Instalar no iPhone';
+            mBody.innerHTML = `
+                <p>O Safari não tem botão automático de instalação, mas o app <strong>funciona</strong> no iPhone! Siga estes passos:</p>
+                <ol>
+                    <li>Toque no ícone <strong>Compartilhar</strong> ⎙ (embaixo, no meio do Safari)</li>
+                    <li>Role a lista e toque em <strong>"Adicionar à Tela de Início"</strong></li>
+                    <li>Toque em <strong>Adicionar</strong> no canto superior direito</li>
+                </ol>
+                <p>Pronto! O ícone do <strong>ARK RPG</strong> aparecerá junto com seus outros apps.</p>
+            `;
+            mActs.innerHTML = `<button type="button" data-action="cancel">Entendi</button>`;
+            modal.hidden = false;
+        }
+
+        function openUnavailableModal() {
+            mTitle.textContent = 'Instalação Indisponível';
+            mBody.innerHTML = `
+                <p>Seu navegador não permite instalação automática.</p>
+                <p>Para baixar o <strong>Ark Mobile</strong>, abra este site no:</p>
+                <ol>
+                    <li><strong>Chrome</strong> (Android/Desktop)</li>
+                    <li><strong>Edge</strong> (Windows)</li>
+                    <li><strong>Safari</strong> (iPhone — instalação manual)</li>
+                </ol>
+            `;
+            mActs.innerHTML = `<button type="button" data-action="cancel">Fechar</button>`;
+            modal.hidden = false;
+        }
+
+        function openConfirmModal() {
+            mTitle.textContent = 'Baixar Ark Mobile';
+            mBody.innerHTML = `
+                <p>Deseja baixar o <strong>ARK RPG</strong> para o seu dispositivo?</p>
+                <p>Você terá um ícone próprio na tela inicial — acesso rápido, sem abrir o navegador.</p>
+            `;
+            mActs.innerHTML = `
+                <button type="button" data-action="cancel">Agora não</button>
+                <button type="button" data-action="install">Baixar</button>
+            `;
+            modal.hidden = false;
+        }
+
+        function openDownloadingModal() {
+            mTitle.textContent = 'Baixando...';
+            mBody.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; gap:16px; padding:16px 0;">
+                    <div class="pwa-spinner-large"></div>
+                    <p style="margin:0; text-align:center;">Preparando o <strong>Ark Mobile</strong> para instalar...</p>
+                </div>
+            `;
+            mActs.innerHTML = '';
+            modal.hidden = false;
+        }
+
+        function openSuccessModal() {
+            mTitle.textContent = 'Instalado!';
+            mBody.innerHTML = `
+                <p>O <strong>Ark Mobile</strong> foi adicionado ao seu dispositivo.</p>
+                <p>Procure o ícone na sua <strong>tela inicial</strong> ou na <strong>gaveta de apps</strong>.</p>
+            `;
+            mActs.innerHTML = `<button type="button" data-action="cancel">Ótimo!</button>`;
+            modal.hidden = false;
+        }
+
+        function openDismissConfirmModal() {
+            mTitle.textContent = 'Remover botão?';
+            mBody.innerHTML = `
+                <p>Tem certeza de que deseja <strong>esconder o botão</strong> de instalação?</p>
+                <p>Ele não aparecerá mais nesta tela. Se mudar de ideia, você sempre pode instalar o <strong>Ark Mobile</strong> depois pelo menu do navegador (⋮ → Instalar aplicativo).</p>
+            `;
+            mActs.innerHTML = `
+                <button type="button" data-action="cancel-dismiss">Voltar</button>
+                <button type="button" data-action="confirm-dismiss">Retirar</button>
+            `;
+            modal.hidden = false;
+        }
+
+        function closeModal() {
+            modal.hidden = true;
+        }
+
+        // ─── Eventos do modal ───
+        modal.addEventListener('click', async (e) => {
+            if (e.target.closest('[data-pwa-close]')) {
+                closeModal();
+                return;
+            }
+
+            const el = e.target.closest('[data-action]');
+            if (!el) return;
+
+            const action = el.dataset.action;
+
+            if (action === 'cancel' || action === 'cancel-dismiss') {
+                closeModal();
+                return;
+            }
+
+            if (action === 'confirm-dismiss') {
+                localStorage.setItem(LS_KEY, '1');
+                root.classList.remove('pwa-visible');
+                closeModal();
+                return;
+            }
+
+            if (action === 'install') {
+                if (!deferredPrompt) { closeModal(); return; }
+
+                setWorking(true);
+                openDownloadingModal();
+
+                // Pequena pausa para o usuário ver o estado "Baixando..."
+                await new Promise(r => setTimeout(r, 700));
+
+                try {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+
+                    if (outcome === 'accepted') {
+                        openSuccessModal();
+                        setTimeout(() => {
+                            closeModal();
+                            root.classList.remove('pwa-visible');
+                        }, 3500);
+                    } else {
+                        closeModal();
+                    }
+                } catch (err) {
+                    console.warn('[PWA] Erro ao instalar:', err);
+                    closeModal();
+                } finally {
+                    setWorking(false);
+                }
+            }
+        });
+
+        // Esc fecha modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.hidden) closeModal();
+        });
+
+        // Instalação por outra via
+        window.addEventListener('appinstalled', () => {
+            root.classList.remove('pwa-visible');
+            closeModal();
+        });
+    })();
     </script>
 
     <style>
