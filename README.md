@@ -27,15 +27,6 @@ Plataforma web completa para gerenciamento de campanhas, personagens e sessões 
 - [Segurança e Autorização](#segurança-e-autorização)
 - [Frontend e Assets](#frontend-e-assets)
 - [Ambientes](#ambientes)
-- [Instalação Local](#instalação-local)
-- [Configuração](#configuração)
-- [Comandos Úteis](#comandos-úteis)
-- [Deploy](#deploy)
-- [Testes](#testes)
-- [Limitações Conhecidas](#limitações-conhecidas)
-- [Status do Projeto](#status-do-projeto)
-- [Créditos](#créditos)
-
 ---
 
 ## Visão Geral
